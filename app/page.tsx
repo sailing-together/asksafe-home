@@ -20,7 +20,14 @@ export default function Page() {
   const [result, setResult] = useState<SafetyResult | null>(null)
   const [support, setSupport] = useState<SupportSetup | null>(null)
   const [supportOpen, setSupportOpen] = useState(false)
+  const [signedIn, setSignedIn] = useState(false)
   const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
+
+  function signOut() {
+    setSignedIn(false)
+    setSupport(null)
+    setSupportOpen(false)
+  }
 
   function reset() {
     setResult(null)
@@ -45,7 +52,11 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader onOpenSupport={() => setSupportOpen(true)} />
+      <AppHeader
+        signedIn={signedIn}
+        firstName={support?.yourName?.split(" ")[0] ?? ""}
+        onOpenSupport={() => setSupportOpen(true)}
+      />
       <main className="mx-auto w-full max-w-3xl px-5">
         {step === "home" && (
           <HomeScreen
@@ -94,7 +105,10 @@ export default function Page() {
       <TrustedSupportDialog
         open={supportOpen}
         existing={support}
+        signedIn={signedIn}
         onClose={() => setSupportOpen(false)}
+        onSignIn={() => setSignedIn(true)}
+        onSignOut={signOut}
         onCreate={setSupport}
       />
     </div>

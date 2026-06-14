@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserRound, Copy, Check, ShieldCheck, X, Mail, Phone, ArrowLeft } from "lucide-react"
+import { UserRound, Copy, Check, ShieldCheck, X, Mail, Phone, ArrowLeft, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
@@ -48,12 +48,18 @@ function makeCode() {
 export function TrustedSupportDialog({
   open,
   existing,
+  signedIn,
   onClose,
+  onSignIn,
+  onSignOut,
   onCreate,
 }: {
   open: boolean
   existing: SupportSetup | null
+  signedIn: boolean
   onClose: () => void
+  onSignIn: () => void
+  onSignOut: () => void
   onCreate: (support: SupportSetup) => void
 }) {
   const [phase, setPhase] = useState<Phase>("signin")
@@ -93,10 +99,11 @@ export function TrustedSupportDialog({
       setSignInValue("")
       setCodeEntry("")
       setCodeError(false)
-      // Returning users go straight to their summary; new users sign in first.
-      setPhase(existing ? "summary" : "signin")
+      // Returning users with a saved setup see their summary; users who are
+      // signed in but haven't saved go to the form; otherwise sign in first.
+      setPhase(existing ? "summary" : signedIn ? "form" : "signin")
     }
-  }, [open, existing])
+  }, [open, existing, signedIn])
 
   // Close on Escape.
   useEffect(() => {
@@ -127,6 +134,7 @@ export function TrustedSupportDialog({
   function verifyCode() {
     if (codeEntry.trim() === MOCK_CODE) {
       setCodeError(false)
+      onSignIn()
       setPhase("form")
     } else {
       setCodeError(true)
@@ -590,7 +598,7 @@ export function TrustedSupportDialog({
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
-                    <dt className="text-base text-muted-foreground">Sign-in</dt>
+                    <dt className="text-base text-muted-foreground">Signed in as</dt>
                     <dd className="text-right text-lg font-semibold text-foreground">
                       {created.email || created.phone}
                     </dd>
@@ -680,6 +688,18 @@ export function TrustedSupportDialog({
               >
                 Done
               </Button>
+              {signedIn && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  onClick={onSignOut}
+                  className="h-auto rounded-2xl px-6 py-4 text-lg font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  <LogOut className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Sign out
+                </Button>
+              )}
             </div>
           </>
         )}
