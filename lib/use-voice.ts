@@ -98,6 +98,7 @@ export function useSpeechRecognition() {
 export function useSpeechSynthesis() {
   const [supported, setSupported] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const queueRef = useRef<SpeechSynthesisUtterance[]>([])
 
   useEffect(() => {
     setSupported(
@@ -112,6 +113,7 @@ export function useSpeechSynthesis() {
 
   const stop = useCallback(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return
+    queueRef.current = []
     window.speechSynthesis.cancel()
     setSpeaking(false)
   }, [])
@@ -120,16 +122,44 @@ export function useSpeechSynthesis() {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return
     // Cancel anything already queued so it doesn't overlap.
     window.speechSynthesis.cancel()
+    window.speechSynthesis.resume()
 
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = "en-AU"
-    utterance.rate = 0.95
-    utterance.pitch = 1
-    utterance.onend = () => setSpeaking(false)
-    utterance.onerror = () => setSpeaking(false)
+    const chunks = (text.match(/[^.!?]+[.!?]*/g) ?? [text])
+      .map((chunk) => chunk.trim())
+      .filter(Boolean)
 
-    window.speechSynthesis.speak(utterance)
+    const voice =
+      window.speechSynthesis
+        .getVoices()
+        .find((candidate) => candidate.lang.toLowerCase().startsWith("en")) ??
+      null
+
+    queueRef.current = chunks.map((chunk) => {
+      const utterance = new SpeechSynthesisUtterance(chunk)
+      utterance.lang = "en-AU"
+      utterance.rate = 0.95
+      utterance.pitch = 1
+      if (voice) utterance.voice = voice
+      return utterance
+    })
+
+    function speakNext() {
+      const utterance = queueRef.current.shift()
+      if (!utterance) {
+        setSpeaking(false)
+        return
+      }
+      utterance.onstart = () => setSpeaking(true)
+      utterance.onend = speakNext
+      utterance.onerror = () => {
+        queueRef.current = []
+        setSpeaking(false)
+      }
+      window.speechSynthesis.speak(utterance)
+    }
+
     setSpeaking(true)
+    speakNext()
   }, [])
 
   return { supported, speaking, speak, stop }
