@@ -8,6 +8,7 @@ import { SituationInput } from "@/components/situation-input"
 import { ThinkingScreen } from "@/components/thinking-screen"
 import { ResultCard } from "@/components/result-card"
 import { TrustedSupportDialog, type SupportSetup } from "@/components/trusted-support-dialog"
+import { SiteFooter } from "@/components/site-footer"
 import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
 
 type Step = "home" | "category" | "input" | "thinking" | "result"
@@ -73,6 +74,8 @@ export default function Page() {
           />
         )}
       </main>
+
+      <SiteFooter />
 
       <TrustedSupportDialog
         open={supportOpen}

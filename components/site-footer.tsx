@@ -1,0 +1,61 @@
+import { ShieldLogo } from "@/components/shield-logo"
+
+const footerLinks = ["Privacy", "Disclaimer", "Accessibility", "GitHub"]
+
+export function SiteFooter() {
+  return (
+    <footer className="mt-16 border-t border-border bg-secondary/40">
+      <div className="mx-auto w-full max-w-3xl px-5 py-10">
+        {/* Identity */}
+        <div className="flex items-center gap-3">
+          <ShieldLogo className="h-9 w-9" />
+          <p className="font-heading text-lg font-semibold text-primary">
+            AskSafe Home
+          </p>
+        </div>
+        <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
+          A calm decision companion for moments of uncertainty.
+        </p>
+
+        {/* Plain-language safety notices */}
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+          <p className="text-sm leading-relaxed text-foreground">
+            AskSafe is not an emergency service, government service, legal
+            adviser, financial adviser, or medical adviser.
+          </p>
+          <p className="text-sm leading-relaxed text-foreground">
+            Do not enter passwords, one-time codes, full card numbers, or
+            sensitive identity details.
+          </p>
+        </div>
+
+        {/* Official help */}
+        <div className="mt-6">
+          <p className="text-sm font-semibold text-foreground">Official help</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            Emergency 000 · Scamwatch · IDCARE · Australian Cyber Security Centre
+          </p>
+        </div>
+
+        {/* Links (rendered as plain text until pages exist) */}
+        <ul className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 text-sm text-muted-foreground">
+          {footerLinks.map((label, index) => (
+            <li key={label} className="flex items-center gap-2">
+              {index > 0 && (
+                <span aria-hidden="true" className="text-border">
+                  ·
+                </span>
+              )}
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Copyright */}
+        <p className="mt-8 border-t border-border pt-6 text-sm leading-relaxed text-muted-foreground">
+          © 2026 AskSafe Home. Built for H0 with Vercel and AWS.
+        </p>
+      </div>
+    </footer>
+  )
+}
