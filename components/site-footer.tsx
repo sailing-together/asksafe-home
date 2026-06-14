@@ -53,7 +53,7 @@ export function SiteFooter() {
 
         {/* Copyright */}
         <p className="mt-8 border-t border-border pt-6 text-sm leading-relaxed text-muted-foreground">
-          © 2026 AskSafe Home. Built for H0 with Vercel and AWS.
+          © 2026 AskSafe Home.
         </p>
       </div>
     </footer>
