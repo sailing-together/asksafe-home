@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 export function AppHeader({
   signedIn,
   firstName,
+  onHome,
   onOpenSupport,
 }: {
   signedIn: boolean
   firstName: string
+  onHome: () => void
   onOpenSupport: () => void
 }) {
   const label = signedIn ? firstName.trim() || "Signed in" : "My setup"
@@ -16,15 +18,22 @@ export function AppHeader({
   return (
     <header className="border-b border-border bg-card/70 backdrop-blur-sm">
       <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-4">
-        <ShieldLogo className="h-14 w-14 -my-1" />
-        <div className="leading-tight">
-          <p className="font-heading text-xl font-semibold text-primary">
-            AskSafe Home
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Your calm decision companion
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={onHome}
+          aria-label="Go to AskSafe Home"
+          className="-ml-1 flex items-center gap-3 rounded-xl px-1 py-1 text-left transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <ShieldLogo className="h-14 w-14 -my-1" />
+          <span className="leading-tight">
+            <span className="block font-heading text-xl font-semibold text-primary">
+              AskSafe Home
+            </span>
+            <span className="block text-sm text-muted-foreground">
+              Your calm decision companion
+            </span>
+          </span>
+        </button>
         <Button
           type="button"
           variant="outline"

@@ -55,6 +55,7 @@ export default function Page() {
       <AppHeader
         signedIn={signedIn}
         firstName={support?.yourName?.split(" ")[0] ?? ""}
+        onHome={reset}
         onOpenSupport={() => setSupportOpen(true)}
       />
       <main className="mx-auto w-full max-w-3xl px-5">
