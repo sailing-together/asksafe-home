@@ -8,6 +8,27 @@ export type Category =
   | "online"
   | "other"
 
+export type RequestType =
+  | "pay"
+  | "link"
+  | "code"
+  | "details"
+  | "callback"
+  | "unsure"
+
+// What each "what do they want" choice signals, and how strongly.
+const REQUEST_SIGNALS: Record<
+  RequestType,
+  { weight: "high" | "caution" | "none"; reason: string }
+> = {
+  pay: { weight: "high", reason: "asking you to pay or transfer money" },
+  code: { weight: "high", reason: "asking you to share a code" },
+  details: { weight: "high", reason: "asking for your personal details" },
+  link: { weight: "caution", reason: "asking you to click a link" },
+  callback: { weight: "caution", reason: "asking you to call a number back" },
+  unsure: { weight: "none", reason: "" },
+}
+
 export interface SafetyResult {
   risk: RiskLevel
   headline: string
@@ -36,10 +57,22 @@ const CAUTION_SIGNALS: { pattern: RegExp; reason: string }[] = [
   { pattern: /\b(invest|guaranteed return|double your)\b/i, reason: "offering an investment" },
 ]
 
-export function analyze(message: string, category: Category): SafetyResult {
+export function analyze(
+  message: string,
+  category: Category,
+  requests: RequestType[] = [],
+): SafetyResult {
   const text = message.trim()
-  const highHits = HIGH_SIGNALS.filter((s) => s.pattern.test(text))
-  const cautionHits = CAUTION_SIGNALS.filter((s) => s.pattern.test(text))
+  const textHigh = HIGH_SIGNALS.filter((s) => s.pattern.test(text))
+  const textCaution = CAUTION_SIGNALS.filter((s) => s.pattern.test(text))
+
+  // Turn the selected "what do they want" choices into signals too.
+  const chosen = requests.map((r) => REQUEST_SIGNALS[r])
+  const requestHigh = chosen.filter((s) => s.weight === "high")
+  const requestCaution = chosen.filter((s) => s.weight === "caution")
+
+  const highHits = [...textHigh, ...requestHigh]
+  const cautionHits = [...textCaution, ...requestCaution]
 
   let risk: RiskLevel = "low"
   if (highHits.length >= 1) risk = "high"

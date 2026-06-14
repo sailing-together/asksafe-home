@@ -5,10 +5,11 @@ import { AppHeader } from "@/components/app-header"
 import { HomeScreen } from "@/components/home-screen"
 import { CategoryStep } from "@/components/category-step"
 import { SituationInput } from "@/components/situation-input"
+import { ThinkingScreen } from "@/components/thinking-screen"
 import { ResultCard } from "@/components/result-card"
-import { analyze, type Category, type SafetyResult } from "@/lib/analyze"
+import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
 
-type Step = "home" | "category" | "input" | "result"
+type Step = "home" | "category" | "input" | "thinking" | "result"
 
 export default function Page() {
   const [step, setStep] = useState<Step>("home")
@@ -18,6 +19,15 @@ export default function Page() {
   function reset() {
     setResult(null)
     setStep("home")
+  }
+
+  function runAnalysis(message: string, requests: RequestType[]) {
+    setStep("thinking")
+    // Brief, deliberate pause so the result doesn't feel rushed.
+    window.setTimeout(() => {
+      setResult(analyze(message, category, requests))
+      setStep("result")
+    }, 1600)
   }
 
   return (
@@ -40,12 +50,11 @@ export default function Page() {
           <SituationInput
             category={category}
             onBack={() => setStep("category")}
-            onSubmit={(message) => {
-              setResult(analyze(message, category))
-              setStep("result")
-            }}
+            onSubmit={runAnalysis}
           />
         )}
+
+        {step === "thinking" && <ThinkingScreen />}
 
         {step === "result" && result && (
           <ResultCard result={result} onCheckAnother={reset} />

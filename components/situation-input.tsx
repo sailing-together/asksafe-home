@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { ShieldCheck } from "lucide-react"
+import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, CircleHelp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { StepBack } from "@/components/category-step"
-import type { Category } from "@/lib/analyze"
+import { cn } from "@/lib/utils"
+import type { Category, RequestType } from "@/lib/analyze"
 
 const prompts: Record<Category, string> = {
   caller: "What did the caller say? For example, who did they claim to be and what did they ask you to do?",
@@ -17,23 +18,45 @@ const prompts: Record<Category, string> = {
   other: "Tell me what happened and what feels unsure to you.",
 }
 
+const requestOptions: { value: RequestType; label: string; icon: typeof Banknote }[] = [
+  { value: "pay", label: "Pay money", icon: Banknote },
+  { value: "link", label: "Click a link", icon: Link2 },
+  { value: "code", label: "Share a code", icon: KeyRound },
+  { value: "details", label: "Give personal details", icon: IdCard },
+  { value: "callback", label: "Call back", icon: PhoneOutgoing },
+  { value: "unsure", label: "Not sure", icon: CircleHelp },
+]
+
 export function SituationInput({
   category,
   onSubmit,
   onBack,
 }: {
   category: Category
-  onSubmit: (message: string) => void
+  onSubmit: (message: string, requests: RequestType[]) => void
   onBack: () => void
 }) {
   const [value, setValue] = useState("")
-  const canSubmit = value.trim().length >= 3
+  const [requests, setRequests] = useState<RequestType[]>([])
+  const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
+
+  function toggleRequest(value: RequestType) {
+    setRequests((prev) => {
+      if (value === "unsure") {
+        return prev.includes("unsure") ? [] : ["unsure"]
+      }
+      const withoutUnsure = prev.filter((r) => r !== "unsure")
+      return withoutUnsure.includes(value)
+        ? withoutUnsure.filter((r) => r !== value)
+        : [...withoutUnsure, value]
+    })
+  }
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        if (canSubmit) onSubmit(value)
+        if (canSubmit) onSubmit(value, requests)
       }}
       className="flex flex-col gap-6 pt-6 pb-16"
     >
@@ -63,6 +86,37 @@ export function SituationInput({
           className="min-h-44 resize-none rounded-xl border-border bg-background p-4 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2"
         />
       </div>
+
+      <fieldset className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <legend className="text-lg font-semibold text-foreground">
+          What are they asking you to do?
+        </legend>
+        <p className="text-base text-muted-foreground">
+          Pick any that apply. You can skip this if you&apos;re not sure.
+        </p>
+        <div className="flex flex-wrap gap-3 pt-1">
+          {requestOptions.map((option) => {
+            const selected = requests.includes(option.value)
+            return (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => toggleRequest(option.value)}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  selected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-secondary",
+                )}
+              >
+                <option.icon className="h-5 w-5" aria-hidden="true" />
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
+      </fieldset>
 
       <Button
         type="submit"
