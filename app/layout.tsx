@@ -16,21 +16,8 @@ export const metadata: Metadata = {
     'AskSafe Home helps you pause and make safer decisions when something feels unsure. Clear, gentle guidance one step at a time.',
   generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/asksafe-logo.png',
+    apple: '/asksafe-logo.png',
   },
 }
 
