@@ -1,4 +1,5 @@
 import type { Category, RequestType, RiskLevel } from "./analyze"
+import { TRUSTED_SCAM_PATTERNS } from "./trusted-scam-patterns.ts"
 
 export type RiskSignalId =
   | "family-money-request"
@@ -19,6 +20,8 @@ export type RiskSignal = {
 export type SafetyRuleAssessment = {
   riskLevel: RiskLevel
   riskSignals: RiskSignal[]
+  scamTypeIds: string[]
+  sourceIds: string[]
   suggestedRequests: RequestType[]
   followUpQuestion: string
   saferNextStep: string
@@ -48,7 +51,18 @@ export function assessSafetyInput({
 }: SafetyRuleInput): SafetyRuleAssessment {
   const text = message.trim()
   const signals: RiskSignal[] = []
+  const scamTypeIds = new Set<string>()
+  const sourceIds = new Set<string>()
   const suggestedRequests = new Set<RequestType>(requests)
+  const matchedPatterns = TRUSTED_SCAM_PATTERNS.filter((pattern) =>
+    pattern.matchers.every((matcher) => matcher.test(text)),
+  )
+
+  for (const pattern of matchedPatterns) {
+    scamTypeIds.add(pattern.id)
+    pattern.sourceIds.forEach((sourceId) => sourceIds.add(sourceId))
+    pattern.signals.forEach((signal) => addSignal(signals, signal))
+  }
 
   const hasMoney = requests.includes("pay") || MONEY_PATTERN.test(text)
   const hasFamily = FAMILY_PATTERN.test(text)
@@ -133,9 +147,11 @@ export function assessSafetyInput({
   return {
     riskLevel,
     riskSignals: signals,
+    scamTypeIds: Array.from(scamTypeIds),
+    sourceIds: Array.from(sourceIds),
     suggestedRequests: Array.from(suggestedRequests),
     followUpQuestion: getFollowUpQuestion(signals),
-    saferNextStep: getSaferNextStep(signals, riskLevel),
+    saferNextStep: getSaferNextStep(signals, riskLevel, matchedPatterns),
   }
 }
 
@@ -174,7 +190,15 @@ function getFollowUpQuestion(signals: RiskSignal[]): string {
   return "If anything still feels off, what part is making you unsure?"
 }
 
-function getSaferNextStep(signals: RiskSignal[], riskLevel: RiskLevel): string {
+function getSaferNextStep(
+  signals: RiskSignal[],
+  riskLevel: RiskLevel,
+  matchedPatterns: (typeof TRUSTED_SCAM_PATTERNS)[number][] = [],
+): string {
+  if (matchedPatterns[0]?.safeNextSteps.length) {
+    return matchedPatterns[0].safeNextSteps.join(" ")
+  }
+
   if (signals.some((signal) => signal.id === "remote-access")) {
     return "Do not install anything or share your screen. End the call and contact the person or company another way you already trust."
   }
@@ -193,4 +217,3 @@ function getSaferNextStep(signals: RiskSignal[], riskLevel: RiskLevel): string {
 
   return "Nothing major stands out yet. Take your time and check with someone you trust if anything still feels wrong."
 }
-

@@ -44,6 +44,8 @@ export interface SafetyResult {
   why: string
   verify: string[]
   riskSignals: RiskSignal[]
+  scamTypeIds: string[]
+  sourceIds: string[]
 }
 
 const HIGH_SIGNALS: { pattern: RegExp; reason: string }[] = [
@@ -114,6 +116,8 @@ export function analyze(
           : "Several parts of this match the way scams are usually written, especially the pressure to act quickly.",
       verify: verifySteps(category),
       riskSignals: ruleAssessment.riskSignals,
+      scamTypeIds: ruleAssessment.scamTypeIds,
+      sourceIds: ruleAssessment.sourceIds,
     }
   }
 
@@ -134,6 +138,8 @@ export function analyze(
           : "A few details here are worth confirming before you take any action.",
       verify: verifySteps(category),
       riskSignals: ruleAssessment.riskSignals,
+      scamTypeIds: ruleAssessment.scamTypeIds,
+      sourceIds: ruleAssessment.sourceIds,
     }
   }
 
@@ -149,6 +155,8 @@ export function analyze(
     why: "I didn't spot the common warning signs of a scam in what you wrote. Your own gut feeling still matters most.",
     verify: verifySteps(category),
     riskSignals: ruleAssessment.riskSignals,
+    scamTypeIds: ruleAssessment.scamTypeIds,
+    sourceIds: ruleAssessment.sourceIds,
   }
 }
 
