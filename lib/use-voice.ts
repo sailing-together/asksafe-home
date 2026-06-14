@@ -51,17 +51,24 @@ export function useSpeechRecognition() {
     // Permission is only requested at this point, when the user taps the button.
     const recognition = new Ctor()
     recognition.lang = "en-AU"
-    recognition.interimResults = false
+    recognition.interimResults = true
     recognition.continuous = true
     onTextRef.current = onText
 
+    let finalText = ""
+
     recognition.onresult = (event: any) => {
-      const text = Array.from(event.results || [])
-        .slice(event.resultIndex || 0)
-        .map((result: any) => result?.[0]?.transcript || "")
-        .filter(Boolean)
-        .join(" ")
-        .trim()
+      let interim = ""
+      for (let i = event.resultIndex || 0; i < event.results.length; i++) {
+        const transcript = event.results[i]?.[0]?.transcript || ""
+        if (!transcript) continue
+        if (event.results[i].isFinal) {
+          finalText = [finalText, transcript].filter(Boolean).join(" ")
+        } else {
+          interim = [interim, transcript].filter(Boolean).join(" ")
+        }
+      }
+      const text = [finalText, interim].filter(Boolean).join(" ").trim()
       if (text) onTextRef.current?.(text)
     }
 

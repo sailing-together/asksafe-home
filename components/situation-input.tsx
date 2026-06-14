@@ -48,17 +48,16 @@ export function SituationInput({
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
   const voice = useSpeechRecognition()
-  const voiceTextRef = useRef("")
+  const voiceBaseRef = useRef("")
 
   function handleVoice() {
     if (voice.listening) {
       voice.stop()
       return
     }
-    voiceTextRef.current = value.trim()
+    voiceBaseRef.current = value.trim()
     voice.start((text) => {
-      voiceTextRef.current = [voiceTextRef.current, text].filter(Boolean).join(" ")
-      setValue(voiceTextRef.current)
+      setValue([voiceBaseRef.current, text].filter(Boolean).join(" "))
     })
   }
 
