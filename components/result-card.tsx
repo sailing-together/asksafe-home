@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import {
   ShieldCheck,
   ShieldAlert,
@@ -7,12 +10,14 @@ import {
   Info,
   ListChecks,
   RotateCcw,
-  Phone,
+  UserRound,
+  Share2,
+  Check,
 } from "lucide-react"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { OfficialHelp } from "@/components/official-help"
 import type { SafetyResult } from "@/lib/analyze"
+import type { SupportSetup } from "@/components/trusted-support-dialog"
 
 const helpByRisk: Record<SafetyResult["risk"], string[]> = {
   high: ["emergency", "idcare", "scamwatch", "acsc"],
@@ -46,13 +51,36 @@ const riskStyles = {
 
 export function ResultCard({
   result,
+  support,
+  onOpenSupport,
   onCheckAnother,
 }: {
   result: SafetyResult
+  support: SupportSetup | null
+  onOpenSupport: () => void
   onCheckAnother: () => void
 }) {
   const style = riskStyles[result.risk]
   const RiskIcon = style.icon
+  const [shared, setShared] = useState(false)
+
+  async function shareSummary() {
+    if (!support) return
+    const summary = [
+      "AskSafe Home — safety summary",
+      `Result: ${style.label}`,
+      result.headline,
+      "",
+      `Safer next step: ${result.saferStep}`,
+    ].join("\n")
+    try {
+      await navigator.clipboard.writeText(summary)
+      setShared(true)
+      window.setTimeout(() => setShared(false), 2500)
+    } catch {
+      setShared(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 pt-6 pb-16">
@@ -120,22 +148,48 @@ export function ResultCard({
       />
 
       {/* Support actions */}
-      <div className="flex flex-col gap-3 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-lg font-medium leading-relaxed text-foreground">
-          It&apos;s your choice — if you&apos;d like a second opinion, talk it
-          over with someone you trust.
-        </p>
-        <a
-          href="tel:"
-          className={cn(
-            buttonVariants({ size: "lg" }),
-            "h-auto shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold",
-          )}
-        >
-          <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
-          Talk to someone I trust
-        </a>
-      </div>
+      {support ? (
+        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <p className="text-lg font-medium leading-relaxed text-foreground">
+              Want {support.name} to take a look? You can share this safety
+              summary with them.
+            </p>
+            <Button
+              type="button"
+              size="lg"
+              onClick={shareSummary}
+              className="h-auto shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold"
+            >
+              {shared ? (
+                <Check className="mr-2 h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Share2 className="mr-2 h-5 w-5" aria-hidden="true" />
+              )}
+              {shared ? "Summary copied" : "Share this safety summary"}
+            </Button>
+          </div>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Nothing is shared unless you choose to share it.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-lg font-medium leading-relaxed text-foreground">
+            It&apos;s your choice — if you&apos;d like a second opinion, talk it
+            over with someone you trust.
+          </p>
+          <Button
+            type="button"
+            size="lg"
+            onClick={onOpenSupport}
+            className="h-auto shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold"
+          >
+            <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
+            Talk to someone I trust
+          </Button>
+        </div>
+      )}
 
       <Button
         type="button"

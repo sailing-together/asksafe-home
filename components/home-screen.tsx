@@ -21,7 +21,13 @@ const points = [
   },
 ]
 
-export function HomeScreen({ onStart }: { onStart: () => void }) {
+export function HomeScreen({
+  onStart,
+  onOpenSupport,
+}: {
+  onStart: () => void
+  onOpenSupport: () => void
+}) {
   return (
     <div className="flex flex-col gap-12 pb-16">
       <section className="flex flex-col items-center gap-6 pt-6 text-center sm:pt-10">
@@ -84,7 +90,7 @@ export function HomeScreen({ onStart }: { onStart: () => void }) {
         </div>
       </section>
 
-      <TrustedSupport />
+      <TrustedSupport onOpenSupport={onOpenSupport} />
 
       {/* Compact reassurance strip */}
       <section

@@ -1,8 +1,7 @@
-import { Phone, UserRound } from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { UserRound } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
-export function TrustedSupport() {
+export function TrustedSupport({ onOpenSupport }: { onOpenSupport: () => void }) {
   return (
     <section
       aria-labelledby="trusted-support"
@@ -27,16 +26,16 @@ export function TrustedSupport() {
             </p>
           </div>
         </div>
-        <a
-          href="tel:"
-          className={cn(
-            buttonVariants({ size: "lg", variant: "outline" }),
-            "h-auto shrink-0 rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary",
-          )}
+        <Button
+          type="button"
+          size="lg"
+          variant="outline"
+          onClick={onOpenSupport}
+          className="h-auto shrink-0 rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
         >
-          <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
+          <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
           Talk to someone I trust
-        </a>
+        </Button>
       </div>
     </section>
   )
