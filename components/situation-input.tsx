@@ -32,15 +32,19 @@ const requestOptions: { value: RequestType; label: string; icon: typeof Banknote
 
 export function SituationInput({
   category,
+  initialMessage = "",
+  initialRequests = [],
   onSubmit,
   onBack,
 }: {
   category: Category
+  initialMessage?: string
+  initialRequests?: RequestType[]
   onSubmit: (message: string, requests: RequestType[]) => void
   onBack: () => void
 }) {
-  const [value, setValue] = useState("")
-  const [requests, setRequests] = useState<RequestType[]>([])
+  const [value, setValue] = useState(initialMessage)
+  const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
 
   function toggleRequest(value: RequestType) {

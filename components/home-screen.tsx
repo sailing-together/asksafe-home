@@ -2,6 +2,7 @@ import Image from "next/image"
 import { Heart, Ear, ListChecks, Phone, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TrustedSupport } from "@/components/trusted-support"
+import { PracticeSection, type PracticeScenario } from "@/components/practice-section"
 
 const points = [
   {
@@ -24,9 +25,11 @@ const points = [
 export function HomeScreen({
   onStart,
   onOpenSupport,
+  onTryExample,
 }: {
   onStart: () => void
   onOpenSupport: () => void
+  onTryExample: (scenario: PracticeScenario) => void
 }) {
   return (
     <div className="flex flex-col gap-12 pb-16">
@@ -91,6 +94,8 @@ export function HomeScreen({
       </section>
 
       <TrustedSupport onOpenSupport={onOpenSupport} />
+
+      <PracticeSection onTryExample={onTryExample} />
 
       {/* Compact reassurance strip */}
       <section

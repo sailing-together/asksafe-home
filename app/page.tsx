@@ -9,6 +9,7 @@ import { ThinkingScreen } from "@/components/thinking-screen"
 import { ResultCard } from "@/components/result-card"
 import { TrustedSupportDialog, type SupportSetup } from "@/components/trusted-support-dialog"
 import { SiteFooter } from "@/components/site-footer"
+import type { PracticeScenario } from "@/components/practice-section"
 import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
 
 type Step = "home" | "category" | "input" | "thinking" | "result"
@@ -19,10 +20,18 @@ export default function Page() {
   const [result, setResult] = useState<SafetyResult | null>(null)
   const [support, setSupport] = useState<SupportSetup | null>(null)
   const [supportOpen, setSupportOpen] = useState(false)
+  const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
 
   function reset() {
     setResult(null)
+    setPrefill(null)
     setStep("home")
+  }
+
+  function tryExample(scenario: PracticeScenario) {
+    setPrefill(scenario)
+    setCategory(scenario.category)
+    setStep("input")
   }
 
   function runAnalysis(message: string, requests: RequestType[]) {
@@ -42,6 +51,7 @@ export default function Page() {
           <HomeScreen
             onStart={() => setStep("category")}
             onOpenSupport={() => setSupportOpen(true)}
+            onTryExample={tryExample}
           />
         )}
 
@@ -49,6 +59,7 @@ export default function Page() {
           <CategoryStep
             onBack={reset}
             onSelect={(c) => {
+              setPrefill(null)
               setCategory(c)
               setStep("input")
             }}
@@ -57,7 +68,10 @@ export default function Page() {
 
         {step === "input" && (
           <SituationInput
+            key={prefill ? prefill.message : "blank"}
             category={category}
+            initialMessage={prefill?.message ?? ""}
+            initialRequests={prefill?.requests ?? []}
             onBack={() => setStep("category")}
             onSubmit={runAnalysis}
           />
