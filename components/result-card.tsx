@@ -200,12 +200,12 @@ export function ResultCard({
       />
 
       {/* Support actions */}
-      {support ? (
+      {support?.trustedName ? (
         <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <p className="text-lg font-medium leading-relaxed text-foreground">
-              Want {support.name} to take a look? You can share this safety
-              summary with them.
+              Want {support.trustedName} to take a look? You can share this
+              safety summary with them.
             </p>
             <Button
               type="button"
