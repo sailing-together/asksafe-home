@@ -1,7 +1,6 @@
 import Image from "next/image"
-import { Heart, Ear, ListChecks } from "lucide-react"
+import { Heart, Ear, ListChecks, Phone, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { OfficialHelp } from "@/components/official-help"
 import { TrustedSupport } from "@/components/trusted-support"
 
 const points = [
@@ -54,7 +53,7 @@ export function HomeScreen({ onStart }: { onStart: () => void }) {
           I feel unsure about something
         </Button>
         <p className="text-base text-muted-foreground">
-          Free, private, and made to be easy on the eyes.
+          Private by design. You choose what to share.
         </p>
       </section>
 
@@ -86,7 +85,34 @@ export function HomeScreen({ onStart }: { onStart: () => void }) {
       </section>
 
       <TrustedSupport />
-      <OfficialHelp />
+
+      {/* Compact reassurance strip */}
+      <section
+        aria-label="Quick help"
+        className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p className="text-base leading-relaxed text-muted-foreground">
+          In immediate danger or want to report a scam? Help is always here.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <a
+            href="tel:000"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent/10 px-4 py-2.5 text-base font-semibold text-foreground hover:bg-accent/20"
+          >
+            <Phone className="h-5 w-5 text-accent" aria-hidden="true" />
+            Emergency 000
+          </a>
+          <a
+            href="https://www.scamwatch.gov.au"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
+          >
+            <ExternalLink className="h-5 w-5" aria-hidden="true" />
+            Scamwatch
+          </a>
+        </div>
+      </section>
     </div>
   )
 }

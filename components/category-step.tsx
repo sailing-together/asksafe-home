@@ -1,10 +1,16 @@
 import { Phone, MessageSquare, Banknote, DoorOpen, Globe, HelpCircle, ArrowLeft } from "lucide-react"
 import type { Category } from "@/lib/analyze"
 
+const moneyOption: { value: Category; label: string; hint: string; icon: typeof Phone } = {
+  value: "money",
+  label: "Money or payments",
+  hint: "Asked to pay, transfer, or send money",
+  icon: Banknote,
+}
+
 const options: { value: Category; label: string; hint: string; icon: typeof Phone }[] = [
   { value: "caller", label: "A phone call", hint: "Someone rang me", icon: Phone },
   { value: "message", label: "A text or email", hint: "A message I received", icon: MessageSquare },
-  { value: "money", label: "Money or payments", hint: "Asked to pay or transfer", icon: Banknote },
   { value: "door", label: "Someone at the door", hint: "A visitor or knock", icon: DoorOpen },
   { value: "online", label: "Something online", hint: "A website or pop-up", icon: Globe },
   { value: "other", label: "Something else", hint: "Not sure / other", icon: HelpCircle },
@@ -28,6 +34,24 @@ export function CategoryStep({
           Pick the one that fits best. There&apos;s no wrong choice.
         </p>
       </div>
+      <button
+        type="button"
+        onClick={() => onSelect(moneyOption.value)}
+        className="flex items-center gap-4 rounded-2xl border-2 border-accent/50 bg-accent/10 p-6 text-left transition-colors hover:border-accent hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+          <moneyOption.icon className="h-8 w-8" aria-hidden="true" />
+        </span>
+        <span>
+          <span className="block font-heading text-2xl font-semibold text-foreground">
+            {moneyOption.label}
+          </span>
+          <span className="block text-base text-muted-foreground">
+            {moneyOption.hint}
+          </span>
+        </span>
+      </button>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {options.map((option) => (
           <button

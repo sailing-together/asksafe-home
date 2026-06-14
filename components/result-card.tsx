@@ -11,7 +11,14 @@ import {
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { OfficialHelp } from "@/components/official-help"
 import type { SafetyResult } from "@/lib/analyze"
+
+const helpByRisk: Record<SafetyResult["risk"], string[]> = {
+  high: ["emergency", "idcare", "scamwatch", "acsc"],
+  caution: ["scamwatch", "idcare"],
+  low: ["scamwatch"],
+}
 
 const riskStyles = {
   high: {
@@ -106,10 +113,17 @@ export function ResultCard({
         </ol>
       </Section>
 
+      {/* Official help in Australia */}
+      <OfficialHelp
+        ids={helpByRisk[result.risk]}
+        showReminder={result.risk !== "low"}
+      />
+
       {/* Support actions */}
       <div className="flex flex-col gap-3 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-lg font-medium leading-relaxed text-foreground">
-          Want a second opinion? Talk it over with someone you trust.
+          It&apos;s your choice — if you&apos;d like a second opinion, talk it
+          over with someone you trust.
         </p>
         <a
           href="tel:"
@@ -119,7 +133,7 @@ export function ResultCard({
           )}
         >
           <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
-          Call a trusted person
+          Talk to someone I trust
         </a>
       </div>
 

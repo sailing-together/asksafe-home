@@ -21,8 +21,9 @@ export function TrustedSupport() {
               Trusted Support
             </h2>
             <p className="mt-1 max-w-md text-base leading-relaxed text-muted-foreground">
-              Reach someone you trust whenever you&apos;d like a second opinion.
-              You never have to decide alone.
+              It&apos;s your choice whether to involve anyone. If you&apos;d
+              like a second opinion, reach someone you trust — you never have to
+              decide alone.
             </p>
           </div>
         </div>
@@ -34,7 +35,7 @@ export function TrustedSupport() {
           )}
         >
           <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
-          Call a trusted person
+          Talk to someone I trust
         </a>
       </div>
     </section>
