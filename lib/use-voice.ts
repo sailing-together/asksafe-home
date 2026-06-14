@@ -52,22 +52,24 @@ export function useSpeechRecognition() {
     const recognition = new Ctor()
     recognition.lang = "en-AU"
     recognition.interimResults = true
-    recognition.continuous = false
+    recognition.continuous = true
     onTextRef.current = onText
 
     let finalText = ""
 
     recognition.onresult = (event: any) => {
       let interim = ""
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript
+      for (let i = event.resultIndex || 0; i < event.results.length; i++) {
+        const transcript = event.results[i]?.[0]?.transcript || ""
+        if (!transcript) continue
         if (event.results[i].isFinal) {
-          finalText += transcript
+          finalText = [finalText, transcript].filter(Boolean).join(" ")
         } else {
-          interim += transcript
+          interim = [interim, transcript].filter(Boolean).join(" ")
         }
       }
-      onTextRef.current?.((finalText + interim).trim())
+      const text = [finalText, interim].filter(Boolean).join(" ").trim()
+      if (text) onTextRef.current?.(text)
     }
 
     recognition.onerror = () => {
@@ -76,6 +78,7 @@ export function useSpeechRecognition() {
 
     recognition.onend = () => {
       setListening(false)
+      recognitionRef.current = null
     }
 
     recognitionRef.current = recognition

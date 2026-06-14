@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   title: 'AskSafe Home — Your calm decision companion',
   description:
     'AskSafe Home helps you pause and make safer decisions when something feels unsure. Clear, gentle guidance one step at a time.',
-  generator: 'v0.app',
   icons: {
     icon: '/asksafe-logo.png',
     apple: '/asksafe-logo.png',
