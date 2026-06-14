@@ -1,10 +1,9 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp, Mic } from "lucide-react"
+import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp, Mic, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
 import { useSpeechRecognition } from "@/lib/use-voice"
@@ -31,6 +30,14 @@ const requestOptions: { value: RequestType; label: string; icon: typeof Banknote
   { value: "unsure", label: "Not sure", icon: CircleHelp },
 ]
 
+const ACTION_SIGNAL_PATTERN =
+  /link|pay|payment|transfer|code|call|reply|qr code|scan|screen shar|install|remote|bank|password|pin|one[- ]?time|otp|details/i
+
+type ChatMessage = {
+  role: "assistant" | "user"
+  text: string
+}
+
 export function SituationInput({
   category,
   initialMessage = "",
@@ -45,8 +52,22 @@ export function SituationInput({
   onBack: () => void
 }) {
   const [value, setValue] = useState(initialMessage)
+  const [details, setDetails] = useState<string[]>([])
+  const [askedFollowUp, setAskedFollowUp] = useState(false)
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
+      role: "assistant",
+      text: prompts[category],
+    },
+    {
+      role: "assistant",
+      text:
+        "Choose any action that fits, then type or use voice to describe what happened. I will check it after you send details.",
+    },
+  ])
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
-  const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
+  const hasSelectedAction = requests.some((request) => request !== "unsure")
+  const canSubmit = value.trim().length >= 3 || (details.length > 0 && hasSelectedAction)
   const voice = useSpeechRecognition()
   const voiceBaseRef = useRef("")
 
@@ -73,13 +94,49 @@ export function SituationInput({
     })
   }
 
+  function handleSubmit() {
+    const text = value.trim()
+    if (!text) {
+      if (details.length > 0 && hasSelectedAction) {
+        onSubmit(details.join("\n"), requests)
+      }
+      return
+    }
+
+    const nextDetails = [...details, text]
+    setDetails(nextDetails)
+    setMessages((prev) => [...prev, { role: "user", text }])
+    setValue("")
+
+    const hasAction = hasSelectedAction || ACTION_SIGNAL_PATTERN.test(text)
+
+    if (!askedFollowUp && (!hasAction || text.replace(/\s+/g, "").length < 12)) {
+      setAskedFollowUp(true)
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text:
+            "Before I check it, what are they asking you to do? You can choose one below or send a little more detail.",
+        },
+      ])
+      return
+    }
+
+    onSubmit(nextDetails.join("\n"), requests.length > 0 ? requests : ["unsure"])
+  }
+
+  const selectedRequestLabels = requestOptions
+    .filter((option) => requests.includes(option.value))
+    .map((option) => option.label)
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        if (canSubmit) onSubmit(value, requests)
+        if (canSubmit) handleSubmit()
       }}
-      className="flex flex-col gap-6 pt-6 pb-16"
+      className="flex flex-col gap-5 pt-6 pb-16"
     >
       <StepBack onBack={onBack} step="Step 2 of 2" />
       <div className="flex flex-col gap-2 text-center">
@@ -91,96 +148,129 @@ export function SituationInput({
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
-        <Label
-          htmlFor="situation"
-          className="text-lg font-semibold text-foreground"
-        >
-          {prompts[category]}
-        </Label>
-        <Textarea
-          id="situation"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Start typing here..."
-          autoFocus
-          className="min-h-44 resize-none rounded-xl border-border bg-background p-4 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2"
-        />
-
-        {voice.supported ? (
-          <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={handleVoice}
-              aria-pressed={voice.listening}
+      <section
+        aria-label="AskSafe conversation"
+        aria-live="polite"
+        className="flex min-h-[26rem] flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-5"
+      >
+        <div className="flex flex-1 flex-col gap-3">
+          {messages.map((message, index) => (
+            <article
+              key={`${message.role}-${index}`}
               className={cn(
-                "h-auto w-full rounded-xl px-6 py-4 text-lg font-semibold sm:w-auto",
-                voice.listening
-                  ? "border-accent bg-accent/10 text-accent-foreground"
-                  : "border-primary/30 bg-card text-primary hover:bg-secondary",
+                "max-w-[88%] rounded-2xl px-4 py-3 text-lg leading-relaxed shadow-sm",
+                message.role === "assistant"
+                  ? "self-start border border-border bg-background text-foreground"
+                  : "self-end bg-primary text-primary-foreground",
               )}
             >
-              {voice.listening ? (
-                <>
-                  <span
-                    className="mr-2 inline-block h-3 w-3 animate-pulse rounded-full bg-accent"
-                    aria-hidden="true"
-                  />
-                  Listening... Tap again to stop
-                </>
-              ) : (
-                <>
-                  <Mic className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Use voice
-                </>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <p className="text-base text-muted-foreground">
-            Voice input is not supported in this browser. You can still type.
-          </p>
-        )}
-      </div>
+              {message.text}
+            </article>
+          ))}
 
-      <fieldset className="mt-4 flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:mt-1 sm:p-6">
-        <legend className="text-lg font-semibold text-foreground">
-          What are they asking you to do?
-        </legend>
-        <p className="text-base text-muted-foreground">
-          Pick any that apply. You can skip this if you&apos;re not sure.
-        </p>
-        <div className="flex flex-wrap gap-3 pt-1">
-          {requestOptions.map((option) => {
-            const selected = requests.includes(option.value)
-            return (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => toggleRequest(option.value)}
+          {selectedRequestLabels.length > 0 && (
+            <article className="max-w-[88%] self-end rounded-2xl bg-secondary px-4 py-3 text-base font-medium leading-relaxed text-primary">
+              They want me to: {selectedRequestLabels.join(", ")}
+            </article>
+          )}
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="mb-3 text-base font-semibold text-foreground">
+            What are they asking you to do?
+          </p>
+          <div className="mb-4 flex flex-wrap gap-2.5">
+            {requestOptions.map((option) => {
+              const selected = requests.includes(option.value)
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => toggleRequest(option.value)}
+                  className={cn(
+                    "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-secondary",
+                  )}
+                >
+                  <option.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  {option.label}
+                </button>
+              )}
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-3">
+            <Textarea
+              id="situation"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Message AskSafe with what happened..."
+              autoFocus
+              className="min-h-28 resize-none border-0 bg-transparent p-2 text-lg leading-relaxed text-foreground shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0"
+            />
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              {voice.supported ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  onClick={handleVoice}
+                  aria-pressed={voice.listening}
+                  className={cn(
+                    "h-auto justify-start rounded-xl px-4 py-3 text-base font-semibold sm:w-auto",
+                    voice.listening
+                      ? "bg-accent/10 text-accent-foreground"
+                      : "text-primary hover:bg-secondary",
+                  )}
+                >
+                  {voice.listening ? (
+                    <>
+                      <span
+                        className="mr-2 inline-block h-3 w-3 animate-pulse rounded-full bg-accent"
+                        aria-hidden="true"
+                      />
+                      Listening... Tap again to stop
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="mr-2 h-5 w-5" aria-hidden="true" />
+                      Use voice
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <p className="text-base text-muted-foreground">
+                  Voice input is not supported in this browser. You can still type.
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                size="lg"
+                disabled={!canSubmit}
                 className={cn(
-                  "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                  selected
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-secondary",
+                  "h-auto rounded-xl px-5 py-3 text-base font-semibold sm:shrink-0",
+                  canSubmit && "shadow-sm",
                 )}
               >
-                <option.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                {option.label}
-              </button>
-            )
-          })}
+                <Send className="mr-2 h-5 w-5" aria-hidden="true" />
+                Send details
+              </Button>
+            </div>
+          </div>
         </div>
-      </fieldset>
+      </section>
 
       <Button
-        type="submit"
+        type="button"
         size="lg"
         disabled={!canSubmit}
-        className="h-auto rounded-2xl px-8 py-6 text-xl font-semibold shadow-sm"
+        onClick={handleSubmit}
+        className="h-auto rounded-2xl px-8 py-5 text-xl font-semibold shadow-sm"
       >
         <ShieldCheck className="mr-2 h-6 w-6" aria-hidden="true" />
         Show me the safer next step
