@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserRound, Copy, Check, ShieldCheck, X } from "lucide-react"
+import { UserRound, Copy, Check, ShieldCheck, X, Mail, Phone, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
@@ -16,6 +16,8 @@ export type SupportSetup = {
   trustedPhone: string
   code: string
 }
+
+type Phase = "signin" | "code" | "form" | "summary"
 
 const relationships = [
   "Daughter",
@@ -32,6 +34,8 @@ const usingForLabels: Record<SupportSetup["usingFor"], string> = {
   self: "Myself",
   other: "Someone I care about",
 }
+
+const MOCK_CODE = "123456"
 
 const inputClass =
   "h-12 rounded-xl border border-border bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -52,6 +56,15 @@ export function TrustedSupportDialog({
   onClose: () => void
   onCreate: (support: SupportSetup) => void
 }) {
+  const [phase, setPhase] = useState<Phase>("signin")
+
+  // Sign-in step
+  const [channel, setChannel] = useState<"email" | "phone">("email")
+  const [signInValue, setSignInValue] = useState("")
+  const [codeEntry, setCodeEntry] = useState("")
+  const [codeError, setCodeError] = useState(false)
+
+  // Setup form
   const [yourName, setYourName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
@@ -63,7 +76,7 @@ export function TrustedSupportDialog({
   const [created, setCreated] = useState<SupportSetup | null>(null)
   const [copied, setCopied] = useState(false)
 
-  // When the dialog opens, start from the existing setup (if any).
+  // When the dialog opens, decide the starting phase from the existing setup.
   useEffect(() => {
     if (open) {
       setCreated(existing)
@@ -76,6 +89,12 @@ export function TrustedSupportDialog({
       setTrustedEmail(existing?.trustedEmail ?? "")
       setTrustedPhone(existing?.trustedPhone ?? "")
       setCopied(false)
+      setChannel("email")
+      setSignInValue("")
+      setCodeEntry("")
+      setCodeError(false)
+      // Returning users go straight to their summary; new users sign in first.
+      setPhase(existing ? "summary" : "signin")
     }
   }, [open, existing])
 
@@ -91,8 +110,28 @@ export function TrustedSupportDialog({
 
   if (!open) return null
 
+  const canSendCode = signInValue.trim().length >= 3
   const canSave = yourName.trim().length >= 1 && email.trim().length >= 1
   const hasTrusted = trustedName.trim().length >= 1
+
+  function sendCode() {
+    if (!canSendCode) return
+    // Prefill the form's contact field from the sign-in channel.
+    if (channel === "email") setEmail(signInValue.trim())
+    else setPhone(signInValue.trim())
+    setCodeEntry("")
+    setCodeError(false)
+    setPhase("code")
+  }
+
+  function verifyCode() {
+    if (codeEntry.trim() === MOCK_CODE) {
+      setCodeError(false)
+      setPhase("form")
+    } else {
+      setCodeError(true)
+    }
+  }
 
   function save(withCode: boolean) {
     if (!canSave) return
@@ -111,6 +150,7 @@ export function TrustedSupportDialog({
     }
     setCreated(support)
     onCreate(support)
+    setPhase("summary")
   }
 
   async function copyCode() {
@@ -124,6 +164,13 @@ export function TrustedSupportDialog({
     }
   }
 
+  const titles: Record<Phase, string> = {
+    signin: "Continue with AskSafe",
+    code: "Enter your code",
+    form: "Set up AskSafe",
+    summary: "My AskSafe setup",
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-0 sm:items-center sm:p-6"
@@ -133,10 +180,11 @@ export function TrustedSupportDialog({
       onClick={onClose}
     >
       <div
-        className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-y-auto rounded-t-3xl border border-border bg-card p-6 shadow-xl sm:rounded-3xl sm:p-8"
+        className="flex max-h-[92vh] w-full max-w-lg flex-col rounded-t-3xl border border-border bg-card shadow-xl sm:max-h-[88vh] sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4">
+        {/* Header (fixed) */}
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border p-6 sm:px-8">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <UserRound className="h-6 w-6" aria-hidden="true" />
@@ -145,7 +193,7 @@ export function TrustedSupportDialog({
               id="support-dialog-title"
               className="font-heading text-2xl font-semibold text-foreground"
             >
-              {created ? "My AskSafe setup" : "Set up AskSafe"}
+              {titles[phase]}
             </h2>
           </div>
           <button
@@ -158,186 +206,351 @@ export function TrustedSupportDialog({
           </button>
         </div>
 
-        {!created ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              save(false)
-            }}
-            className="mt-5 flex flex-col gap-6"
-          >
-            <p className="text-base leading-relaxed text-muted-foreground">
-              You can use AskSafe without a full account. A simple setup helps
-              personalize guidance and lets you choose someone you trust if you
-              want a second opinion.
-            </p>
+        {/* Sign-in: choose channel and send a one-time code */}
+        {phase === "signin" && (
+          <>
+            <div className="flex-1 overflow-y-auto p-6 sm:px-8">
+              <form
+                id="signin-form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  sendCode()
+                }}
+                className="flex flex-col gap-5"
+              >
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Use a one-time code so AskSafe can remember your setup and
+                  safety checks later. No password needed.
+                </p>
 
-            {/* Section 1: About you */}
-            <section className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5">
-              <h3 className="font-heading text-xl font-semibold text-foreground">
-                About you
-              </h3>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="your-name" className="text-base font-semibold text-foreground">
-                  Your name or nickname
-                </Label>
-                <input
-                  id="your-name"
-                  type="text"
-                  value={yourName}
-                  onChange={(e) => setYourName(e.target.value)}
-                  placeholder="For example, Margaret"
-                  className={inputClass}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="your-email" className="text-base font-semibold text-foreground">
-                  Email address
-                </Label>
-                <input
-                  id="your-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className={inputClass}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="your-phone" className="text-base font-semibold text-foreground">
-                  Phone number{" "}
-                  <span className="font-normal text-muted-foreground">(optional)</span>
-                </Label>
-                <input
-                  id="your-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone number"
-                  className={inputClass}
-                />
-              </div>
-
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Your email helps identify your AskSafe setup. Phone is optional.
-                Nothing is shared unless you choose to share it.
-              </p>
-
-              <fieldset className="flex flex-col gap-2">
-                <legend className="mb-2 text-base font-semibold text-foreground">
-                  I am using AskSafe for:
-                </legend>
-                <div className="flex flex-col gap-2">
-                  {(Object.keys(usingForLabels) as SupportSetup["usingFor"][]).map((r) => (
-                    <label
-                      key={r}
-                      className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-lg transition-colors ${
-                        usingFor === r
-                          ? "border-primary bg-primary/8 text-foreground"
-                          : "border-border bg-background text-foreground hover:bg-secondary"
-                      }`}
+                {channel === "email" ? (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="signin-email" className="text-base font-semibold text-foreground">
+                      Email address
+                    </Label>
+                    <input
+                      id="signin-email"
+                      type="email"
+                      autoFocus
+                      value={signInValue}
+                      onChange={(e) => setSignInValue(e.target.value)}
+                      placeholder="you@example.com"
+                      className={inputClass}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChannel("phone")
+                        setSignInValue("")
+                      }}
+                      className="mt-1 inline-flex w-fit items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
                     >
-                      <input
-                        type="radio"
-                        name="using-for"
-                        value={r}
-                        checked={usingFor === r}
-                        onChange={() => setUsingFor(r)}
-                        className="h-5 w-5 accent-[var(--primary)]"
-                      />
-                      {usingForLabels[r]}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            </section>
+                      <Phone className="h-4 w-4" aria-hidden="true" />
+                      Use phone instead
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="signin-phone" className="text-base font-semibold text-foreground">
+                      Phone number
+                    </Label>
+                    <input
+                      id="signin-phone"
+                      type="tel"
+                      autoFocus
+                      value={signInValue}
+                      onChange={(e) => setSignInValue(e.target.value)}
+                      placeholder="Your phone number"
+                      className={inputClass}
+                    />
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      Email is recommended. Phone can be added later.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChannel("email")
+                        setSignInValue("")
+                      }}
+                      className="mt-1 inline-flex w-fit items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
+                    >
+                      <Mail className="h-4 w-4" aria-hidden="true" />
+                      Use email instead
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
 
-            {/* Section 2: Someone you trust */}
-            <section className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5">
-              <div className="flex items-center gap-3">
-                <h3 className="font-heading text-xl font-semibold text-foreground">
-                  Someone you trust
-                </h3>
-                <span className="rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
-                  Optional
-                </span>
-              </div>
-
-              <p className="text-base leading-relaxed text-muted-foreground">
-                Add a family member, close friend, neighbour, carer, or
-                community support worker if you want support later.
-              </p>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="trusted-name" className="text-base font-semibold text-foreground">
-                  Trusted person&apos;s name
-                </Label>
-                <input
-                  id="trusted-name"
-                  type="text"
-                  value={trustedName}
-                  onChange={(e) => setTrustedName(e.target.value)}
-                  placeholder="For example, Sarah"
-                  className={inputClass}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="trusted-relationship" className="text-base font-semibold text-foreground">
-                  Relationship
-                </Label>
-                <select
-                  id="trusted-relationship"
-                  value={relationship}
-                  onChange={(e) => setRelationship(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">Choose one</option>
-                  {relationships.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="trusted-email" className="text-base font-semibold text-foreground">
-                  Trusted person&apos;s email{" "}
-                  <span className="font-normal text-muted-foreground">(optional)</span>
-                </Label>
-                <input
-                  id="trusted-email"
-                  type="email"
-                  value={trustedEmail}
-                  onChange={(e) => setTrustedEmail(e.target.value)}
-                  placeholder="their@example.com"
-                  className={inputClass}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="trusted-phone" className="text-base font-semibold text-foreground">
-                  Trusted person&apos;s phone{" "}
-                  <span className="font-normal text-muted-foreground">(optional)</span>
-                </Label>
-                <input
-                  id="trusted-phone"
-                  type="tel"
-                  value={trustedPhone}
-                  onChange={(e) => setTrustedPhone(e.target.value)}
-                  placeholder="Their phone number"
-                  className={inputClass}
-                />
-              </div>
-            </section>
-
-            <div className="flex flex-col gap-3">
+            {/* Footer (sticky) */}
+            <div className="shrink-0 border-t border-border p-6 sm:px-8">
               <Button
                 type="submit"
+                form="signin-form"
+                size="lg"
+                disabled={!canSendCode}
+                className="h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold"
+              >
+                Send me a code
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Code entry */}
+        {phase === "code" && (
+          <>
+            <div className="flex-1 overflow-y-auto p-6 sm:px-8">
+              <form
+                id="code-form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  verifyCode()
+                }}
+                className="flex flex-col gap-5"
+              >
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  We sent a 6-digit code for this preview.
+                </p>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="code-entry" className="text-base font-semibold text-foreground">
+                    6-digit code
+                  </Label>
+                  <input
+                    id="code-entry"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    autoFocus
+                    value={codeEntry}
+                    onChange={(e) => {
+                      setCodeEntry(e.target.value.replace(/\D/g, ""))
+                      setCodeError(false)
+                    }}
+                    placeholder="123456"
+                    className={`${inputClass} text-center text-2xl font-bold tracking-[0.4em]`}
+                  />
+                  {codeError && (
+                    <p className="text-base font-medium text-destructive">
+                      That code did not match. Please try again.
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setPhase("signin")}
+                  className="inline-flex w-fit items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  Use a different contact
+                </button>
+              </form>
+            </div>
+
+            <div className="shrink-0 border-t border-border p-6 sm:px-8">
+              <Button
+                type="submit"
+                form="code-form"
+                size="lg"
+                disabled={codeEntry.length < 6}
+                className="h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold"
+              >
+                Continue
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Setup form */}
+        {phase === "form" && (
+          <>
+            <div className="flex-1 overflow-y-auto p-6 sm:px-8">
+              <form
+                id="setup-form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  save(false)
+                }}
+                className="flex flex-col gap-6"
+              >
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  A simple setup helps personalize guidance and lets you choose
+                  someone you trust if you want a second opinion.
+                </p>
+
+                {/* Section 1: About you */}
+                <section className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5">
+                  <h3 className="font-heading text-xl font-semibold text-foreground">
+                    About you
+                  </h3>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="your-name" className="text-base font-semibold text-foreground">
+                      Your name or nickname
+                    </Label>
+                    <input
+                      id="your-name"
+                      type="text"
+                      value={yourName}
+                      onChange={(e) => setYourName(e.target.value)}
+                      placeholder="For example, Margaret"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="your-email" className="text-base font-semibold text-foreground">
+                      Email address
+                    </Label>
+                    <input
+                      id="your-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="your-phone" className="text-base font-semibold text-foreground">
+                      Phone number{" "}
+                      <span className="font-normal text-muted-foreground">(optional)</span>
+                    </Label>
+                    <input
+                      id="your-phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Phone number"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Your email helps identify your AskSafe setup. Phone is
+                    optional. Nothing is shared unless you choose to share it.
+                  </p>
+
+                  <fieldset className="flex flex-col gap-2">
+                    <legend className="mb-2 text-base font-semibold text-foreground">
+                      I am using AskSafe for:
+                    </legend>
+                    <div className="flex flex-col gap-2">
+                      {(Object.keys(usingForLabels) as SupportSetup["usingFor"][]).map((r) => (
+                        <label
+                          key={r}
+                          className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-lg transition-colors ${
+                            usingFor === r
+                              ? "border-primary bg-primary/8 text-foreground"
+                              : "border-border bg-background text-foreground hover:bg-secondary"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="using-for"
+                            value={r}
+                            checked={usingFor === r}
+                            onChange={() => setUsingFor(r)}
+                            className="h-5 w-5 accent-[var(--primary)]"
+                          />
+                          {usingForLabels[r]}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                </section>
+
+                {/* Section 2: Someone you trust */}
+                <section className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5">
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-heading text-xl font-semibold text-foreground">
+                      Someone you trust
+                    </h3>
+                    <span className="rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
+                      Optional
+                    </span>
+                  </div>
+
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    Add a family member, close friend, neighbour, carer, or
+                    community support worker if you want support later.
+                  </p>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="trusted-name" className="text-base font-semibold text-foreground">
+                      Trusted person&apos;s name
+                    </Label>
+                    <input
+                      id="trusted-name"
+                      type="text"
+                      value={trustedName}
+                      onChange={(e) => setTrustedName(e.target.value)}
+                      placeholder="For example, Sarah"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="trusted-relationship" className="text-base font-semibold text-foreground">
+                      Relationship
+                    </Label>
+                    <select
+                      id="trusted-relationship"
+                      value={relationship}
+                      onChange={(e) => setRelationship(e.target.value)}
+                      className={inputClass}
+                    >
+                      <option value="">Choose one</option>
+                      {relationships.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="trusted-email" className="text-base font-semibold text-foreground">
+                      Trusted person&apos;s email{" "}
+                      <span className="font-normal text-muted-foreground">(optional)</span>
+                    </Label>
+                    <input
+                      id="trusted-email"
+                      type="email"
+                      value={trustedEmail}
+                      onChange={(e) => setTrustedEmail(e.target.value)}
+                      placeholder="their@example.com"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="trusted-phone" className="text-base font-semibold text-foreground">
+                      Trusted person&apos;s phone{" "}
+                      <span className="font-normal text-muted-foreground">(optional)</span>
+                    </Label>
+                    <input
+                      id="trusted-phone"
+                      type="tel"
+                      value={trustedPhone}
+                      onChange={(e) => setTrustedPhone(e.target.value)}
+                      placeholder="Their phone number"
+                      className={inputClass}
+                    />
+                  </div>
+                </section>
+              </form>
+            </div>
+
+            {/* Footer (sticky) */}
+            <div className="flex shrink-0 flex-col gap-3 border-t border-border p-6 sm:px-8">
+              <Button
+                type="submit"
+                form="setup-form"
                 size="lg"
                 disabled={!canSave}
                 className="h-auto rounded-2xl px-6 py-5 text-lg font-semibold"
@@ -355,80 +568,85 @@ export function TrustedSupportDialog({
                 <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
                 Create support code
               </Button>
+              {!hasTrusted && (
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Add someone you trust to create a support code.
+                </p>
+              )}
             </div>
-          </form>
-        ) : (
-          <div className="mt-5 flex flex-col gap-5">
-            <dl className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5">
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-base text-muted-foreground">Your name</dt>
-                <dd className="text-right text-lg font-semibold text-foreground">
-                  {created.yourName}
-                </dd>
+          </>
+        )}
+
+        {/* Summary */}
+        {phase === "summary" && created && (
+          <>
+            <div className="flex-1 overflow-y-auto p-6 sm:px-8">
+              <div className="flex flex-col gap-5">
+                <dl className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-base text-muted-foreground">Your name</dt>
+                    <dd className="text-right text-lg font-semibold text-foreground">
+                      {created.yourName}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-base text-muted-foreground">Sign-in</dt>
+                    <dd className="text-right text-lg font-semibold text-foreground">
+                      {created.email || created.phone}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-base text-muted-foreground">Using AskSafe for</dt>
+                    <dd className="text-right text-lg font-semibold text-foreground">
+                      {usingForLabels[created.usingFor]}
+                    </dd>
+                  </div>
+                  {created.trustedName && (
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-base text-muted-foreground">Trusted person</dt>
+                      <dd className="text-right text-lg font-semibold text-foreground">
+                        {created.trustedName}
+                      </dd>
+                    </div>
+                  )}
+                  {created.trustedName && created.relationship && (
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-base text-muted-foreground">Relationship</dt>
+                      <dd className="text-right text-lg font-semibold text-foreground">
+                        {created.relationship}
+                      </dd>
+                    </div>
+                  )}
+                  {created.code && (
+                    <div className="flex items-baseline justify-between gap-4">
+                      <dt className="text-base text-muted-foreground">Support code</dt>
+                      <dd className="text-right font-heading text-lg font-bold tracking-wide text-primary">
+                        {created.code}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+
+                {!created.trustedName && (
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    You can add someone you trust later.
+                  </p>
+                )}
+
+                {created.code && (
+                  <p className="text-base leading-relaxed text-muted-foreground">
+                    This code does not share anything by itself.
+                  </p>
+                )}
+
+                <p className="text-base font-medium leading-relaxed text-foreground">
+                  Nothing is shared unless you choose to share it.
+                </p>
               </div>
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-base text-muted-foreground">Email</dt>
-                <dd className="text-right text-lg font-semibold text-foreground">
-                  {created.email}
-                </dd>
-              </div>
-              {created.phone && (
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-base text-muted-foreground">Phone</dt>
-                  <dd className="text-right text-lg font-semibold text-foreground">
-                    {created.phone}
-                  </dd>
-                </div>
-              )}
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-base text-muted-foreground">Using AskSafe for</dt>
-                <dd className="text-right text-lg font-semibold text-foreground">
-                  {usingForLabels[created.usingFor]}
-                </dd>
-              </div>
-              {created.trustedName && (
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-base text-muted-foreground">Trusted person</dt>
-                  <dd className="text-right text-lg font-semibold text-foreground">
-                    {created.trustedName}
-                  </dd>
-                </div>
-              )}
-              {created.trustedName && created.relationship && (
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-base text-muted-foreground">Relationship</dt>
-                  <dd className="text-right text-lg font-semibold text-foreground">
-                    {created.relationship}
-                  </dd>
-                </div>
-              )}
-              {created.code && (
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-base text-muted-foreground">Support code</dt>
-                  <dd className="text-right font-heading text-lg font-bold tracking-wide text-primary">
-                    {created.code}
-                  </dd>
-                </div>
-              )}
-            </dl>
+            </div>
 
-            {!created.trustedName && (
-              <p className="text-base leading-relaxed text-muted-foreground">
-                You can add someone you trust later.
-              </p>
-            )}
-
-            {created.code && (
-              <p className="text-base leading-relaxed text-muted-foreground">
-                This code does not share anything by itself.
-              </p>
-            )}
-
-            <p className="text-base font-medium leading-relaxed text-foreground">
-              Nothing is shared unless you choose to share it.
-            </p>
-
-            <div className="flex flex-col gap-3">
+            {/* Footer (sticky) */}
+            <div className="flex shrink-0 flex-col gap-3 border-t border-border p-6 sm:px-8">
               {created.code && (
                 <Button
                   type="button"
@@ -448,7 +666,7 @@ export function TrustedSupportDialog({
                 type="button"
                 variant="outline"
                 size="lg"
-                onClick={() => setCreated(null)}
+                onClick={() => setPhase("form")}
                 className="h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
               >
                 Edit setup
@@ -463,7 +681,7 @@ export function TrustedSupportDialog({
                 Done
               </Button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
