@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Heart, Ear, ListChecks } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OfficialHelp } from "@/components/official-help"
@@ -25,6 +26,16 @@ export function HomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col gap-12 pb-16">
       <section className="flex flex-col items-center gap-6 pt-10 text-center">
+        <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-secondary/40 shadow-sm">
+          <Image
+            src="/hero-illustration.png"
+            alt="An older adult sitting comfortably at home, calmly checking their phone with a protective shield nearby"
+            width={1024}
+            height={1024}
+            priority
+            className="h-auto w-full"
+          />
+        </div>
         <span className="rounded-full bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground">
           A safe place to pause and think
         </span>
