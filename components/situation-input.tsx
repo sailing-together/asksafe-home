@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
 import { useSpeechRecognition } from "@/lib/use-voice"
+import { assessSafetyInput } from "@/lib/safety-rules"
 import type { Category, RequestType } from "@/lib/analyze"
 
 const prompts: Record<Category, string> = {
@@ -30,66 +31,55 @@ const requestOptions: { value: RequestType; label: string; icon: typeof Banknote
   { value: "unsure", label: "Not sure", icon: CircleHelp },
 ]
 
-const ACTION_SIGNAL_PATTERN =
-  /link|pay|payment|transfer|code|call|reply|qr code|scan|screen shar|install|remote|bank|password|pin|one[- ]?time|otp|details/i
-const MONEY_SIGNAL_PATTERN =
-  /money|pay|payment|transfer|bank|card|gift card|cash|loan|borrow|bpay|crypto/i
-const FAMILY_SIGNAL_PATTERN =
-  /daughter|son|mum|mom|mother|dad|father|grandson|granddaughter|family|relative|friend|neighbour|neighbor|carer/i
-const URGENCY_SIGNAL_PATTERN =
-  /urgent|right now|now|today|immediately|quick|hurry|deadline|before/i
-
 type ChatMessage = {
   role: "assistant" | "user"
   text: string
 }
 
 function buildAssistantReply({
+  category,
   nextDetails,
   requests,
-  hasAction,
   isShort,
   askedFollowUp,
 }: {
+  category: Category
   nextDetails: string[]
   requests: RequestType[]
-  hasAction: boolean
   isShort: boolean
   askedFollowUp: boolean
 }) {
   const combined = nextDetails.join(" ")
   const detailCount = nextDetails.length
-  const looksLikeMoney = requests.includes("pay") || MONEY_SIGNAL_PATTERN.test(combined)
-  const looksLikeFamily = FAMILY_SIGNAL_PATTERN.test(combined)
-  const looksUrgent = URGENCY_SIGNAL_PATTERN.test(combined)
+  const assessment = assessSafetyInput({ message: combined, category, requests })
+  const signalIds = new Set(assessment.riskSignals.map((signal) => signal.id))
+  const hasAction = assessment.suggestedRequests.some((request) => request !== "unsure")
 
   if (!askedFollowUp && (!hasAction || isShort)) {
     return "Before I check it, what are they asking you to do? You can choose one below or send a little more detail."
   }
 
-  if (looksLikeMoney && looksLikeFamily) {
+  if (signalIds.has("family-money-request")) {
     if (detailCount > 1) {
       return "That still sounds like a money request from someone close to you. The key is to verify with a contact you already know before paying. Add the payment method if helpful, or choose the safer next step."
     }
 
-    return looksUrgent
-      ? "I hear a money request from someone close to you, with some urgency. Pause before paying. If you can, add how they contacted you and how they want the money sent."
-      : "I hear a money request from someone close to you. Pause before paying. If you can, add how they contacted you, the amount, and how they want it sent."
+    return "I hear a money request from someone close to you. Pause before paying. If you can, add how they contacted you, the amount, and how they want it sent."
   }
 
-  if (requests.includes("screen") || requests.includes("install")) {
+  if (signalIds.has("remote-access")) {
     return "I hear they may want access to your device. Do not install anything or share your screen yet. Add who they claimed to be if you know."
   }
 
-  if (requests.includes("code")) {
+  if (signalIds.has("code-request")) {
     return "I hear they may want a code. Do not share any one-time code yet. Add who asked for it and why they said they need it."
   }
 
-  if (requests.includes("link")) {
+  if (signalIds.has("link-request")) {
     return "I hear there may be a link involved. Do not tap it yet. Add who the message claims to be from if you can."
   }
 
-  if (looksLikeMoney) {
+  if (signalIds.has("payment-request")) {
     if (detailCount > 1) {
       return "I have the money request. The safer path is to pause and verify first. Add the payment method if you know it, or choose the safer next step."
     }
@@ -134,7 +124,6 @@ export function SituationInput({
     },
   ])
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
-  const hasSelectedAction = requests.some((request) => request !== "unsure")
   const canSendDetails = value.trim().length >= 3
   const canAnalyze = details.length > 0
   const voice = useSpeechRecognition()
@@ -172,17 +161,16 @@ export function SituationInput({
     setMessages((prev) => [...prev, { role: "user", text }])
     setValue("")
 
-    const hasAction = hasSelectedAction || ACTION_SIGNAL_PATTERN.test(text)
     const isShort = text.replace(/\s+/g, "").length < 12
     const reply = buildAssistantReply({
+      category,
       nextDetails,
       requests,
-      hasAction,
       isShort,
       askedFollowUp,
     })
 
-    if (!askedFollowUp && (!hasAction || isShort)) {
+    if (!askedFollowUp && reply.startsWith("Before I check it")) {
       setAskedFollowUp(true)
       setMessages((prev) => [
         ...prev,

@@ -1,3 +1,5 @@
+import { assessSafetyInput, type RiskSignal } from "./safety-rules.ts"
+
 export type RiskLevel = "low" | "caution" | "high"
 
 export type Category =
@@ -41,6 +43,7 @@ export interface SafetyResult {
   doNotYet: string[]
   why: string
   verify: string[]
+  riskSignals: RiskSignal[]
 }
 
 const HIGH_SIGNALS: { pattern: RegExp; reason: string }[] = [
@@ -68,6 +71,7 @@ export function analyze(
   requests: RequestType[] = [],
 ): SafetyResult {
   const text = message.trim()
+  const ruleAssessment = assessSafetyInput({ message: text, category, requests })
   const textHigh = HIGH_SIGNALS.filter((s) => s.pattern.test(text))
   const textCaution = CAUTION_SIGNALS.filter((s) => s.pattern.test(text))
 
@@ -88,6 +92,8 @@ export function analyze(
     risk = "high"
   }
 
+  risk = highestRisk(risk, ruleAssessment.riskLevel)
+
   const reasons = [...highHits, ...cautionHits].map((s) => s.reason)
 
   if (risk === "high") {
@@ -107,6 +113,7 @@ export function analyze(
           ? `Some of the wording is a common sign of a scam — for example, it's ${joinReasons(reasons)}. These are pressure tactics scammers use to stop you thinking it through.`
           : "Several parts of this match the way scams are usually written, especially the pressure to act quickly.",
       verify: verifySteps(category),
+      riskSignals: ruleAssessment.riskSignals,
     }
   }
 
@@ -126,6 +133,7 @@ export function analyze(
           ? `One part stood out — it's ${joinReasons(reasons)}. That doesn't always mean it's a scam, but it's worth confirming first.`
           : "A few details here are worth confirming before you take any action.",
       verify: verifySteps(category),
+      riskSignals: ruleAssessment.riskSignals,
     }
   }
 
@@ -140,7 +148,18 @@ export function analyze(
     ],
     why: "I didn't spot the common warning signs of a scam in what you wrote. Your own gut feeling still matters most.",
     verify: verifySteps(category),
+    riskSignals: ruleAssessment.riskSignals,
   }
+}
+
+function highestRisk(current: RiskLevel, next: RiskLevel): RiskLevel {
+  const rank: Record<RiskLevel, number> = {
+    low: 0,
+    caution: 1,
+    high: 2,
+  }
+
+  return rank[next] > rank[current] ? next : current
 }
 
 function joinReasons(reasons: string[]): string {
