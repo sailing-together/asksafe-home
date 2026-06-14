@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, CircleHelp } from "lucide-react"
+import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,7 @@ const prompts: Record<Category, string> = {
   money: "What were you asked to pay, and how? Who is asking for it?",
   door: "Who is at the door, and what are they asking for?",
   online: "What did you see online? For example, a pop-up, an offer, or a website warning.",
+  video: "What happened on the video call or chat? Who were they, and what did they ask you to do?",
   other: "Tell me what happened and what feels unsure to you.",
 }
 
@@ -24,6 +25,8 @@ const requestOptions: { value: RequestType; label: string; icon: typeof Banknote
   { value: "code", label: "Share a code", icon: KeyRound },
   { value: "details", label: "Give personal details", icon: IdCard },
   { value: "callback", label: "Call back", icon: PhoneOutgoing },
+  { value: "install", label: "Install an app", icon: Download },
+  { value: "screen", label: "Share my screen", icon: MonitorSmartphone },
   { value: "unsure", label: "Not sure", icon: CircleHelp },
 ]
 
@@ -104,13 +107,13 @@ export function SituationInput({
                 aria-pressed={selected}
                 onClick={() => toggleRequest(option.value)}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   selected
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-background text-foreground hover:border-primary/40 hover:bg-secondary",
                 )}
               >
-                <option.icon className="h-5 w-5" aria-hidden="true" />
+                <option.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
                 {option.label}
               </button>
             )

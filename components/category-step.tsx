@@ -1,4 +1,4 @@
-import { Phone, MessageSquare, Banknote, DoorOpen, Globe, HelpCircle, ArrowLeft } from "lucide-react"
+import { Phone, MessageSquare, Banknote, DoorOpen, Globe, Video, HelpCircle, ArrowLeft } from "lucide-react"
 import type { Category } from "@/lib/analyze"
 
 const moneyOption: { value: Category; label: string; hint: string; icon: typeof Phone } = {
@@ -13,6 +13,7 @@ const options: { value: Category; label: string; hint: string; icon: typeof Phon
   { value: "message", label: "A text or email", hint: "A message I received", icon: MessageSquare },
   { value: "door", label: "Someone at the door", hint: "A visitor or knock", icon: DoorOpen },
   { value: "online", label: "Something online", hint: "A website or pop-up", icon: Globe },
+  { value: "video", label: "Video call or online chat", hint: "A video call, chat app, or social message", icon: Video },
   { value: "other", label: "Something else", hint: "Not sure / other", icon: HelpCircle },
 ]
 

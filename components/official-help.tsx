@@ -6,6 +6,7 @@ interface Resource {
   description: string
   phone?: string
   phoneLabel?: string
+  phoneLabelExtra?: string
   url?: string
   urlLabel?: string
   urgent?: boolean
@@ -14,8 +15,8 @@ interface Resource {
 const resources: Resource[] = [
   {
     id: "emergency",
-    name: "Emergency — immediate danger",
-    description: "If you or someone else is in danger right now.",
+    name: "Emergency",
+    description: "Call 000 for immediate danger.",
     phone: "000",
     phoneLabel: "Call 000",
     urgent: true,
@@ -24,23 +25,25 @@ const resources: Resource[] = [
     id: "idcare",
     name: "IDCARE",
     description:
-      "Free help if you've shared personal details, or think your identity or account is compromised.",
+      "Australia's national identity and cyber support service. Contact them about identity or account compromise.",
     phone: "1800595160",
     phoneLabel: "1800 595 160",
   },
   {
     id: "scamwatch",
-    name: "Scamwatch (National Anti-Scam Centre)",
-    description: "Report a scam and check the latest scam warnings.",
+    name: "Scamwatch",
+    description:
+      "The government's anti-scam service. Report scams and check the latest warnings.",
     url: "https://www.scamwatch.gov.au",
     urlLabel: "scamwatch.gov.au",
   },
   {
     id: "acsc",
     name: "Australian Cyber Security Centre",
-    description: "Report a cyber incident, such as a hacked account or device.",
+    description: "Report cyber incidents, such as a hacked account or device.",
     phone: "1300292371",
-    phoneLabel: "1300 CYBER1 (1300 292 371)",
+    phoneLabel: "1300 CYBER1",
+    phoneLabelExtra: "(1300 292 371)",
   },
   {
     id: "police",
@@ -68,7 +71,7 @@ const resources: Resource[] = [
 export function OfficialHelp({
   ids,
   title = "Official help in Australia",
-  description = "Trusted services you can contact directly, any time.",
+  description = "Official Australian services you can contact directly to check, report, or get support — whenever you decide to.",
   showReminder = false,
 }: {
   ids?: string[]
@@ -136,10 +139,18 @@ export function OfficialHelp({
             {r.phone && (
               <a
                 href={`tel:${r.phone}`}
-                className="inline-flex w-fit items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
+                className="inline-flex min-h-11 w-fit max-w-full items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
               >
-                <Phone className="h-5 w-5" aria-hidden="true" />
-                {r.phoneLabel}
+                <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  {r.phoneLabel}
+                  {r.phoneLabelExtra && (
+                    <span className="hidden sm:inline">
+                      {" "}
+                      {r.phoneLabelExtra}
+                    </span>
+                  )}
+                </span>
               </a>
             )}
             {r.url && (

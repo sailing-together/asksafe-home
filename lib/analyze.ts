@@ -6,6 +6,7 @@ export type Category =
   | "caller"
   | "door"
   | "online"
+  | "video"
   | "other"
 
 export type RequestType =
@@ -14,6 +15,8 @@ export type RequestType =
   | "code"
   | "details"
   | "callback"
+  | "install"
+  | "screen"
   | "unsure"
 
 // What each "what do they want" choice signals, and how strongly.
@@ -24,6 +27,8 @@ const REQUEST_SIGNALS: Record<
   pay: { weight: "high", reason: "asking you to pay or transfer money" },
   code: { weight: "high", reason: "asking you to share a code" },
   details: { weight: "high", reason: "asking for your personal details" },
+  install: { weight: "high", reason: "asking you to install an app" },
+  screen: { weight: "high", reason: "asking you to share your screen" },
   link: { weight: "caution", reason: "asking you to click a link" },
   callback: { weight: "caution", reason: "asking you to call a number back" },
   unsure: { weight: "none", reason: "" },
@@ -176,6 +181,12 @@ function verifySteps(category: Category): string[] {
         "Close the page or pop-up without clicking buttons inside it.",
         "Type the website address yourself instead of using a link.",
         "If unsure, ask someone you trust to look with you.",
+      ]
+    case "video":
+      return [
+        "It's okay to end the call or close the chat at any time.",
+        "Don't install apps or share your screen because someone on the call asked you to.",
+        "Reach the person or company another way you already trust to confirm it's really them.",
       ]
     default:
       return [
