@@ -90,7 +90,7 @@ export function SituationInput({
         />
       </div>
 
-      <fieldset className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <fieldset className="mt-2 flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:mt-0 sm:p-6">
         <legend className="text-lg font-semibold text-foreground">
           What are they asking you to do?
         </legend>

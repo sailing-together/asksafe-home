@@ -24,8 +24,8 @@ const points = [
 export function HomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col gap-12 pb-16">
-      <section className="flex flex-col items-center gap-6 pt-10 text-center">
-        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-3xl border border-border bg-secondary/40 shadow-sm sm:max-w-xs">
+      <section className="flex flex-col items-center gap-6 pt-6 text-center sm:pt-10">
+        <div className="mx-auto w-full max-w-[160px] overflow-hidden rounded-3xl border border-border bg-secondary/40 shadow-sm sm:max-w-xs">
           <Image
             src="/hero-illustration.png"
             alt="An older adult sitting comfortably at home, calmly checking their phone with a protective shield nearby"
