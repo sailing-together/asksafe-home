@@ -13,9 +13,13 @@ import {
   UserRound,
   Share2,
   Check,
+  Volume2,
+  Square,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { OfficialHelp } from "@/components/official-help"
+import { useSpeechSynthesis } from "@/lib/use-voice"
 import type { SafetyResult } from "@/lib/analyze"
 import type { SupportSetup } from "@/components/trusted-support-dialog"
 
@@ -63,6 +67,21 @@ export function ResultCard({
   const style = riskStyles[result.risk]
   const RiskIcon = style.icon
   const [shared, setShared] = useState(false)
+  const speech = useSpeechSynthesis()
+
+  function readAloud() {
+    if (speech.speaking) {
+      speech.stop()
+      return
+    }
+    const script = [
+      `${style.label}. ${result.headline}`,
+      `Your safer next step. ${result.saferStep}`,
+      `What not to do yet. ${result.doNotYet.join(". ")}`,
+      `How to check it's real. ${result.verify.join(". ")}`,
+    ].join(". ")
+    speech.speak(script)
+  }
 
   async function shareSummary() {
     if (!support) return
@@ -98,6 +117,35 @@ export function ResultCard({
           {result.headline}
         </h1>
       </div>
+
+      {/* Read aloud */}
+      {speech.supported && (
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          onClick={readAloud}
+          aria-pressed={speech.speaking}
+          className={cn(
+            "h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto sm:self-start",
+            speech.speaking
+              ? "border-accent bg-accent/10 text-accent-foreground"
+              : "border-primary/30 bg-card text-primary hover:bg-secondary",
+          )}
+        >
+          {speech.speaking ? (
+            <>
+              <Square className="mr-2 h-5 w-5" aria-hidden="true" />
+              Stop reading
+            </>
+          ) : (
+            <>
+              <Volume2 className="mr-2 h-5 w-5" aria-hidden="true" />
+              Read this aloud
+            </>
+          )}
+        </Button>
+      )}
 
       {/* Safer next step */}
       <Section

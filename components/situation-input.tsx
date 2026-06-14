@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp } from "lucide-react"
+import { useRef, useState } from "react"
+import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp, Mic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
+import { useSpeechRecognition } from "@/lib/use-voice"
 import type { Category, RequestType } from "@/lib/analyze"
 
 const prompts: Record<Category, string> = {
@@ -46,6 +47,18 @@ export function SituationInput({
   const [value, setValue] = useState(initialMessage)
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
+  const voice = useSpeechRecognition()
+  // Text already present when a voice session begins, so transcripts append.
+  const voiceBaseRef = useRef("")
+
+  function handleVoice() {
+    if (voice.listening) {
+      voice.stop()
+      return
+    }
+    voiceBaseRef.current = value ? value.trimEnd() + " " : ""
+    voice.start((text) => setValue(voiceBaseRef.current + text))
+  }
 
   function toggleRequest(value: RequestType) {
     setRequests((prev) => {
@@ -92,6 +105,47 @@ export function SituationInput({
           autoFocus
           className="min-h-44 resize-none rounded-xl border-border bg-background p-4 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2"
         />
+
+        {voice.supported ? (
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={handleVoice}
+              aria-pressed={voice.listening}
+              className={cn(
+                "h-auto w-full rounded-xl px-6 py-4 text-lg font-semibold sm:w-auto",
+                voice.listening
+                  ? "border-accent bg-accent/10 text-accent-foreground"
+                  : "border-primary/30 bg-card text-primary hover:bg-secondary",
+              )}
+            >
+              {voice.listening ? (
+                <>
+                  <span
+                    className="mr-2 inline-block h-3 w-3 animate-pulse rounded-full bg-accent"
+                    aria-hidden="true"
+                  />
+                  Listening… tap to stop
+                </>
+              ) : (
+                <>
+                  <Mic className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Use voice
+                </>
+              )}
+            </Button>
+            <p className="text-base text-muted-foreground">
+              Voice stays on this device for this preview.
+            </p>
+          </div>
+        ) : (
+          <p className="text-base text-muted-foreground">
+            Voice typing isn&apos;t available in this browser. You can type your
+            answer above instead.
+          </p>
+        )}
       </div>
 
       <fieldset className="mt-4 flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:mt-1 sm:p-6">
