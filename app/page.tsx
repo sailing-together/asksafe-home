@@ -84,6 +84,7 @@ export default function Page() {
             initialMessage={prefill?.message ?? ""}
             initialRequests={prefill?.requests ?? []}
             onBack={() => setStep("category")}
+            onHome={reset}
             onSubmit={runAnalysis}
           />
         )}

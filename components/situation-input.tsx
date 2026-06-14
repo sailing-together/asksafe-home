@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp, Mic, Send } from "lucide-react"
+import { ShieldCheck, Banknote, Link2, KeyRound, IdCard, PhoneOutgoing, Download, MonitorSmartphone, CircleHelp, Mic, Send, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { StepBack } from "@/components/category-step"
@@ -44,12 +44,14 @@ export function SituationInput({
   initialRequests = [],
   onSubmit,
   onBack,
+  onHome,
 }: {
   category: Category
   initialMessage?: string
   initialRequests?: RequestType[]
   onSubmit: (message: string, requests: RequestType[]) => void
   onBack: () => void
+  onHome: () => void
 }) {
   const [value, setValue] = useState(initialMessage)
   const [details, setDetails] = useState<string[]>([])
@@ -67,7 +69,8 @@ export function SituationInput({
   ])
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const hasSelectedAction = requests.some((request) => request !== "unsure")
-  const canSubmit = value.trim().length >= 3 || (details.length > 0 && hasSelectedAction)
+  const canSendDetails = value.trim().length >= 3
+  const canAnalyze = details.length > 0
   const voice = useSpeechRecognition()
   const voiceBaseRef = useRef("")
 
@@ -96,12 +99,7 @@ export function SituationInput({
 
   function handleSubmit() {
     const text = value.trim()
-    if (!text) {
-      if (details.length > 0 && hasSelectedAction) {
-        onSubmit(details.join("\n"), requests)
-      }
-      return
-    }
+    if (!text) return
 
     const nextDetails = [...details, text]
     setDetails(nextDetails)
@@ -109,8 +107,9 @@ export function SituationInput({
     setValue("")
 
     const hasAction = hasSelectedAction || ACTION_SIGNAL_PATTERN.test(text)
+    const isShort = text.replace(/\s+/g, "").length < 12
 
-    if (!askedFollowUp && (!hasAction || text.replace(/\s+/g, "").length < 12)) {
+    if (!askedFollowUp && (!hasAction || isShort)) {
       setAskedFollowUp(true)
       setMessages((prev) => [
         ...prev,
@@ -123,7 +122,19 @@ export function SituationInput({
       return
     }
 
-    onSubmit(nextDetails.join("\n"), requests.length > 0 ? requests : ["unsure"])
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text:
+          "Thanks. You can add anything else, or choose the safer next step when you're ready.",
+      },
+    ])
+  }
+
+  function handleAnalyze() {
+    if (!canAnalyze) return
+    onSubmit(details.join("\n"), requests.length > 0 ? requests : ["unsure"])
   }
 
   const selectedRequestLabels = requestOptions
@@ -134,11 +145,23 @@ export function SituationInput({
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        if (canSubmit) handleSubmit()
+        if (canSendDetails) handleSubmit()
       }}
       className="flex flex-col gap-5 pt-6 pb-16"
     >
-      <StepBack onBack={onBack} step="Step 2 of 2" />
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <StepBack onBack={onBack} step="Step 2 of 2" />
+        </div>
+        <button
+          type="button"
+          onClick={onHome}
+          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-base font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Home className="h-5 w-5" aria-hidden="true" />
+          Home
+        </button>
+      </div>
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-balance font-heading text-3xl font-semibold text-foreground sm:text-4xl">
           Tell me what happened
@@ -251,10 +274,10 @@ export function SituationInput({
               <Button
                 type="submit"
                 size="lg"
-                disabled={!canSubmit}
+                disabled={!canSendDetails}
                 className={cn(
                   "h-auto rounded-xl px-5 py-3 text-base font-semibold sm:shrink-0",
-                  canSubmit && "shadow-sm",
+                  canSendDetails && "shadow-sm",
                 )}
               >
                 <Send className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -268,8 +291,8 @@ export function SituationInput({
       <Button
         type="button"
         size="lg"
-        disabled={!canSubmit}
-        onClick={handleSubmit}
+        disabled={!canAnalyze}
+        onClick={handleAnalyze}
         className="h-auto rounded-2xl px-8 py-5 text-xl font-semibold shadow-sm"
       >
         <ShieldCheck className="mr-2 h-6 w-6" aria-hidden="true" />
