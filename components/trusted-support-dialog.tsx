@@ -318,7 +318,7 @@ export function TrustedSupportDialog({
                 className="flex flex-col gap-5"
               >
                 <p className="text-base leading-relaxed text-muted-foreground">
-                  We sent a 6-digit code for this preview.
+                  Enter the 6-digit code to continue.
                 </p>
 
                 <div className="flex flex-col gap-2">

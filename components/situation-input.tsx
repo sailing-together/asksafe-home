@@ -48,16 +48,18 @@ export function SituationInput({
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSubmit = value.trim().length >= 3 || requests.some((r) => r !== "unsure")
   const voice = useSpeechRecognition()
-  // Text already present when a voice session begins, so transcripts append.
-  const voiceBaseRef = useRef("")
+  const voiceTextRef = useRef("")
 
   function handleVoice() {
     if (voice.listening) {
       voice.stop()
       return
     }
-    voiceBaseRef.current = value ? value.trimEnd() + " " : ""
-    voice.start((text) => setValue(voiceBaseRef.current + text))
+    voiceTextRef.current = value.trim()
+    voice.start((text) => {
+      voiceTextRef.current = [voiceTextRef.current, text].filter(Boolean).join(" ")
+      setValue(voiceTextRef.current)
+    })
   }
 
   function toggleRequest(value: RequestType) {
@@ -127,7 +129,7 @@ export function SituationInput({
                     className="mr-2 inline-block h-3 w-3 animate-pulse rounded-full bg-accent"
                     aria-hidden="true"
                   />
-                  Listening...
+                  Listening... Tap again to stop
                 </>
               ) : (
                 <>
@@ -136,9 +138,6 @@ export function SituationInput({
                 </>
               )}
             </Button>
-            <p className="text-base text-muted-foreground">
-              Voice stays on this device for this preview.
-            </p>
           </div>
         ) : (
           <p className="text-base text-muted-foreground">

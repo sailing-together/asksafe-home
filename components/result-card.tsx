@@ -228,7 +228,7 @@ export function ResultCard({
       ) : (
         <div className="flex flex-col gap-3 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-lg font-medium leading-relaxed text-foreground">
-            It&apos;s your choice ��� if you&apos;d like a second opinion, talk it
+            It&apos;s your choice - if you&apos;d like a second opinion, talk it
             over with someone you trust.
           </p>
           <Button
