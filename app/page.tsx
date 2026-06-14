@@ -45,7 +45,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <AppHeader onOpenSupport={() => setSupportOpen(true)} />
       <main className="mx-auto w-full max-w-3xl px-5">
         {step === "home" && (
           <HomeScreen

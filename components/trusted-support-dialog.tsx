@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserRound, Copy, Check, ArrowLeft, ShieldCheck, X } from "lucide-react"
+import { UserRound, Copy, Check, ShieldCheck, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils"
 
 export type SupportSetup = {
+  yourName: string
+  role: "self" | "helper"
   name: string
   relationship: string
   contact: string
@@ -24,6 +25,11 @@ const relationships = [
   "Other",
 ]
 
+const roleLabels: Record<SupportSetup["role"], string> = {
+  self: "Checking something for myself",
+  helper: "Helping someone I trust",
+}
+
 function makeCode() {
   const digits = Math.floor(1000 + Math.random() * 9000)
   return `SAFE-${digits}`
@@ -40,6 +46,8 @@ export function TrustedSupportDialog({
   onClose: () => void
   onCreate: (support: SupportSetup) => void
 }) {
+  const [yourName, setYourName] = useState("")
+  const [role, setRole] = useState<SupportSetup["role"]>("self")
   const [name, setName] = useState("")
   const [relationship, setRelationship] = useState("")
   const [contact, setContact] = useState("")
@@ -50,6 +58,8 @@ export function TrustedSupportDialog({
   useEffect(() => {
     if (open) {
       setCreated(existing)
+      setYourName(existing?.yourName ?? "")
+      setRole(existing?.role ?? "self")
       setName(existing?.name ?? "")
       setRelationship(existing?.relationship ?? "")
       setContact(existing?.contact ?? "")
@@ -69,14 +79,17 @@ export function TrustedSupportDialog({
 
   if (!open) return null
 
-  function handleSubmit(e: React.FormEvent) {
+  function saveSetup(e: React.FormEvent) {
     e.preventDefault()
     if (name.trim().length < 1) return
     const support: SupportSetup = {
+      yourName: yourName.trim(),
+      role,
       name: name.trim(),
       relationship: relationship || "Other",
       contact: contact.trim(),
-      code: makeCode(),
+      // Keep an existing code if there is one, otherwise make a fresh one.
+      code: created?.code ?? makeCode(),
     }
     setCreated(support)
     onCreate(support)
@@ -114,7 +127,7 @@ export function TrustedSupportDialog({
               id="support-dialog-title"
               className="font-heading text-2xl font-semibold text-foreground"
             >
-              {created ? "Your support code" : "Choose someone you trust"}
+              {created ? "My support" : "Set up my support"}
             </h2>
           </div>
           <button
@@ -128,11 +141,53 @@ export function TrustedSupportDialog({
         </div>
 
         {!created ? (
-          <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-5">
+          <form onSubmit={saveSetup} className="mt-5 flex flex-col gap-5">
             <p className="text-base leading-relaxed text-muted-foreground">
-              This could be a family member, close friend, neighbour, carer, or
-              community support worker. You stay in control of what is shared.
+              You can use AskSafe without setting this up. Adding someone you
+              trust makes it easier to ask for a second opinion.
             </p>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="your-name" className="text-base font-semibold text-foreground">
+                Your name or nickname
+              </Label>
+              <input
+                id="your-name"
+                type="text"
+                value={yourName}
+                onChange={(e) => setYourName(e.target.value)}
+                placeholder="For example, Margaret"
+                className="h-12 rounded-xl border border-border bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-2 text-base font-semibold text-foreground">
+                I am:
+              </legend>
+              <div className="flex flex-col gap-2">
+                {(Object.keys(roleLabels) as SupportSetup["role"][]).map((r) => (
+                  <label
+                    key={r}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-lg transition-colors ${
+                      role === r
+                        ? "border-primary bg-primary/8 text-foreground"
+                        : "border-border bg-background text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="support-role"
+                      value={r}
+                      checked={role === r}
+                      onChange={() => setRole(r)}
+                      className="h-5 w-5 accent-[var(--primary)]"
+                    />
+                    {roleLabels[r]}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="trusted-name" className="text-base font-semibold text-foreground">
@@ -143,7 +198,6 @@ export function TrustedSupportDialog({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                autoFocus
                 placeholder="For example, Sarah"
                 className="h-12 rounded-xl border border-border bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
@@ -183,18 +237,52 @@ export function TrustedSupportDialog({
               />
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={name.trim().length < 1}
-              className="h-auto rounded-2xl px-6 py-5 text-lg font-semibold"
-            >
-              <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
-              Create support code
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={name.trim().length < 1}
+                className="h-auto rounded-2xl px-6 py-5 text-lg font-semibold"
+              >
+                <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
+                Create support code
+              </Button>
+              <Button
+                type="submit"
+                variant="outline"
+                size="lg"
+                disabled={name.trim().length < 1}
+                className="h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
+              >
+                Save support setup
+              </Button>
+            </div>
           </form>
         ) : (
           <div className="mt-5 flex flex-col gap-5">
+            <dl className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5">
+              {created.yourName && (
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-base text-muted-foreground">Your name</dt>
+                  <dd className="text-lg font-semibold text-foreground">{created.yourName}</dd>
+                </div>
+              )}
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-base text-muted-foreground">Your role</dt>
+                <dd className="text-right text-lg font-semibold text-foreground">
+                  {roleLabels[created.role]}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-base text-muted-foreground">Trusted person</dt>
+                <dd className="text-lg font-semibold text-foreground">{created.name}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-base text-muted-foreground">Relationship</dt>
+                <dd className="text-lg font-semibold text-foreground">{created.relationship}</dd>
+              </div>
+            </dl>
+
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-primary/25 bg-primary/8 p-6 text-center">
               <span className="text-base text-muted-foreground">
                 Support code for {created.name}
@@ -204,10 +292,16 @@ export function TrustedSupportDialog({
               </span>
             </div>
 
-            <p className="text-base leading-relaxed text-muted-foreground">
-              Share this code only with someone you trust. They can use it later
-              to help you review safety checks.
-            </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-base leading-relaxed text-muted-foreground">
+                Share this code only with someone you trust. They can use it
+                later to help you review safety checks. This code does not share
+                anything by itself.
+              </p>
+              <p className="text-base font-medium leading-relaxed text-foreground">
+                Nothing is shared unless you choose to share it.
+              </p>
+            </div>
 
             <div className="flex flex-col gap-3">
               <Button
@@ -228,12 +322,9 @@ export function TrustedSupportDialog({
                 variant="outline"
                 size="lg"
                 onClick={onClose}
-                className={cn(
-                  "h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary",
-                )}
+                className="h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
               >
-                <ArrowLeft className="mr-2 h-5 w-5" aria-hidden="true" />
-                Back to my result
+                Done
               </Button>
             </div>
           </div>

@@ -127,7 +127,7 @@ export function SituationInput({
                     className="mr-2 inline-block h-3 w-3 animate-pulse rounded-full bg-accent"
                     aria-hidden="true"
                   />
-                  Listening… tap to stop
+                  Listening...
                 </>
               ) : (
                 <>
@@ -142,8 +142,7 @@ export function SituationInput({
           </div>
         ) : (
           <p className="text-base text-muted-foreground">
-            Voice typing isn&apos;t available in this browser. You can type your
-            answer above instead.
+            Voice input is not supported in this browser. You can still type.
           </p>
         )}
       </div>
