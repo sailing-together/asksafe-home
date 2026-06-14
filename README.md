@@ -30,6 +30,14 @@ This repository contains the AskSafe Home web app. The current version includes 
 
 The current safety analysis is rule-based and deterministic. It is intended to make the product flow shippable while backend, persistence, and AI orchestration are added carefully.
 
+## Project Origin And Development Link
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+
+This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+
+[Continue working on v0 ->](https://v0.app/chat/projects/prj_ljiBkwnzAI2ce9pSOVKGKpymUJdw)
+
 ## Tech Stack
 
 - Next.js App Router
@@ -72,3 +80,9 @@ AskSafe Home is not an emergency service, government service, legal adviser, fin
 Users should not enter passwords, one-time codes, full card numbers, or sensitive identity details.
 
 If someone is in immediate danger in Australia, call `000`.
+
+## Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
