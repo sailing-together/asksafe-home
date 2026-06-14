@@ -20,3 +20,14 @@ test("includes structured risk signals from the safety rules engine", () => {
   )
 })
 
+test("includes trusted scam pattern and source ids in analysis results", () => {
+  const result = analyze(
+    "Your parcel is waiting. Pay a small redelivery fee at this link today.",
+    "message",
+    ["link", "pay"],
+  )
+
+  assert.equal(result.risk, "high")
+  assert.equal(result.scamTypeIds.includes("delivery-parcel"), true)
+  assert.equal(result.sourceIds.includes("scamwatch-types"), true)
+})

@@ -18,6 +18,33 @@ test("flags a family money request as high risk and asks for payment method", ()
   assert.equal(assessment.suggestedRequests.includes("pay"), true)
 })
 
+test("matches family emergency trusted scam pattern with source ids", () => {
+  const assessment = assessSafetyInput({
+    message: "Hi Mum, I broke my phone. Please send money urgently to this new account and do not call me.",
+    category: "message",
+    requests: [],
+  })
+
+  assert.equal(assessment.riskLevel, "high")
+  assert.equal(assessment.scamTypeIds.includes("family-emergency"), true)
+  assert.equal(assessment.sourceIds.includes("scamwatch-types"), true)
+  assert.equal(assessment.sourceIds.includes("scamwatch-methods"), true)
+  assert.match(assessment.saferNextStep, /call.*family.*saved/i)
+})
+
+test("matches parcel delivery fee trusted scam pattern with official-channel guidance", () => {
+  const assessment = assessSafetyInput({
+    message: "Your parcel is waiting. Pay a small redelivery fee at this link today.",
+    category: "message",
+    requests: ["link", "pay"],
+  })
+
+  assert.equal(assessment.riskLevel, "high")
+  assert.equal(assessment.scamTypeIds.includes("delivery-parcel"), true)
+  assert.equal(assessment.sourceIds.includes("scamwatch-types"), true)
+  assert.match(assessment.saferNextStep, /official delivery app or website/i)
+})
+
 test("flags remote access requests as high risk with device guidance", () => {
   const assessment = assessSafetyInput({
     message: "the caller told me to install anydesk and share my screen",
