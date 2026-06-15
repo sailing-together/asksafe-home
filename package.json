@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts"
+    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/official-help-resources.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

@@ -9,6 +9,7 @@ import {
   Ban,
   Info,
   ListChecks,
+  SearchCheck,
   RotateCcw,
   UserRound,
   Share2,
@@ -161,6 +162,30 @@ export function ResultCard({
           {result.saferStep}
         </p>
       </Section>
+
+      {result.riskSignals.length > 0 && (
+        <Section
+          icon={SearchCheck}
+          iconClass="text-primary"
+          title="What I noticed"
+        >
+          <ul className="flex flex-wrap gap-2.5">
+            {result.riskSignals.slice(0, 4).map((signal) => (
+              <li
+                key={signal.id}
+                className="rounded-full bg-secondary px-3 py-2 text-base font-medium text-primary"
+              >
+                {signal.label}
+              </li>
+            ))}
+          </ul>
+          {result.sourceIds.length > 0 && (
+            <p className="text-base leading-relaxed text-muted-foreground">
+              Based on common scam-safety patterns from Australian sources.
+            </p>
+          )}
+        </Section>
+      )}
 
       {/* What not to do yet */}
       <Section icon={Ban} iconClass="text-destructive" title="What not to do yet">
