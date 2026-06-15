@@ -1,72 +1,5 @@
 import { Phone, ExternalLink, AlertTriangle, ShieldAlert } from "lucide-react"
-
-interface Resource {
-  id: string
-  name: string
-  description: string
-  phone?: string
-  phoneLabel?: string
-  phoneLabelExtra?: string
-  url?: string
-  urlLabel?: string
-  urgent?: boolean
-}
-
-const resources: Resource[] = [
-  {
-    id: "emergency",
-    name: "Emergency",
-    description: "Call 000 for immediate danger.",
-    phone: "000",
-    phoneLabel: "Call 000",
-    urgent: true,
-  },
-  {
-    id: "idcare",
-    name: "IDCARE",
-    description:
-      "Australia's national identity and cyber support service. Contact them about identity or account compromise.",
-    phone: "1800595160",
-    phoneLabel: "1800 595 160",
-  },
-  {
-    id: "scamwatch",
-    name: "Scamwatch",
-    description:
-      "The government's anti-scam service. Report scams and check the latest warnings.",
-    url: "https://www.scamwatch.gov.au",
-    urlLabel: "scamwatch.gov.au",
-  },
-  {
-    id: "acsc",
-    name: "Australian Cyber Security Centre",
-    description: "Report cyber incidents, such as a hacked account or device.",
-    phone: "1300292371",
-    phoneLabel: "1300 CYBER1",
-    phoneLabelExtra: "(1300 292 371)",
-  },
-  {
-    id: "police",
-    name: "Police Assistance Line",
-    description: "Report non-urgent crime or get advice from police.",
-    phone: "131444",
-    phoneLabel: "131 444",
-  },
-  {
-    id: "opan",
-    name: "Older Persons Advocacy Network",
-    description: "Confidential support and advice for older Australians.",
-    phone: "1800353374",
-    phoneLabel: "1800 353 374",
-  },
-  {
-    id: "lifeline",
-    name: "Lifeline",
-    description: "Someone to talk to, any time, if you're feeling distressed.",
-    phone: "131114",
-    phoneLabel: "13 11 14",
-  },
-]
+import { getOfficialHelpResources } from "@/lib/official-help-resources"
 
 export function OfficialHelp({
   ids,
@@ -79,11 +12,7 @@ export function OfficialHelp({
   description?: string
   showReminder?: boolean
 }) {
-  const list = ids
-    ? ids
-        .map((id) => resources.find((r) => r.id === id))
-        .filter((r): r is Resource => Boolean(r))
-    : resources
+  const list = getOfficialHelpResources(ids)
 
   return (
     <section aria-labelledby="official-help" className="flex flex-col gap-5">

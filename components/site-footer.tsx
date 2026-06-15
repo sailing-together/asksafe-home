@@ -1,8 +1,12 @@
 import { ShieldLogo } from "@/components/shield-logo"
+import { getOfficialHelpResources } from "@/lib/official-help-resources"
 
 const footerLinks = ["Privacy", "Disclaimer", "Accessibility", "GitHub"]
+const officialHelpIds = ["emergency", "scamwatch", "idcare", "acsc"]
 
 export function SiteFooter() {
+  const officialHelp = getOfficialHelpResources(officialHelpIds)
+
   return (
     <footer className="mt-16 border-t border-border bg-secondary/40">
       <div className="mx-auto w-full max-w-3xl px-5 py-10">
@@ -32,9 +36,30 @@ export function SiteFooter() {
         {/* Official help */}
         <div className="mt-6">
           <p className="text-sm font-semibold text-foreground">Official help</p>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Emergency 000 · Scamwatch · IDCARE · Australian Cyber Security Centre
-          </p>
+          <ul className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-2 text-sm text-muted-foreground">
+            {officialHelp.map((resource, index) => (
+              <li key={resource.id} className="flex items-center gap-2">
+                {index > 0 && (
+                  <span aria-hidden="true" className="text-border">
+                    ·
+                  </span>
+                )}
+                <a
+                  href={
+                    resource.url ??
+                    (resource.phone ? `tel:${resource.phone}` : undefined)
+                  }
+                  target={resource.url ? "_blank" : undefined}
+                  rel={resource.url ? "noopener noreferrer" : undefined}
+                  className="hover:text-primary hover:underline"
+                >
+                  {resource.id === "emergency"
+                    ? "Emergency 000"
+                    : resource.name}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Links (rendered as plain text until pages exist) */}
