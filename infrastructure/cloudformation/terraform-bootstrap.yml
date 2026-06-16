@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: AskSafe Home Terraform backend and GitHub Actions OIDC bootstrap.
+
+Parameters:
+  StateBucketName:
+    Type: String
+    Description: Globally unique S3 bucket name for Terraform remote state.
+    AllowedPattern: "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+
+  LockTableName:
+    Type: String
+    Default: asksafe-home-tflock
+    Description: DynamoDB table name for Terraform state locking.
+
+  TerraformStateKey:
+    Type: String
+    Default: asksafe-home/prod/terraform.tfstate
+    Description: Exact S3 object key that GitHub Actions Terraform may read and write.
+
+  GitHubOrg:
+    Type: String
+    Default: sailing-together
+    Description: GitHub organization or user that owns the app repository.
+
+  GitHubRepo:
+    Type: String
+    Default: asksafe-home
+    Description: GitHub repository allowed to assume the Terraform role.
+
+  GitHubEnvironment:
+    Type: String
+    Default: aws-infra
+    Description: GitHub environment required in the OIDC subject claim.
+
+  TerraformRoleName:
+    Type: String
+    Default: AskSafeHomeGitHubActionsTerraformRole
+    Description: IAM role assumed by GitHub Actions through OIDC.
+
+  AppProjectName:
+    Type: String
+    Default: asksafe-home
+    Description: Terraform project_name used to name future app resources.
+
+  AppEnvironment:
+    Type: String
+    Default: prod
+    Description: Terraform environment used to name future app resources.
+
+Resources:
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref StateBucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldStateVersions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 90
+      Tags:
+        - Key: Project
+          Value: AskSafeHome
+        - Key: Purpose
+          Value: Terraform state
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  TerraformLockTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Ref LockTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: AskSafeHome
+        - Key: Purpose
+          Value: Terraform state lock
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1b511abead59c6ce207077c0bf0e0043b1382612
+
+  GitHubActionsTerraformRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref TerraformRoleName
+      Description: Limited role for AskSafe Home GitHub Actions Terraform runs.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${GitHubRepo}:environment:${GitHubEnvironment}
+      Policies:
+        - PolicyName: AskSafeHomeTerraformLeastPrivilege
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: TerraformStateObjectAccess
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub arn:${AWS::Partition}:s3:::${StateBucketName}/${TerraformStateKey}
+
+              - Sid: TerraformStateBucketList
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource: !Sub arn:${AWS::Partition}:s3:::${StateBucketName}
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - !Ref TerraformStateKey
+
+              - Sid: TerraformStateLockAccess
+                Effect: Allow
+                Action:
+                  - dynamodb:DescribeTable
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:UpdateItem
+                Resource: !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${LockTableName}
+
+              - Sid: ManageAskSafeHomeAppDynamoTables
+                Effect: Allow
+                Action:
+                  - dynamodb:CreateTable
+                  - dynamodb:DeleteTable
+                  - dynamodb:DescribeTable
+                  - dynamodb:UpdateTable
+                  - dynamodb:TagResource
+                  - dynamodb:UntagResource
+                  - dynamodb:ListTagsOfResource
+                  - dynamodb:UpdateTimeToLive
+                  - dynamodb:DescribeTimeToLive
+                Resource:
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AppProjectName}-${AppEnvironment}-users
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AppProjectName}-${AppEnvironment}-households
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AppProjectName}-${AppEnvironment}-events
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AppProjectName}-${AppEnvironment}-feedback
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AppProjectName}-${AppEnvironment}-support-events
+
+              - Sid: ReadDynamoTableListForTerraform
+                Effect: Allow
+                Action:
+                  - dynamodb:ListTables
+                Resource: "*"
+      Tags:
+        - Key: Project
+          Value: AskSafeHome
+        - Key: Purpose
+          Value: GitHub Actions Terraform
+        - Key: ManagedBy
+          Value: CloudFormation
+
+Outputs:
+  StateBucketName:
+    Description: S3 bucket for Terraform state.
+    Value: !Ref TerraformStateBucket
+
+  LockTableName:
+    Description: DynamoDB lock table for Terraform state.
+    Value: !Ref TerraformLockTable
+
+  GitHubActionsRoleArn:
+    Description: Store this ARN as GitHub secret AWS_GITHUB_ACTIONS_ROLE_ARN.
+    Value: !GetAtt GitHubActionsTerraformRole.Arn
+
+  TerraformBackendConfig:
+    Description: Backend config values for terraform init.
+    Value: !Sub bucket=${StateBucketName},key=${TerraformStateKey},region=${AWS::Region},dynamodb_table=${LockTableName}
