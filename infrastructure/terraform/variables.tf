@@ -15,3 +15,9 @@ variable "environment" {
   description = "Environment name for AWS resources."
   default     = "prod"
 }
+
+variable "bedrock_model_arns" {
+  type        = list(string)
+  description = "Optional Bedrock model ARNs the server runtime may invoke. Leave empty until Bedrock access is approved."
+  default     = []
+}

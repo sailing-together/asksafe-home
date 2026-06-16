@@ -5,20 +5,27 @@ point for AskSafe Home.
 
 ## Scope
 
-This phase adds only the AWS bootstrap foundation:
+This folder is split into two layers.
+
+Bootstrap resources are created once with CloudFormation:
 
 - S3 bucket for Terraform remote state
 - DynamoDB table for Terraform state locking
 - GitHub Actions OIDC provider
 - Limited GitHub Actions role for Terraform
-- Terraform backend example wiring for future app resources
 
-This phase does not create:
+App resources are managed with Terraform:
 
-- application DynamoDB tables
-- Bedrock runtime integration
+- DynamoDB application tables
+- runtime IAM policy for server-side app access
+- Terraform outputs for Vercel runtime configuration
+
+This folder does not create:
+
 - Next.js API routes
-- Vercel runtime credentials
+- Vercel secrets
+- direct browser access to AWS
+- Bedrock runtime code
 
 Do not use v0.app, Vercel, or generated application code to manage these
 admin-level bootstrap resources.
@@ -78,3 +85,24 @@ Repository secret:
 
 The normal app Terraform workflow may later destroy app resources only. It must
 not destroy the state bucket, lock table, OIDC provider, or Terraform role.
+
+## App Terraform Resources
+
+The Terraform project under `terraform/` manages the first deployable AWS app
+resources:
+
+- `${project_name}-${environment}-users`
+- `${project_name}-${environment}-households`
+- `${project_name}-${environment}-events`
+- `${project_name}-${environment}-feedback`
+- `${project_name}-${environment}-support-events`
+- `${project_name}-${environment}-runtime-policy`
+
+Default names use `project_name=asksafe-home` and `environment=prod`.
+
+The DynamoDB tables use pay-per-request billing and server-side encryption.
+Event-like tables enable TTL through an `expiresAt` item attribute so the app can
+avoid keeping safety-check records longer than needed.
+
+Terraform outputs include suggested Vercel environment variable names for the
+future server-side runtime.
