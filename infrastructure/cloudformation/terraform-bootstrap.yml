@@ -188,6 +188,21 @@ Resources:
                 Action:
                   - dynamodb:ListTables
                 Resource: "*"
+
+              - Sid: ManageAskSafeHomeRuntimePolicy
+                Effect: Allow
+                Action:
+                  - iam:CreatePolicy
+                  - iam:CreatePolicyVersion
+                  - iam:DeletePolicy
+                  - iam:DeletePolicyVersion
+                  - iam:GetPolicy
+                  - iam:GetPolicyVersion
+                  - iam:ListPolicyVersions
+                  - iam:ListPolicyTags
+                  - iam:TagPolicy
+                  - iam:UntagPolicy
+                Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppProjectName}-${AppEnvironment}-runtime-policy
       Tags:
         - Key: Project
           Value: AskSafeHome
