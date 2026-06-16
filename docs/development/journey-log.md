@@ -4,6 +4,9 @@ This log records how AskSafe Home has evolved from a working UI preview into a
 shippable safety decision workflow. It is intentionally written as a product and
 engineering record, not a changelog of every commit.
 
+For the detailed prompt-by-prompt v0.app build path, see
+`docs/development/v0-iteration-log.md`.
+
 ## Product North Star
 
 AskSafe Home exists to reduce uncertainty, loneliness, fear, and decision
@@ -236,21 +239,27 @@ Important design choices:
 This design was aligned with the earlier H0 architecture work and moved into the
 formal `asksafe-home` repo as product architecture.
 
-## Phase 10: AWS Bootstrap Foundation
+## Infrastructure Code Milestones
 
-P3.1 added the AWS bootstrap foundation.
+The product journey and infrastructure readiness moved in parallel. The entries
+below record code milestones, not completed AWS deployment.
 
-Added:
+### P3.1 AWS Bootstrap Foundation Code
+
+P3.1 added the bootstrap infrastructure code needed before app resources can be
+deployed safely.
+
+Merged code scope:
 
 - CloudFormation template for Terraform remote state
-- S3 state bucket
-- DynamoDB state lock table
-- GitHub Actions OIDC provider
-- limited Terraform role
+- S3 state bucket definition
+- DynamoDB state lock table definition
+- GitHub Actions OIDC provider definition
+- limited Terraform deploy role definition
 - Terraform backend example
 - Terraform state/cache ignore rules
 
-AWS account details recorded for deployment:
+Deployment target recorded for later AWS setup:
 
 - AWS account name: `AskSafe Home`
 - AWS account ID: `893794041695`
@@ -262,11 +271,22 @@ The bootstrap layer is intentionally separate from app Terraform resources so
 future app cleanup cannot destroy the state bucket, lock table, OIDC provider,
 or Terraform role.
 
-## Phase 11: Terraform App Infrastructure
+Status:
 
-P3.2 added Terraform-managed app infrastructure.
+- code merged
+- AWS deployment not yet run
 
-Added:
+Still not done:
+
+- the CloudFormation stack has not been deployed from this repo
+- GitHub Actions has not yet been wired to run Terraform
+- no app DynamoDB tables have been created in AWS
+
+### P3.2 Terraform App Infrastructure Code
+
+P3.2 added Terraform code for the first app-managed AWS resources.
+
+Merged code scope:
 
 - users table
 - households table
@@ -279,6 +299,18 @@ Added:
 
 This moves AskSafe Home closer to shippable cloud-backed software while keeping
 the frontend working without AWS during local development.
+
+Status:
+
+- code merged
+- Terraform apply not yet run
+
+Still not done:
+
+- Terraform has not yet been run through GitHub Actions
+- Vercel runtime environment variables have not yet been connected
+- Next.js server routes do not yet persist events to DynamoDB
+- Bedrock runtime code is not yet integrated
 
 ## Product Ideas Recorded For Later
 
