@@ -106,3 +106,35 @@ avoid keeping safety-check records longer than needed.
 
 Terraform outputs include suggested Vercel environment variable names for the
 future server-side runtime.
+
+## Terraform GitHub Actions Workflow
+
+After the CloudFormation bootstrap stack is deployed and the
+`AWS_GITHUB_ACTIONS_ROLE_ARN` secret is set, use the `Terraform` GitHub Actions
+workflow to run app infrastructure changes.
+
+The workflow is manual only and supports:
+
+- `plan`
+- `apply`
+- `destroy`
+
+All jobs run through the protected GitHub environment `aws-infra` and assume the
+AWS role through OIDC. Do not add long-lived AWS access keys to GitHub.
+
+Expected repository variables:
+
+- `AWS_REGION=ap-southeast-2`
+- `TF_STATE_BUCKET=asksafe-home-tfstate-893794041695`
+- `TF_STATE_KEY=asksafe-home/prod/terraform.tfstate`
+- `TF_LOCK_TABLE=asksafe-home-tflock`
+- `TF_PROJECT_NAME=asksafe-home`
+- `TF_ENVIRONMENT=prod`
+
+Expected repository secret:
+
+- `AWS_GITHUB_ACTIONS_ROLE_ARN=<CloudFormation GitHubActionsRoleArn output>`
+
+Destroy requires selecting `destroy` and typing `destroy` into the
+`confirm_destroy` input. GitHub environment protection should also require a
+reviewer before allowing destructive runs.
