@@ -1,0 +1,12 @@
+# Copy these values into GitHub repository variables after the
+# CloudFormation bootstrap stack is created.
+#
+# The real backend block is intentionally empty in versions.tf so CI can pass
+# these values through terraform init -backend-config without committing
+# account-specific backend settings into app Terraform.
+
+bucket         = "asksafe-home-tfstate-<aws-account-id>"
+key            = "asksafe-home/prod/terraform.tfstate"
+region         = "ap-southeast-2"
+dynamodb_table = "asksafe-home-tflock"
+encrypt        = true
