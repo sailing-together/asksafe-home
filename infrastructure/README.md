@@ -52,6 +52,10 @@ The S3 bucket and DynamoDB lock table are retained on stack deletion. Delete
 them manually only after every Terraform state file has been backed up or is no
 longer needed.
 
+If this bootstrap template changes, update the CloudFormation stack before
+rerunning Terraform in GitHub Actions. Terraform's S3 backend lists state
+workspace prefixes during `terraform init`.
+
 ## Configure GitHub
 
 In the `sailing-together/asksafe-home` repository:
