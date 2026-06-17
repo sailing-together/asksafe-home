@@ -274,9 +274,9 @@ or Terraform role.
 Status:
 
 - code merged
-- AWS deployment not yet run
+- AWS deployment later completed through the CloudFormation bootstrap stack
 
-Still not done:
+At the time this code merged, still not done:
 
 - the CloudFormation stack has not been deployed from this repo
 - GitHub Actions has not yet been wired to run Terraform
@@ -303,14 +303,98 @@ the frontend working without AWS during local development.
 Status:
 
 - code merged
-- Terraform apply not yet run
+- Terraform apply later completed through GitHub Actions
 
-Still not done:
+At the time this code merged, still not done:
 
 - Terraform has not yet been run through GitHub Actions
 - Vercel runtime environment variables have not yet been connected
 - Next.js server routes do not yet persist events to DynamoDB
 - Bedrock runtime code is not yet integrated
+
+### P3.3 GitHub Actions Terraform Workflow Code
+
+P3.3 added the manual GitHub Actions workflow used to run Terraform from the
+protected `aws-infra` GitHub environment.
+
+Merged code scope:
+
+- manual `plan`, `apply`, and `destroy` workflow actions
+- OIDC-based AWS role assumption
+- Terraform backend initialization from repository variables
+- `terraform fmt`, `terraform validate`, and plan/apply steps
+- explicit destroy confirmation guard
+
+This created a safer operational path than running Terraform from a local
+machine with long-lived AWS keys.
+
+### P3.4 Terraform Backend Permission Fix
+
+The first Terraform plan reached AWS successfully, which confirmed the GitHub
+Actions OIDC trust path was working.
+
+The first failure was during `terraform init`:
+
+- Terraform needed to list S3 backend workspace prefixes
+- the bootstrap role's S3 bucket list permission was too narrow
+- AWS denied `s3:ListBucket`
+
+Fix:
+
+- expand the Terraform state bucket `s3:ListBucket` prefix condition to include
+  backend workspace prefixes such as `env:`
+- document that CloudFormation stack updates are required when the bootstrap
+  template changes
+
+After updating the CloudFormation stack, Terraform plan succeeded.
+
+### P3.5 DynamoDB Apply Permission Fix
+
+The first Terraform apply started creating the DynamoDB tables, then failed
+during provider read-after-create checks.
+
+The failure was:
+
+- `dynamodb:DescribeContinuousBackups` was missing from the GitHub Actions
+  Terraform role
+- the AWS provider reads continuous backup status after table creation
+
+Fix:
+
+- add `dynamodb:DescribeContinuousBackups` to the app table management scope in
+  the bootstrap role
+- document provider read-after-create permissions in the infrastructure README
+
+After updating the CloudFormation stack again, Terraform apply completed.
+
+### P3.6 AWS Apply Run Record
+
+The AWS infrastructure path is now operational.
+
+Completed:
+
+- CloudFormation bootstrap stack deployed
+- GitHub repository variables configured
+- GitHub repository secret `AWS_GITHUB_ACTIONS_ROLE_ARN` configured from the
+  CloudFormation output
+- GitHub Actions Terraform `plan` succeeded
+- GitHub Actions Terraform `apply` succeeded
+
+AWS resources now created:
+
+- `asksafe-home-prod-users`
+- `asksafe-home-prod-households`
+- `asksafe-home-prod-events`
+- `asksafe-home-prod-feedback`
+- `asksafe-home-prod-support-events`
+- `asksafe-home-prod-runtime-policy`
+
+Important boundary:
+
+This completes the infrastructure foundation, not backend product integration.
+The Next.js app still needs server-side code to persist safety checks, support
+events, and feedback to DynamoDB. Bedrock remains intentionally later, after the
+data and safety boundaries are working.
 
 ## Product Ideas Recorded For Later
 
@@ -354,9 +438,10 @@ decision workflow.
 
 The next useful work should continue to follow the product architecture:
 
-1. Add GitHub Actions Terraform workflow with protected environment approval.
-2. Bootstrap AWS account resources safely.
-3. Add server-side persistence routes.
+1. Add server-side persistence routes for safety checks, support events, and
+   feedback.
+2. Connect Vercel runtime environment variables to the Terraform outputs.
+3. Keep raw sensitive text minimised by default.
 4. Add Bedrock explanation assist only after deterministic rules remain stable.
 5. Keep improving the guided workflow so it reduces uncertainty instead of
    feeling like a shallow chatbot.
