@@ -56,6 +56,9 @@ If this bootstrap template changes, update the CloudFormation stack before
 rerunning Terraform in GitHub Actions. Terraform's S3 backend lists state
 workspace prefixes during `terraform init`.
 
+The GitHub Actions Terraform role also needs read-after-create permissions used
+by AWS providers, such as DynamoDB continuous backup status checks during apply.
+
 ## Configure GitHub
 
 In the `sailing-together/asksafe-home` repository:
