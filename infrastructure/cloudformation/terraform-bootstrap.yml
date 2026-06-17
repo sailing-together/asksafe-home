@@ -152,7 +152,11 @@ Resources:
                 Condition:
                   StringLike:
                     s3:prefix:
+                      - ""
                       - !Ref TerraformStateKey
+                      - !Sub "${TerraformStateKey}*"
+                      - "env:"
+                      - "env:/*"
 
               - Sid: TerraformStateLockAccess
                 Effect: Allow
