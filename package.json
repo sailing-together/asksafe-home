@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts"
+    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts lib/server/safety-event-route.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1069.0",
