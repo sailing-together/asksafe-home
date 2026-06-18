@@ -396,6 +396,78 @@ The Next.js app still needs server-side code to persist safety checks, support
 events, and feedback to DynamoDB. Bedrock remains intentionally later, after the
 data and safety boundaries are working.
 
+## Runtime Integration Milestones
+
+### P4.1 DynamoDB Runtime Client Foundation
+
+P4.1 added the first server-side runtime foundation for writing AskSafe Home
+metadata to DynamoDB from the Next.js app.
+
+Merged code scope:
+
+- AWS runtime environment validation for required table names
+- server-only DynamoDB DocumentClient factory
+- persistence helpers for safety events, feedback events, and support events
+- tests proving safety event persistence excludes raw message text by default
+- explicit package build-script approvals for transitive dependencies
+
+Important boundary:
+
+This phase created reusable persistence helpers. It did not yet expose an API
+route, connect the frontend, add authentication, or call Bedrock.
+
+### P4.2 Safety Event API Route
+
+P4.2 added the first server API boundary between the frontend flow and DynamoDB
+persistence.
+
+Merged code scope:
+
+- `POST /api/safety-events`
+- server route helper for payload validation and response mapping
+- API responses for successful writes, missing AWS config, invalid payloads, and
+  write failures
+- tests confirming raw message text is stripped or ignored before persistence
+
+Important boundary:
+
+The route accepts only sanitized safety metadata. It does not require or store
+raw user message text, and it does not add Bedrock, login, feedback persistence,
+or support-event UI integration.
+
+### P4.3 Frontend Safety Event Persistence
+
+P4.3 connected the completed local result flow to the safety event API.
+
+Merged code scope:
+
+- browser-safe safety event client helper
+- sanitized payload builder for category, selected request types, risk level,
+  risk signals, scam type ids, and source ids
+- fire-and-forget API call after local analysis produces the result
+- tests proving raw message text and result copy are not sent to persistence
+- empty request selections normalized to `unsure`
+
+Product value:
+
+This completes the first end-to-end safety event loop:
+
+`user describes situation -> local rules analyze -> result appears -> sanitized event metadata is persisted`
+
+Important boundary:
+
+Persistence failure must not block the user from seeing the safer next step. The
+user-facing workflow remains local-rule-first, while DynamoDB records only
+privacy-minimized metadata for later product learning and safety analytics.
+
+Still not done after P4.3:
+
+- Vercel production environment variables still need to be checked against
+  Terraform outputs
+- feedback and trusted support event UI flows are not yet wired to persistence
+- Bedrock explanation assist remains intentionally later and should default off
+- authentication remains mocked and should not be treated as production auth
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
@@ -438,11 +510,12 @@ decision workflow.
 
 The next useful work should continue to follow the product architecture:
 
-1. Add server-side persistence routes for safety checks, support events, and
-   feedback.
-2. Connect Vercel runtime environment variables to the Terraform outputs.
+1. Check Vercel runtime environment variables against the Terraform outputs.
+2. Wire feedback and trusted support UI flows to the existing persistence
+   helpers.
 3. Keep raw sensitive text minimised by default.
-4. Add Bedrock explanation assist only after deterministic rules remain stable.
+4. Add Bedrock explanation assist only after deterministic rules remain stable,
+   with FinOps controls and a default-off flag.
 5. Keep improving the guided workflow so it reduces uncertainty instead of
    feeling like a shallow chatbot.
 
