@@ -11,6 +11,7 @@ import { TrustedSupportDialog, type SupportSetup } from "@/components/trusted-su
 import { SiteFooter } from "@/components/site-footer"
 import type { PracticeScenario } from "@/components/practice-section"
 import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
+import { recordSafetyEvent } from "@/lib/safety-event-client"
 
 type Step = "home" | "category" | "input" | "thinking" | "result"
 
@@ -43,9 +44,13 @@ export default function Page() {
 
   function runAnalysis(message: string, requests: RequestType[]) {
     setStep("thinking")
+    const selectedRequests: RequestType[] = requests.length > 0 ? requests : ["unsure"]
+
     // Brief, deliberate pause so the result doesn't feel rushed.
     window.setTimeout(() => {
-      setResult(analyze(message, category, requests))
+      const safetyResult = analyze(message, category, selectedRequests)
+      setResult(safetyResult)
+      void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult })
       setStep("result")
     }, 1600)
   }
