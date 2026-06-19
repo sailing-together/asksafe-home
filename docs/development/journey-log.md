@@ -570,6 +570,36 @@ Still not done after P5.0:
 - production Bedrock environment variables
 - Bedrock smoke test evidence
 
+### P5.1 Bedrock Runtime Foundation
+
+P5.1 added the first runtime foundation for Bedrock without enabling real model
+calls in production.
+
+Merged code scope:
+
+- server-side Bedrock environment parsing
+- default-off configuration behavior
+- bounded input, output-token, and timeout settings
+- redaction helper for common sensitive values before future model calls
+- optional explanation-assist helper that falls back when disabled, missing an
+  invoker, or when invocation fails
+- tests proving disabled mode does not call Bedrock and runtime failures do not
+  block the safety flow
+
+Important boundary:
+
+This phase does not add the AWS Bedrock SDK client, does not call Bedrock from
+production, and does not change the user-facing result flow. It prepares the
+server-side safety and FinOps boundaries for a later opt-in integration.
+
+Still not done after P5.1:
+
+- real Bedrock client wrapper
+- strict JSON response validation
+- safety invariant validation for model output
+- `/api/analyze` Bedrock integration
+- production Bedrock environment variables and smoke test evidence
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
