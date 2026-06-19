@@ -468,6 +468,28 @@ Still not done after P4.3:
 - Bedrock explanation assist remains intentionally later and should default off
 - authentication remains mocked and should not be treated as production auth
 
+### P4.3 Production Smoke Test
+
+After configuring Vercel production environment variables and scoped AWS runtime
+credentials, the production safety event API successfully wrote sanitized event
+metadata to DynamoDB.
+
+Smoke test result:
+
+- endpoint: `POST https://asksafe-home.vercel.app/api/safety-events`
+- status: `201`
+- event id: `861bd0da-ce4d-42a9-bc76-6df065ae4aad`
+- payload: sanitized metadata only, no raw message text
+
+This proves the current competition deployment can write safety event metadata
+from Vercel to AWS DynamoDB. It does not prove feedback persistence, trusted
+support persistence, production authentication, or Bedrock integration.
+
+The current Vercel-to-AWS credential path uses a tightly scoped IAM access key
+for competition speed. After the competition, the team should rotate or delete
+that key and reassess production hosting, preferably moving to AWS-native
+runtime roles if AskSafe is hosted primarily on AWS.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
