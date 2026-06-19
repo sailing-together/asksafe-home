@@ -23,3 +23,11 @@ test("sets baseline security headers for all routes", async () => {
     /default-src 'self'/,
   )
 })
+
+test("does not ignore TypeScript build errors", () => {
+  assert.notEqual(nextConfig.typescript?.ignoreBuildErrors, true)
+})
+
+test("keeps image optimization disabled for the current static asset setup", () => {
+  assert.equal(nextConfig.images?.unoptimized, true)
+})

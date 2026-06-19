@@ -55,8 +55,7 @@ The largest launch gaps are:
 - CSP is report-only and should be tightened after production observation
 - rate limiting is a competition baseline and should move to durable edge or
   distributed controls before broader public launch
-- `next.config.mjs` currently has `typescript.ignoreBuildErrors=true`
-- images are configured as `unoptimized`
+- image optimization remains disabled for the current static local asset setup
 - no documented Vercel spend alert state
 - no documented Vercel deployment protection/WAF/log drain state
 
@@ -112,7 +111,7 @@ The largest launch gaps are:
 | --- | --- | --- | --- |
 | Speed Insights | Needed before judging if available | Analytics is enabled; Speed Insights state unknown | Enable Speed Insights if available and low cost |
 | TTFB review | Needed before judging | App builds static home page; API routes are simple | Use Vercel dashboard after next deploy; watch DynamoDB API latency |
-| Image Optimization | Needed before judging | `images.unoptimized=true` in `next.config.mjs` | Re-enable Next/Vercel Image Optimization or document why static local images stay unoptimized |
+| Image Optimization | Partly handled | `images.unoptimized=true` remains in `next.config.mjs` and is covered by `next.config.test.mjs` | Keep disabled for current static local assets; revisit after historical screenshots and asset storage are cleaned up |
 | Script Optimization | Not applicable now | No third-party script load except Vercel Analytics | Keep minimal scripts |
 | Font Optimization | Handled | Uses `next/font/google` | Keep using bundled font optimization |
 | Function region matches API/database region | Needed before judging | DynamoDB is `ap-southeast-2`; Vercel function region not documented | Consider setting Vercel function region close to AWS region if supported |
@@ -140,9 +139,8 @@ The largest launch gaps are:
 
 ### P0 Remaining Before Public Judging
 
-1. Remove or justify `typescript.ignoreBuildErrors=true`.
-2. Confirm Vercel spend alerts and AWS budget alerts are enabled.
-3. Confirm production environment variables are scoped and sensitive where needed.
+1. Confirm Vercel spend alerts and AWS budget alerts are enabled.
+2. Confirm production environment variables are scoped and sensitive where needed.
 
 ### P1 Useful Before Final Submission
 
@@ -169,7 +167,7 @@ The largest launch gaps are:
 3. `p6.3-api-rate-limiting`
    - Add a small rate-limiting strategy for event APIs.
 4. `p6.4-build-config-hardening`
-   - Remove `ignoreBuildErrors`, review image optimization, and verify production build.
+   - Remove `ignoreBuildErrors`, document image optimization choice, and verify production build.
 
 ## Launch Decision
 

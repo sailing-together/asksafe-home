@@ -313,8 +313,8 @@ solve by itself:
   behavior is understood
 - replace the in-memory API rate-limit baseline with durable edge or
   distributed controls before broader public launch
-- remove or justify `typescript.ignoreBuildErrors`
-- review `images.unoptimized`
+- keep TypeScript build-error enforcement enabled
+- revisit `images.unoptimized` after asset cleanup
 - document Vercel spend alerts
 - document Vercel deployment protection decision
 - document team access roles
