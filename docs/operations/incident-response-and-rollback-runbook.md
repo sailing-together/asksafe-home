@@ -309,7 +309,8 @@ Keep the review blameless and focused on making AskSafe safer and clearer.
 The production readiness review still identified gaps that this runbook does not
 solve by itself:
 
-- add security headers and a Content Security Policy
+- tighten Content Security Policy from report-only to enforced when production
+  behavior is understood
 - add API rate limiting
 - remove or justify `typescript.ignoreBuildErrors`
 - review `images.unoptimized`
@@ -317,4 +318,3 @@ solve by itself:
 - document Vercel deployment protection decision
 - document team access roles
 - rotate or remove the temporary Vercel AWS runtime key after the competition
-

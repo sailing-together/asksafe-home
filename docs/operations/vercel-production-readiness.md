@@ -47,11 +47,11 @@ AskSafe Home has a good competition-stage production foundation:
 - DynamoDB metadata persistence is production-verified
 - Bedrock is default-off and protected by runtime guardrails
 - AWS runtime credentials are scoped and documented as temporary
+- baseline security headers are configured in `next.config.mjs`
 
 The largest launch gaps are:
 
-- no documented incident response and rollback runbook
-- no Content Security Policy or security headers in code
+- CSP is report-only and should be tightened after production observation
 - no rate limiting on API routes
 - `next.config.mjs` currently has `typescript.ignoreBuildErrors=true`
 - images are configured as `unoptimized`
@@ -70,8 +70,8 @@ The largest launch gaps are:
 
 | Checklist item | AskSafe status | Evidence | Recommendation |
 | --- | --- | --- | --- |
-| Incident response plan | Needed before judging | No dedicated runbook yet | Add a short runbook covering owner, communication channel, rollback, AWS key disablement, and user-facing outage message |
-| Staging, promotion, rollback | Partly handled | GitHub `main` deploys; Vercel supports rollback; no runbook in repo | Document how to use Vercel rollback and GitHub revert for AskSafe |
+| Incident response plan | Handled | `docs/operations/incident-response-and-rollback-runbook.md` | Keep runbook updated after production incidents |
+| Staging, promotion, rollback | Handled | GitHub `main` deploys; Vercel rollback and GitHub revert are documented in the runbook | Use the runbook during incidents and record smoke-test evidence |
 | Monorepo build caching | Not applicable now | Single Next.js app, no Turborepo | Skip unless repo becomes monorepo |
 | Zero downtime DNS migration | Soon after judging | Current production uses `asksafe-home.vercel.app`; `asksafe.ai` may be added later | Do only when custom domain is ready; keep Vercel domain for judging fallback |
 
@@ -79,7 +79,7 @@ The largest launch gaps are:
 
 | Checklist item | AskSafe status | Evidence | Recommendation |
 | --- | --- | --- | --- |
-| Content Security Policy and security headers | Needed before judging | No `headers()` config or middleware found | Add baseline headers in `next.config.mjs`; start CSP in report-only or conservative mode if time is short |
+| Content Security Policy and security headers | Partly handled | `next.config.mjs` sets HSTS, content-type, referrer, frame, permissions, and CSP report-only headers; `next.config.test.mjs` covers the baseline | Observe production behavior, then move CSP from report-only to enforced if safe |
 | Deployment Protection | Needed before judging | Dashboard state not documented | Enable for preview deployments if available; keep production public for judges |
 | Vercel WAF custom rules | Soon after judging / plan dependent | No dashboard evidence | For competition, consider simple bot/rate controls only if available; full WAF can wait |
 | Log Drains | Soon after judging / plan dependent | No dashboard evidence | Useful after launch; not needed for current demo if logs are monitored manually |
@@ -159,9 +159,11 @@ The largest launch gaps are:
 
 1. `p6.1-incident-rollback-runbook`
    - Add incident response, rollback, and credential-disablement instructions.
-2. `p6.2-security-headers-rate-limit`
-   - Add baseline headers and a small rate-limiting strategy.
-3. `p6.3-build-config-hardening`
+2. `p6.2-security-headers-baseline`
+   - Add baseline headers and CSP report-only coverage.
+3. `p6.3-api-rate-limiting`
+   - Add a small rate-limiting strategy for `/api/*`.
+4. `p6.4-build-config-hardening`
    - Remove `ignoreBuildErrors`, review image optimization, and verify production build.
 
 ## Launch Decision
