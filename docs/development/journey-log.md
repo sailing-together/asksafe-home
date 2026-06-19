@@ -518,10 +518,18 @@ These events are metadata-only and fire-and-forget. They do not store raw
 situation text, trusted contact details, or automatic family alerts. They also
 do not add Bedrock or production authentication.
 
-Still not done after P4.5:
+Production smoke test finding:
 
-- production smoke tests for `/api/feedback-events` and `/api/support-events`
-  after the branch is merged and redeployed
+The first production smoke test reached `/api/feedback-events` and
+`/api/support-events`, but DynamoDB returned write failures. The root cause was
+that feedback and support event items did not include the table-specific primary
+keys `feedbackId` and `supportEventId`. A follow-up fix adds those keys and
+regression tests.
+
+Still not done after P4.5 follow-up:
+
+- rerun production smoke tests for `/api/feedback-events` and
+  `/api/support-events` after the key-mapping fix is merged and redeployed
 - production authentication
 - trusted support dashboard
 - Bedrock explanation assist

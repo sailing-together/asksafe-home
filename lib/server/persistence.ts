@@ -124,8 +124,8 @@ export async function saveFeedbackEvent(
   }
 
   return putItem(runtime.documentClient, runtime.config.tables.feedback, eventId, {
-    eventId,
-    safetyEventId: input.safetyEventId,
+    feedbackId: eventId,
+    eventId: input.safetyEventId,
     helpful: input.helpful,
     reason: input.reason,
     anonymousSessionId: input.anonymousSessionId,
@@ -149,8 +149,8 @@ export async function saveSupportEvent(
   }
 
   return putItem(runtime.documentClient, runtime.config.tables.supportEvents, eventId, {
-    eventId,
-    safetyEventId: input.safetyEventId,
+    supportEventId: eventId,
+    eventId: input.safetyEventId,
     action: input.action,
     anonymousSessionId: input.anonymousSessionId,
     createdAt: (input.now ?? new Date()).toISOString(),
