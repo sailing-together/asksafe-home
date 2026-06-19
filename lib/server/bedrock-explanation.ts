@@ -1,5 +1,9 @@
 import { getAskSafeBedrockEnv, type AskSafeBedrockEnvResult } from "./bedrock-env.ts"
 import { BedrockInvocationTimeoutError } from "./bedrock-client.ts"
+import {
+  validateBedrockExplanationResponse,
+  type ValidatedBedrockExplanation,
+} from "./bedrock-response-validation.ts"
 import { redactSensitiveTextForBedrock } from "./bedrock-redaction.ts"
 
 type EnvInput = Record<string, string | undefined>
@@ -26,10 +30,12 @@ export type BedrockExplanationAssistResult =
         | "not_configured"
         | "runtime_error"
         | "timeout"
+        | "invalid_response"
     }
   | {
       used: true
       outcome: "success"
+      explanation: ValidatedBedrockExplanation
     }
 
 export type BedrockExplanationAssistOptions = {
@@ -66,10 +72,24 @@ export async function maybeAssistSafetyResultWithBedrock(
   )
 
   try {
-    await options.invoke({
+    const responseText = await options.invoke({
       config: bedrockEnv.config,
       promptPayload,
     })
+
+    const validation = validateBedrockExplanationResponse(responseText, promptPayload)
+    if (!validation.valid) {
+      return {
+        used: false,
+        outcome: "invalid_response",
+      }
+    }
+
+    return {
+      used: true,
+      outcome: "success",
+      explanation: validation.explanation,
+    }
   } catch (error) {
     if (error instanceof BedrockInvocationTimeoutError) {
       return {
@@ -82,11 +102,6 @@ export async function maybeAssistSafetyResultWithBedrock(
       used: false,
       outcome: "runtime_error",
     }
-  }
-
-  return {
-    used: true,
-    outcome: "success",
   }
 }
 

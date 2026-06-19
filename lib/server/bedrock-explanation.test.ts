@@ -81,3 +81,18 @@ test("maybeAssistSafetyResultWithBedrock reports timeout separately", async () =
     outcome: "timeout",
   })
 })
+
+test("maybeAssistSafetyResultWithBedrock rejects invalid model output", async () => {
+  const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
+    env: {
+      ENABLE_BEDROCK_EXPLANATION: "true",
+      BEDROCK_MODEL_ID: "anthropic.claude-3-haiku-20240307-v1:0",
+    },
+    invoke: async () => "{not json",
+  })
+
+  assert.deepEqual(result, {
+    used: false,
+    outcome: "invalid_response",
+  })
+})
