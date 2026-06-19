@@ -10,7 +10,8 @@ import { ResultCard } from "@/components/result-card"
 import { TrustedSupportDialog, type SupportSetup } from "@/components/trusted-support-dialog"
 import { SiteFooter } from "@/components/site-footer"
 import type { PracticeScenario } from "@/components/practice-section"
-import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
+import { type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
+import { analyzeSafetyWithFallback } from "@/lib/analyze-client"
 import { recordSafetyEvent } from "@/lib/safety-event-client"
 import {
   recordFeedbackEvent,
@@ -56,12 +57,17 @@ export default function Page() {
 
     // Brief, deliberate pause so the result doesn't feel rushed.
     window.setTimeout(() => {
-      const safetyResult = analyze(message, category, selectedRequests)
-      setResult(safetyResult)
-      void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult }).then((event) => {
-        if (event.id) setSafetyEventId(event.id)
+      void analyzeSafetyWithFallback({
+        message,
+        category,
+        requests: selectedRequests,
+      }).then((safetyResult) => {
+        setResult(safetyResult)
+        void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult }).then((event) => {
+          if (event.id) setSafetyEventId(event.id)
+        })
+        setStep("result")
       })
-      setStep("result")
     }, 1600)
   }
 

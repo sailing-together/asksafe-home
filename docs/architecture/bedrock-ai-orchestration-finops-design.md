@@ -289,3 +289,9 @@ the rule-derived risk level, headline, do-not-do-yet warnings, risk signals,
 scam type ids, and source ids. Bedrock can only replace allowed explanation
 copy after validation. The browser UI still uses the existing local flow until
 the team intentionally switches it to the server route.
+
+P5.5 switches the browser safety check to the server analyze route through a
+small client wrapper. If `/api/analyze` fails, returns a non-OK response, or
+returns a malformed payload, or takes too long, the wrapper falls back to the
+existing local deterministic analysis so the user still receives a safety
+result.
