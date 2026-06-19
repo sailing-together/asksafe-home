@@ -594,7 +594,34 @@ server-side safety and FinOps boundaries for a later opt-in integration.
 
 Still not done after P5.1:
 
-- real Bedrock client wrapper
+- strict JSON response validation
+- safety invariant validation for model output
+- `/api/analyze` Bedrock integration
+- production Bedrock environment variables and smoke test evidence
+
+### P5.2 Bedrock Client Wrapper
+
+P5.2 added the server-side Bedrock Runtime client wrapper while keeping Bedrock
+default-off and disconnected from the user-facing flow.
+
+Merged code scope:
+
+- AWS SDK Bedrock Runtime dependency
+- `invokeBedrockExplanationModel`
+- Claude Messages request body with bounded max output tokens
+- AbortController plus timeout race so slow model calls fail fast
+- timeout-specific error and outer explanation outcome mapping
+- tests for request construction, timeout, and fallback classification
+
+Important boundary:
+
+This phase does not connect Bedrock to the frontend, result page, or production
+analyze route. It does not let Bedrock set risk level or required warnings.
+Future integration must still validate JSON and safety invariants before
+applying any model-assisted copy changes.
+
+Still not done after P5.2:
+
 - strict JSON response validation
 - safety invariant validation for model output
 - `/api/analyze` Bedrock integration

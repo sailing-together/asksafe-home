@@ -45,7 +45,10 @@ names only.
 | `ASKSAFE_USERS_TABLE` | DynamoDB users table | Non-secret | Confirmed |
 | `ASKSAFE_HOUSEHOLDS_TABLE` | DynamoDB households table | Non-secret | Confirmed |
 | `ENABLE_BEDROCK_EXPLANATION` | Optional Bedrock explanation assist flag | Non-secret | Default-off unless explicitly enabled |
-| `ASKSAFE_BEDROCK_MODEL_ID` | Optional Bedrock model id | Non-secret | Not required while Bedrock is disabled |
+| `BEDROCK_MODEL_ID` | Optional Bedrock model id | Non-secret | Not required while Bedrock is disabled |
+| `BEDROCK_MAX_INPUT_CHARS` | Optional Bedrock input bound | Non-secret | Not required while Bedrock is disabled |
+| `BEDROCK_MAX_OUTPUT_TOKENS` | Optional Bedrock output-token bound | Non-secret | Not required while Bedrock is disabled |
+| `BEDROCK_TIMEOUT_MS` | Optional Bedrock server timeout | Non-secret | Not required while Bedrock is disabled |
 
 Current competition boundary:
 
@@ -123,4 +126,3 @@ runtime environment variables.
 - [ ] Confirm preview deployment protection decision.
 - [ ] Confirm team access roles.
 - [ ] Run production smoke tests after the next production deploy.
-

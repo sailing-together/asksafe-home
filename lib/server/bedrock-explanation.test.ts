@@ -1,6 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 import { maybeAssistSafetyResultWithBedrock } from "./bedrock-explanation.ts"
+import { BedrockInvocationTimeoutError } from "./bedrock-client.ts"
 
 const basePayload = {
   category: "money",
@@ -61,5 +62,22 @@ test("maybeAssistSafetyResultWithBedrock falls back when invocation fails", asyn
   assert.deepEqual(result, {
     used: false,
     outcome: "runtime_error",
+  })
+})
+
+test("maybeAssistSafetyResultWithBedrock reports timeout separately", async () => {
+  const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
+    env: {
+      ENABLE_BEDROCK_EXPLANATION: "true",
+      BEDROCK_MODEL_ID: "anthropic.claude-3-haiku-20240307-v1:0",
+    },
+    invoke: async () => {
+      throw new BedrockInvocationTimeoutError()
+    },
+  })
+
+  assert.deepEqual(result, {
+    used: false,
+    outcome: "timeout",
   })
 })

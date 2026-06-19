@@ -1,4 +1,5 @@
 import { getAskSafeBedrockEnv, type AskSafeBedrockEnvResult } from "./bedrock-env.ts"
+import { BedrockInvocationTimeoutError } from "./bedrock-client.ts"
 import { redactSensitiveTextForBedrock } from "./bedrock-redaction.ts"
 
 type EnvInput = Record<string, string | undefined>
@@ -19,7 +20,12 @@ export type BedrockAssistPayload = {
 export type BedrockExplanationAssistResult =
   | {
       used: false
-      outcome: "disabled" | "missing-model-id" | "not_configured" | "runtime_error"
+      outcome:
+        | "disabled"
+        | "missing-model-id"
+        | "not_configured"
+        | "runtime_error"
+        | "timeout"
     }
   | {
       used: true
@@ -64,7 +70,14 @@ export async function maybeAssistSafetyResultWithBedrock(
       config: bedrockEnv.config,
       promptPayload,
     })
-  } catch {
+  } catch (error) {
+    if (error instanceof BedrockInvocationTimeoutError) {
+      return {
+        used: false,
+        outcome: "timeout",
+      }
+    }
+
     return {
       used: false,
       outcome: "runtime_error",

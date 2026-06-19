@@ -259,15 +259,20 @@ Integration smoke tests should cover:
 
 ## Implementation Cutline
 
-P5.0 is design only.
+P5.0 was design only.
 
-A later implementation should proceed in small steps:
+Implementation is proceeding in small steps:
 
-1. Add server-side Bedrock config parsing and disabled-mode tests.
-2. Add redaction helper and tests.
-3. Add Bedrock client wrapper with timeout and fallback tests.
+1. Add server-side Bedrock config parsing and disabled-mode tests. Done in P5.1.
+2. Add redaction helper and tests. Done in P5.1.
+3. Add Bedrock client wrapper with timeout and fallback tests. Done in P5.2.
 4. Add strict response validation and safety invariant tests.
 5. Add optional analyze-route integration behind `ENABLE_BEDROCK_EXPLANATION`.
 6. Add production smoke-test documentation only after enabling Bedrock in a controlled environment.
 
 Do not add screenshot analysis, generic chat, family monitoring, or autonomous agent behavior in the first Bedrock implementation.
+
+P5.2 adds only the server-side Bedrock Runtime wrapper. It does not connect
+Bedrock to the frontend, result page, or production analyze route. It does not
+let Bedrock set risk level, remove rule-derived warnings, or decide whether a
+situation is genuine.
