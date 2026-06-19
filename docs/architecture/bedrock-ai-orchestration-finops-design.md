@@ -267,7 +267,7 @@ Implementation is proceeding in small steps:
 2. Add redaction helper and tests. Done in P5.1.
 3. Add Bedrock client wrapper with timeout and fallback tests. Done in P5.2.
 4. Add strict response validation and safety invariant tests. Done in P5.3.
-5. Add optional analyze-route integration behind `ENABLE_BEDROCK_EXPLANATION`.
+5. Add optional analyze-route integration behind `ENABLE_BEDROCK_EXPLANATION`. Done in P5.4.
 6. Add production smoke-test documentation only after enabling Bedrock in a controlled environment.
 
 Do not add screenshot analysis, generic chat, family monitoring, or autonomous agent behavior in the first Bedrock implementation.
@@ -282,3 +282,10 @@ only the narrow JSON shape defined in this document, rejects unsupported fields
 and oversized copy, and rejects output that contradicts rule-derived safety
 warnings. It still does not connect Bedrock to the frontend, result page, or
 production analyze route.
+
+P5.4 adds a server-side analyze route and handler that can call the optional
+Bedrock explanation assist after deterministic analysis. The handler preserves
+the rule-derived risk level, headline, do-not-do-yet warnings, risk signals,
+scam type ids, and source ids. Bedrock can only replace allowed explanation
+copy after validation. The browser UI still uses the existing local flow until
+the team intentionally switches it to the server route.
