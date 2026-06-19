@@ -622,8 +622,35 @@ applying any model-assisted copy changes.
 
 Still not done after P5.2:
 
-- strict JSON response validation
-- safety invariant validation for model output
+- `/api/analyze` Bedrock integration
+- production Bedrock environment variables and smoke test evidence
+
+### P5.3 Bedrock Response Validation
+
+P5.3 added the safety gate for model-assisted explanation output.
+
+Merged code scope:
+
+- Bedrock explanation response validator
+- strict JSON parsing with fallback on invalid JSON
+- allowlist for model-editable fields only
+- length limits for safer next step, why, verification steps, and trusted
+  support summary
+- rejection of unsupported fields such as model-supplied risk level
+- safety-invariant checks that reject output weakening rule-derived warnings
+- `invalid_response` outcome mapping in the Bedrock explanation helper
+- tests for valid output, invalid JSON, invalid shape, oversized copy, safety
+  weakening, and helper fallback behavior
+
+Important boundary:
+
+This phase does not call Bedrock from the frontend, result page, or production
+analyze route. It also does not apply model wording to the user-facing result.
+It only ensures future model wording must pass a narrow server-side validation
+gate before it can be considered safe to use.
+
+Still not done after P5.3:
+
 - `/api/analyze` Bedrock integration
 - production Bedrock environment variables and smoke test evidence
 
