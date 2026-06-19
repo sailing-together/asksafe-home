@@ -665,6 +665,26 @@ Important boundary:
 This phase does not add API rate limiting, does not enforce CSP yet, and does
 not change app behavior or AWS infrastructure.
 
+### P6.3 API Rate Limiting Baseline
+
+P6.3 added a lightweight rate-limit baseline for the event API routes.
+
+Merged code scope:
+
+- in-memory server-side rate limiter
+- client key extraction from forwarded request headers
+- `429` responses with `Retry-After` for limited requests
+- protection for safety, feedback, and support event API routes before payload
+  parsing
+- tests for request limits, client isolation, and forwarded IP handling
+- production readiness documentation updates
+
+Important boundary:
+
+This is a competition-stage baseline, not a long-term distributed rate-limit
+solution. Before broader public launch, AskSafe should replace or augment it
+with Vercel WAF, KV-backed rate limiting, or AWS-native edge controls.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase

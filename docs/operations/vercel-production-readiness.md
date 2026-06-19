@@ -48,11 +48,13 @@ AskSafe Home has a good competition-stage production foundation:
 - Bedrock is default-off and protected by runtime guardrails
 - AWS runtime credentials are scoped and documented as temporary
 - baseline security headers are configured in `next.config.mjs`
+- event API routes have a lightweight in-memory rate-limit baseline
 
 The largest launch gaps are:
 
 - CSP is report-only and should be tightened after production observation
-- no rate limiting on API routes
+- rate limiting is a competition baseline and should move to durable edge or
+  distributed controls before broader public launch
 - `next.config.mjs` currently has `typescript.ignoreBuildErrors=true`
 - images are configured as `unoptimized`
 - no documented Vercel spend alert state
@@ -86,7 +88,7 @@ The largest launch gaps are:
 | SSL certificate issues | Not applicable now | Vercel domain handles TLS | Recheck when adding `asksafe.ai` |
 | Preview Deployment Suffix | Not applicable now | No custom domain preview suffix needed | Skip for competition |
 | Commit lockfiles | Handled | `pnpm-lock.yaml` committed | Keep lockfile updated |
-| Rate limiting | Needed before judging | API routes accept POST without throttling | Add lightweight server-side rate limit or Vercel/WAF rule for `/api/*` |
+| Rate limiting | Partly handled | `/api/safety-events`, `/api/feedback-events`, and `/api/support-events` use a shared in-memory baseline limiter with `429` responses | Replace or augment with durable Vercel WAF/KV/AWS edge controls before broader public launch |
 | Access roles for team members | Needed before judging | Team access changed during setup; not documented | Document GitHub/Vercel roles and keep least privilege |
 | SAML SSO / SCIM / Audit Logs | Enterprise / plan dependent | Not current scope | Skip |
 | Allowed cookie policy | Not applicable now | No production auth cookies yet | Revisit when real authentication is added |
@@ -130,14 +132,17 @@ The largest launch gaps are:
 
 ## Competition-Stage Priority List
 
-### P0 Before Public Judging
+### P0 Completed Before Public Judging
 
 1. Add incident response and rollback runbook.
 2. Add baseline security headers and a conservative CSP plan.
-3. Add rate limiting or document a dashboard-level Vercel/WAF control for `/api/*`.
-4. Remove or justify `typescript.ignoreBuildErrors=true`.
-5. Confirm Vercel spend alerts and AWS budget alerts are enabled.
-6. Confirm production environment variables are scoped and sensitive where needed.
+3. Add a competition-stage rate-limit baseline for event APIs.
+
+### P0 Remaining Before Public Judging
+
+1. Remove or justify `typescript.ignoreBuildErrors=true`.
+2. Confirm Vercel spend alerts and AWS budget alerts are enabled.
+3. Confirm production environment variables are scoped and sensitive where needed.
 
 ### P1 Useful Before Final Submission
 
@@ -162,7 +167,7 @@ The largest launch gaps are:
 2. `p6.2-security-headers-baseline`
    - Add baseline headers and CSP report-only coverage.
 3. `p6.3-api-rate-limiting`
-   - Add a small rate-limiting strategy for `/api/*`.
+   - Add a small rate-limiting strategy for event APIs.
 4. `p6.4-build-config-hardening`
    - Remove `ignoreBuildErrors`, review image optimization, and verify production build.
 

@@ -311,7 +311,8 @@ solve by itself:
 
 - tighten Content Security Policy from report-only to enforced when production
   behavior is understood
-- add API rate limiting
+- replace the in-memory API rate-limit baseline with durable edge or
+  distributed controls before broader public launch
 - remove or justify `typescript.ignoreBuildErrors`
 - review `images.unoptimized`
 - document Vercel spend alerts
