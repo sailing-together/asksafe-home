@@ -59,7 +59,7 @@ test("recordSafetyEvent posts sanitized metadata to the safety events API", asyn
 
   const result = await recordSafetyEvent(input, { fetch: fetchImpl })
 
-  assert.deepEqual(result, { ok: true })
+  assert.deepEqual(result, { ok: true, id: "event-123" })
   assert.equal(requestUrl, "/api/safety-events")
   assert.equal(requestInit?.method, "POST")
   assert.equal(requestInit?.headers && (requestInit.headers as Record<string, string>)["Content-Type"], "application/json")

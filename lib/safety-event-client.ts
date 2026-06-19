@@ -40,7 +40,7 @@ export function buildSafetyEventPayload(input: SafetyEventRecordInput): SafetyEv
 export async function recordSafetyEvent(
   input: SafetyEventRecordInput,
   options: RecordSafetyEventOptions = {},
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: boolean; id?: string }> {
   const fetchImpl = options.fetch ?? globalThis.fetch
 
   try {
@@ -50,8 +50,18 @@ export async function recordSafetyEvent(
       body: JSON.stringify(buildSafetyEventPayload(input)),
     })
 
-    return { ok: response.ok }
+    const id = await readResponseId(response)
+    return response.ok ? { ok: true, id } : { ok: false }
   } catch {
     return { ok: false }
+  }
+}
+
+async function readResponseId(response: Response): Promise<string | undefined> {
+  try {
+    const body = await response.json()
+    return typeof body?.id === "string" ? body.id : undefined
+  } catch {
+    return undefined
   }
 }

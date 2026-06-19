@@ -490,6 +490,42 @@ for competition speed. After the competition, the team should rotate or delete
 that key and reassess production hosting, preferably moving to AWS-native
 runtime roles if AskSafe is hosted primarily on AWS.
 
+### P4.5 Feedback And Support Event Persistence
+
+P4.5 wired the existing feedback and trusted support persistence helpers into
+the user-facing flow.
+
+Merged code scope:
+
+- `POST /api/feedback-events`
+- `POST /api/support-events`
+- browser-safe outcome event client helper
+- a compact "Was this helpful?" result-page prompt
+- support event recording for opening support setup, creating a support code,
+  and copying a shareable safety summary
+- tests proving raw message text and trusted contact details are ignored before
+  persistence
+
+Product value:
+
+This starts capturing whether AskSafe is actually helping users feel clearer,
+without making the senior complete a long survey. It also records trusted
+support actions only when the user actively chooses them.
+
+Important boundary:
+
+These events are metadata-only and fire-and-forget. They do not store raw
+situation text, trusted contact details, or automatic family alerts. They also
+do not add Bedrock or production authentication.
+
+Still not done after P4.5:
+
+- production smoke tests for `/api/feedback-events` and `/api/support-events`
+  after the branch is merged and redeployed
+- production authentication
+- trusted support dashboard
+- Bedrock explanation assist
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
@@ -533,8 +569,8 @@ decision workflow.
 The next useful work should continue to follow the product architecture:
 
 1. Check Vercel runtime environment variables against the Terraform outputs.
-2. Wire feedback and trusted support UI flows to the existing persistence
-   helpers.
+2. Smoke test feedback and trusted support event persistence after the next
+   production redeploy.
 3. Keep raw sensitive text minimised by default.
 4. Add Bedrock explanation assist only after deterministic rules remain stable,
    with FinOps controls and a default-off flag.
