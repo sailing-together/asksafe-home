@@ -703,6 +703,28 @@ This phase does not change app UI, API behavior, AWS infrastructure, CSP
 enforcement, or rate-limit strategy. It only tightens build failure behavior and
 records the current image optimization decision.
 
+### P6.5 Launch Settings Evidence Log
+
+P6.5 added a launch settings evidence log for production readiness checks that
+live outside the codebase.
+
+Documented scope:
+
+- production deployment identifiers
+- Vercel runtime environment variable names
+- GitHub repository variables and secrets used by Terraform
+- AWS account, region, and cost-control checkpoints
+- Vercel plan, spend, deployment protection, WAF, log drain, and team access
+  checkpoints
+- code-level controls already present in the repo
+- final pre-judging confirmation checklist
+
+Important boundary:
+
+The evidence log records setting names and confirmation status only. It must not
+store secret values, access keys, one-time codes, passwords, or private contact
+details.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase

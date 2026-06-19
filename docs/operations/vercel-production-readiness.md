@@ -49,6 +49,7 @@ AskSafe Home has a good competition-stage production foundation:
 - AWS runtime credentials are scoped and documented as temporary
 - baseline security headers are configured in `next.config.mjs`
 - event API routes have a lightweight in-memory rate-limit baseline
+- launch settings are tracked in `docs/operations/launch-settings-evidence.md`
 
 The largest launch gaps are:
 
@@ -56,8 +57,10 @@ The largest launch gaps are:
 - rate limiting is a competition baseline and should move to durable edge or
   distributed controls before broader public launch
 - image optimization remains disabled for the current static local asset setup
-- no documented Vercel spend alert state
-- no documented Vercel deployment protection/WAF/log drain state
+- Vercel spend alert state still needs dashboard confirmation
+- AWS budget alert state still needs dashboard confirmation
+- Vercel deployment protection, WAF, log drain, and team access states still
+  need dashboard confirmation
 
 ## Status Legend
 
@@ -81,14 +84,14 @@ The largest launch gaps are:
 | Checklist item | AskSafe status | Evidence | Recommendation |
 | --- | --- | --- | --- |
 | Content Security Policy and security headers | Partly handled | `next.config.mjs` sets HSTS, content-type, referrer, frame, permissions, and CSP report-only headers; `next.config.test.mjs` covers the baseline | Observe production behavior, then move CSP from report-only to enforced if safe |
-| Deployment Protection | Needed before judging | Dashboard state not documented | Enable for preview deployments if available; keep production public for judges |
+| Deployment Protection | Needed before judging | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Enable for preview deployments if available; keep production public for judges |
 | Vercel WAF custom rules | Soon after judging / plan dependent | No dashboard evidence | For competition, consider simple bot/rate controls only if available; full WAF can wait |
-| Log Drains | Soon after judging / plan dependent | No dashboard evidence | Useful after launch; not needed for current demo if logs are monitored manually |
+| Log Drains | Soon after judging / plan dependent | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Useful after launch; not needed for current demo if logs are monitored manually |
 | SSL certificate issues | Not applicable now | Vercel domain handles TLS | Recheck when adding `asksafe.ai` |
 | Preview Deployment Suffix | Not applicable now | No custom domain preview suffix needed | Skip for competition |
 | Commit lockfiles | Handled | `pnpm-lock.yaml` committed | Keep lockfile updated |
 | Rate limiting | Partly handled | `/api/safety-events`, `/api/feedback-events`, and `/api/support-events` use a shared in-memory baseline limiter with `429` responses | Replace or augment with durable Vercel WAF/KV/AWS edge controls before broader public launch |
-| Access roles for team members | Needed before judging | Team access changed during setup; not documented | Document GitHub/Vercel roles and keep least privilege |
+| Access roles for team members | Needed before judging | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Document GitHub/Vercel roles and keep least privilege |
 | SAML SSO / SCIM / Audit Logs | Enterprise / plan dependent | Not current scope | Skip |
 | Allowed cookie policy | Not applicable now | No production auth cookies yet | Revisit when real authentication is added |
 | Block unwanted bots | Soon after judging / plan dependent | No WAF/bot rule evidence | Consider after rate limiting and security headers |
@@ -123,7 +126,7 @@ The largest launch gaps are:
 | --- | --- | --- | --- |
 | Fluid Compute | Plan dependent | Not documented | Enable only if available and cost-neutral |
 | Manage and optimize usage | Partly handled | Bedrock FinOps guardrails documented; DynamoDB is pay-per-request | Add Vercel spend alert evidence |
-| Spend Management and alerts | Needed before judging | AWS Budgets documented; Vercel alert state unknown | Configure Vercel spend alerts and capture evidence |
+| Spend Management and alerts | Needed before judging | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard evidence still needs confirmation | Configure Vercel and AWS budget alerts and capture evidence |
 | Function max duration and memory | Soon after judging | No explicit function config | Keep routes simple; tune only if Bedrock integration increases duration |
 | ISR revalidation | Not applicable now | No ISR content | Skip |
 | New image optimization pricing | Plan/account dependent | Team creation date unknown | Check only if using Vercel image optimization heavily |
@@ -141,6 +144,7 @@ The largest launch gaps are:
 
 1. Confirm Vercel spend alerts and AWS budget alerts are enabled.
 2. Confirm production environment variables are scoped and sensitive where needed.
+3. Record dashboard confirmations in `docs/operations/launch-settings-evidence.md`.
 
 ### P1 Useful Before Final Submission
 
@@ -149,6 +153,7 @@ The largest launch gaps are:
 3. Decide whether to re-enable image optimization.
 4. Document deployment protection for preview deployments.
 5. Document team access roles.
+6. Enforce CSP after production observation confirms allowed sources.
 
 ### P2 After Competition
 
@@ -157,8 +162,10 @@ The largest launch gaps are:
 3. Rotate or remove the temporary Vercel AWS runtime access key.
 4. Decide whether production hosting should remain on Vercel or move toward AWS-native runtime roles.
 5. Move historical screenshots out of the app root.
+6. Replace the in-memory rate-limit baseline with durable edge or distributed
+   controls if AskSafe is launched more broadly.
 
-## Recommended Next PRs
+## Completed P6 Readiness PRs
 
 1. `p6.1-incident-rollback-runbook`
    - Add incident response, rollback, and credential-disablement instructions.
@@ -168,6 +175,17 @@ The largest launch gaps are:
    - Add a small rate-limiting strategy for event APIs.
 4. `p6.4-build-config-hardening`
    - Remove `ignoreBuildErrors`, document image optimization choice, and verify production build.
+5. `p6.5-launch-settings-evidence-log`
+   - Record production launch settings that need dashboard evidence without storing secret values.
+
+## Remaining Follow-Ups
+
+1. Confirm Vercel and AWS spend alerts in the relevant dashboards.
+2. Confirm production environment variable scoping and sensitivity in Vercel.
+3. Confirm preview deployment protection and team access roles.
+4. Run production smoke tests after the next production deploy.
+5. Move CSP from report-only to enforced after production observation.
+6. Revisit image optimization after asset cleanup.
 
 ## Launch Decision
 
