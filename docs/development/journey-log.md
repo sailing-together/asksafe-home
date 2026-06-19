@@ -600,6 +600,32 @@ Still not done after P5.1:
 - `/api/analyze` Bedrock integration
 - production Bedrock environment variables and smoke test evidence
 
+### P6.0 Vercel Production Readiness Review
+
+P6.0 adapted Vercel's production checklist to AskSafe Home's current
+competition-stage deployment.
+
+Review scope:
+
+- operational excellence
+- security
+- reliability
+- performance
+- cost optimization
+- plan-dependent or enterprise-only items
+
+Key findings:
+
+- GitHub to Vercel production deployment works
+- production API routes have DynamoDB smoke-test evidence
+- Vercel Analytics is enabled
+- lockfile is committed
+- Bedrock remains default-off
+- gaps remain around incident response, security headers, rate limiting, build
+  config hardening, spend alerts, and documented Vercel dashboard settings
+
+This phase is a readiness audit only. It does not change runtime behavior.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
