@@ -539,6 +539,37 @@ Still not done after P4.5 follow-up:
 - trusted support dashboard
 - Bedrock explanation assist
 
+### P5.0 Bedrock AI Orchestration And FinOps Guardrails
+
+P5.0 documented how AskSafe Home should add Bedrock without weakening the
+existing safety workflow or creating avoidable cloud cost.
+
+Design scope:
+
+- Bedrock is optional and default-off
+- deterministic rules remain the source of risk level, required warnings, and
+  verification steps
+- Bedrock may assist senior-friendly wording, trusted-support summaries, or
+  future structured image observations
+- raw sensitive text, passwords, one-time codes, full card numbers, and identity
+  details should not be sent to Bedrock by default
+- server-side code must validate Bedrock output and fall back to deterministic
+  results on timeout, invalid JSON, missing config, or runtime errors
+- FinOps controls should include model allowlists, short payloads, token limits,
+  timeouts, budget alerts, and no per-keystroke or interim voice calls
+
+This keeps AskSafe Home aligned with the product promise: AI can make guidance
+clearer, but the product remains a controlled safety decision workflow, not a
+generic chatbot or black-box scam detector.
+
+Still not done after P5.0:
+
+- Bedrock runtime helper code
+- redaction helper implementation
+- `/api/analyze` Bedrock integration
+- production Bedrock environment variables
+- Bedrock smoke test evidence
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
