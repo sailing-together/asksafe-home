@@ -98,15 +98,16 @@ STATUS=201
 
 ### What This Does Not Prove
 
-- It does not prove feedback persistence works.
-- It does not prove trusted support event persistence works.
+- It does not prove feedback persistence works yet.
+- It does not prove trusted support event persistence works yet.
 - It does not prove authentication is production-ready.
 - It does not prove Bedrock integration.
 - It does not prove raw sensitive text can be safely stored; raw text remains out of scope by default.
 
 ### Follow-Up
 
-- Wire feedback and trusted support UI flows to persistence.
+- After P4.5 is merged and redeployed, smoke test `POST /api/feedback-events`.
+- After P4.5 is merged and redeployed, smoke test `POST /api/support-events`.
 - Keep the Vercel AWS access key tightly scoped and stored as sensitive.
 - Rotate or delete the Vercel AWS access key after the competition.
 - Reassess hosting after the competition; prefer AWS-native runtime roles if AskSafe moves off Vercel.

@@ -12,6 +12,11 @@ import { SiteFooter } from "@/components/site-footer"
 import type { PracticeScenario } from "@/components/practice-section"
 import { analyze, type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
 import { recordSafetyEvent } from "@/lib/safety-event-client"
+import {
+  recordFeedbackEvent,
+  recordSupportEvent,
+  type SupportEventAction,
+} from "@/lib/outcome-event-client"
 
 type Step = "home" | "category" | "input" | "thinking" | "result"
 
@@ -23,6 +28,7 @@ export default function Page() {
   const [supportOpen, setSupportOpen] = useState(false)
   const [signedIn, setSignedIn] = useState(false)
   const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
+  const [safetyEventId, setSafetyEventId] = useState<string | undefined>()
 
   function signOut() {
     setSignedIn(false)
@@ -33,11 +39,13 @@ export default function Page() {
   function reset() {
     setResult(null)
     setPrefill(null)
+    setSafetyEventId(undefined)
     setStep("home")
   }
 
   function tryExample(scenario: PracticeScenario) {
     setPrefill(scenario)
+    setSafetyEventId(undefined)
     setCategory(scenario.category)
     setStep("input")
   }
@@ -50,9 +58,24 @@ export default function Page() {
     window.setTimeout(() => {
       const safetyResult = analyze(message, category, selectedRequests)
       setResult(safetyResult)
-      void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult })
+      void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult }).then((event) => {
+        if (event.id) setSafetyEventId(event.id)
+      })
       setStep("result")
     }, 1600)
+  }
+
+  function recordSupportAction(action: SupportEventAction) {
+    void recordSupportEvent({ action, safetyEventId })
+  }
+
+  function openSupport() {
+    recordSupportAction("setup-opened")
+    setSupportOpen(true)
+  }
+
+  function recordFeedback(helpful: boolean, reason: string) {
+    void recordFeedbackEvent({ safetyEventId, helpful, reason })
   }
 
   return (
@@ -61,13 +84,13 @@ export default function Page() {
         signedIn={signedIn}
         firstName={support?.yourName?.split(" ")[0] ?? ""}
         onHome={reset}
-        onOpenSupport={() => setSupportOpen(true)}
+        onOpenSupport={openSupport}
       />
       <main className="mx-auto w-full max-w-3xl px-5">
         {step === "home" && (
           <HomeScreen
             onStart={() => setStep("category")}
-            onOpenSupport={() => setSupportOpen(true)}
+            onOpenSupport={openSupport}
             onTryExample={tryExample}
           />
         )}
@@ -77,6 +100,7 @@ export default function Page() {
             onBack={reset}
             onSelect={(c) => {
               setPrefill(null)
+              setSafetyEventId(undefined)
               setCategory(c)
               setStep("input")
             }}
@@ -101,7 +125,9 @@ export default function Page() {
           <ResultCard
             result={result}
             support={support}
-            onOpenSupport={() => setSupportOpen(true)}
+            onOpenSupport={openSupport}
+            onSupportAction={recordSupportAction}
+            onFeedback={recordFeedback}
             onCheckAnother={reset}
           />
         )}
@@ -114,6 +140,7 @@ export default function Page() {
         existing={support}
         signedIn={signedIn}
         onClose={() => setSupportOpen(false)}
+        onSupportAction={recordSupportAction}
         onSignIn={() => setSignedIn(true)}
         onSignOut={signOut}
         onCreate={setSupport}

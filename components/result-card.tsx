@@ -58,16 +58,21 @@ export function ResultCard({
   result,
   support,
   onOpenSupport,
+  onSupportAction,
+  onFeedback,
   onCheckAnother,
 }: {
   result: SafetyResult
   support: SupportSetup | null
   onOpenSupport: () => void
+  onSupportAction?: (action: "summary-shared") => void
+  onFeedback?: (helpful: boolean, reason: string) => void
   onCheckAnother: () => void
 }) {
   const style = riskStyles[result.risk]
   const RiskIcon = style.icon
   const [shared, setShared] = useState(false)
+  const [feedbackChoice, setFeedbackChoice] = useState<"yes" | "no" | null>(null)
   const speech = useSpeechSynthesis()
 
   function readAloud() {
@@ -95,11 +100,20 @@ export function ResultCard({
     ].join("\n")
     try {
       await navigator.clipboard.writeText(summary)
+      onSupportAction?.("summary-shared")
       setShared(true)
       window.setTimeout(() => setShared(false), 2500)
     } catch {
       setShared(false)
     }
+  }
+
+  function chooseFeedback(choice: "yes" | "no") {
+    setFeedbackChoice(choice)
+    onFeedback?.(
+      choice === "yes",
+      choice === "yes" ? "clear-next-step" : "needs-more-clarity",
+    )
   }
 
   return (
@@ -267,6 +281,30 @@ export function ResultCard({
           </Button>
         </div>
       )}
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-lg font-semibold text-foreground">
+          Was this helpful?
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:flex">
+          <Button
+            type="button"
+            variant={feedbackChoice === "yes" ? "default" : "outline"}
+            onClick={() => chooseFeedback("yes")}
+            className="h-auto rounded-xl px-5 py-3 text-base font-semibold"
+          >
+            Yes
+          </Button>
+          <Button
+            type="button"
+            variant={feedbackChoice === "no" ? "default" : "outline"}
+            onClick={() => chooseFeedback("no")}
+            className="h-auto rounded-xl px-5 py-3 text-base font-semibold"
+          >
+            Not yet
+          </Button>
+        </div>
+      </div>
 
       <Button
         type="button"

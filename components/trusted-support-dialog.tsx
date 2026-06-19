@@ -50,6 +50,7 @@ export function TrustedSupportDialog({
   existing,
   signedIn,
   onClose,
+  onSupportAction,
   onSignIn,
   onSignOut,
   onCreate,
@@ -58,6 +59,7 @@ export function TrustedSupportDialog({
   existing: SupportSetup | null
   signedIn: boolean
   onClose: () => void
+  onSupportAction?: (action: "code-created") => void
   onSignIn: () => void
   onSignOut: () => void
   onCreate: (support: SupportSetup) => void
@@ -158,6 +160,7 @@ export function TrustedSupportDialog({
     }
     setCreated(support)
     onCreate(support)
+    if (withCode) onSupportAction?.("code-created")
     setPhase("summary")
   }
 
