@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts lib/server/safety-event-route.test.ts lib/server/feedback-event-route.test.ts lib/server/support-event-route.test.ts lib/safety-event-client.test.ts lib/outcome-event-client.test.ts lib/server/bedrock-env.test.ts lib/server/bedrock-redaction.test.ts lib/server/bedrock-explanation.test.ts"
+    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts lib/server/safety-event-route.test.ts lib/server/feedback-event-route.test.ts lib/server/support-event-route.test.ts lib/safety-event-client.test.ts lib/outcome-event-client.test.ts lib/server/bedrock-env.test.ts lib/server/bedrock-redaction.test.ts lib/server/bedrock-explanation.test.ts next.config.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1069.0",

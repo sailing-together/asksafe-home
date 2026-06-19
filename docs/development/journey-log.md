@@ -647,6 +647,24 @@ Runbook scope:
 
 This phase is docs-only and does not change runtime behavior.
 
+### P6.2 Security Headers Baseline
+
+P6.2 added a baseline set of security headers to the Vercel/Next.js deployment.
+
+Merged code scope:
+
+- global Next.js `headers()` configuration
+- HSTS, content-type, referrer, frame, and permissions headers
+- CSP in report-only mode to avoid breaking production behavior before
+  observation
+- a config test that verifies the header baseline
+- production readiness documentation updates
+
+Important boundary:
+
+This phase does not add API rate limiting, does not enforce CSP yet, and does
+not change app behavior or AWS infrastructure.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
