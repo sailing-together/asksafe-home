@@ -152,15 +152,22 @@ Fix:
 - the related safety event id is stored as `eventId` for table indexes
 - regression tests cover both item shapes
 
-### Follow-Up After Merge
+### Result After Fix
 
-After this fix is merged and Vercel redeploys, rerun:
+After the key-mapping fix was merged and Vercel redeployed, both endpoints wrote
+successfully to DynamoDB.
 
-- `POST /api/feedback-events`
-- `POST /api/support-events`
+Feedback event:
 
-Expected result for both:
+- endpoint: `POST /api/feedback-events`
+- status: `201`
+- id: `8401895a-f1ce-4f58-8962-8159af45b487`
 
-```json
-{"ok":true,"id":"<generated-id>"}
-```
+Support event:
+
+- endpoint: `POST /api/support-events`
+- status: `201`
+- id: `80669834-737b-4d9d-a8ee-d577460a5f4a`
+
+This verifies P4.5 production persistence for feedback and trusted support
+metadata.

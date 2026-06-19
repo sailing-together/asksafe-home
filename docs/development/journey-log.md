@@ -526,10 +526,15 @@ that feedback and support event items did not include the table-specific primary
 keys `feedbackId` and `supportEventId`. A follow-up fix adds those keys and
 regression tests.
 
+Production verification after fix:
+
+After the key-mapping fix was merged and redeployed, production smoke tests for
+`/api/feedback-events` and `/api/support-events` both returned `201` with
+generated ids. P4.5 feedback and trusted support event persistence is now
+production-verified for metadata-only writes.
+
 Still not done after P4.5 follow-up:
 
-- rerun production smoke tests for `/api/feedback-events` and
-  `/api/support-events` after the key-mapping fix is merged and redeployed
 - production authentication
 - trusted support dashboard
 - Bedrock explanation assist
