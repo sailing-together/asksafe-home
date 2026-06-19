@@ -111,3 +111,56 @@ STATUS=201
 - Keep the Vercel AWS access key tightly scoped and stored as sensitive.
 - Rotate or delete the Vercel AWS access key after the competition.
 - Reassess hosting after the competition; prefer AWS-native runtime roles if AskSafe moves off Vercel.
+
+
+## P4.5 Feedback And Support Event Smoke Test
+
+Date: 2026-06-19
+Branch tested after merge: `main`
+Production URL: `https://asksafe-home.vercel.app`
+
+### Requests
+
+- `POST /api/feedback-events`
+- `POST /api/support-events`
+
+### Result Before Fix
+
+Both endpoints were reachable in production, but both returned:
+
+```json
+{"ok":false,"reason":"write-failed"}
+```
+
+This proved:
+
+- the Vercel deployment included the new P4.5 routes
+- request parsing accepted clean JSON payloads
+- DynamoDB write failed after route handling
+
+Root cause:
+
+- the feedback table hash key is `feedbackId`
+- the support events table hash key is `supportEventId`
+- the persistence item builder was writing only a generic `eventId`
+- the safety event table had worked earlier because its hash key is `eventId`
+
+Fix:
+
+- feedback events now write `feedbackId` as the item primary key
+- support events now write `supportEventId` as the item primary key
+- the related safety event id is stored as `eventId` for table indexes
+- regression tests cover both item shapes
+
+### Follow-Up After Merge
+
+After this fix is merged and Vercel redeploys, rerun:
+
+- `POST /api/feedback-events`
+- `POST /api/support-events`
+
+Expected result for both:
+
+```json
+{"ok":true,"id":"<generated-id>"}
+```
