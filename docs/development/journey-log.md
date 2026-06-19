@@ -651,7 +651,40 @@ gate before it can be considered safe to use.
 
 Still not done after P5.3:
 
-- `/api/analyze` Bedrock integration
+- production Bedrock environment variables and smoke test evidence
+
+### P5.4 Bedrock Analyze Integration
+
+P5.4 added the server-side analyze integration point for optional Bedrock
+explanation assist.
+
+Merged code scope:
+
+- `handleAnalyzeRequest` server handler
+- `/api/analyze` POST route
+- deterministic analysis remains the first step
+- Bedrock explanation assist runs only through the existing default-off runtime
+  controls
+- successful validated model wording can replace only `saferStep`, `why`, and
+  `verify`
+- rule-derived risk level, headline, warnings, risk signals, scam type ids, and
+  source ids are preserved
+- invalid payloads return `400`
+- invalid, disabled, timeout, missing config, or runtime-error Bedrock outcomes
+  fall back to the deterministic result
+- route-level rate limiting uses the existing in-memory baseline
+- tests for disabled mode, valid model wording, invalid model output fallback,
+  and invalid payloads
+
+Important boundary:
+
+This phase creates the server analyze path, but the browser UI still uses the
+existing local analysis flow. No production Bedrock environment variables are
+required while `ENABLE_BEDROCK_EXPLANATION` remains off.
+
+Still not done after P5.4:
+
+- switch frontend analysis to `/api/analyze`
 - production Bedrock environment variables and smoke test evidence
 
 ### P6.0 Vercel Production Readiness Review
