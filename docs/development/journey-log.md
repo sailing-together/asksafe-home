@@ -685,6 +685,24 @@ This is a competition-stage baseline, not a long-term distributed rate-limit
 solution. Before broader public launch, AskSafe should replace or augment it
 with Vercel WAF, KV-backed rate limiting, or AWS-native edge controls.
 
+### P6.4 Build Config Hardening
+
+P6.4 hardened the Next.js build configuration before judging.
+
+Merged code scope:
+
+- removed `typescript.ignoreBuildErrors`
+- added config tests proving TypeScript build errors are no longer ignored
+- kept `images.unoptimized=true` for the current static local asset setup
+- documented that image optimization should be revisited after asset cleanup
+- production readiness documentation updates
+
+Important boundary:
+
+This phase does not change app UI, API behavior, AWS infrastructure, CSP
+enforcement, or rate-limit strategy. It only tightens build failure behavior and
+records the current image optimization decision.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
