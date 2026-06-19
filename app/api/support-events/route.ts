@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server"
 import { handleSupportEventRequest } from "@/lib/server/support-event-route"
+import { checkEventApiRateLimit } from "@/lib/server/rate-limit"
 
 export async function POST(request: Request) {
+  const rateLimit = checkEventApiRateLimit(request, "support-events")
+  if (!rateLimit.ok) {
+    return NextResponse.json(rateLimit.body, {
+      status: rateLimit.status,
+      headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+    })
+  }
+
   let payload: unknown
 
   try {
