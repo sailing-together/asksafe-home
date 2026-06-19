@@ -626,6 +626,27 @@ Key findings:
 
 This phase is a readiness audit only. It does not change runtime behavior.
 
+### P6.1 Incident And Rollback Runbook
+
+P6.1 added a production incident and rollback runbook for the current Vercel +
+AWS deployment.
+
+Runbook scope:
+
+- incident severity classification
+- team roles and communication cadence
+- Vercel instant rollback
+- GitHub revert and redeploy
+- runtime feature flag disablement
+- AWS credential disablement or rotation
+- DynamoDB degraded-write triage
+- Bedrock disablement guidance
+- post-fix smoke tests
+- post-incident review notes
+- privacy boundaries for incident handling
+
+This phase is docs-only and does not change runtime behavior.
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase
