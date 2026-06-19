@@ -684,7 +684,33 @@ required while `ENABLE_BEDROCK_EXPLANATION` remains off.
 
 Still not done after P5.4:
 
-- switch frontend analysis to `/api/analyze`
+- production Bedrock environment variables and smoke test evidence
+
+### P5.5 Frontend Analyze API Client
+
+P5.5 switched the browser safety check to use the server analyze path while
+keeping the deterministic local analyzer as a fallback.
+
+Merged code scope:
+
+- `analyzeSafetyWithFallback` frontend client helper
+- `POST /api/analyze` call from the result flow
+- local deterministic fallback when the API fails, throws, returns non-OK, or
+  returns malformed data
+- client-side timeout fallback so the thinking state does not wait indefinitely
+- safety event recording continues after the final result is chosen
+- tests for API success, API failure fallback, thrown fetch fallback, slow API
+  fallback, and malformed response fallback
+
+Important boundary:
+
+The UI still does not display Bedrock technical metadata. Users only see the
+safety result. With `ENABLE_BEDROCK_EXPLANATION=false`, production behavior
+should remain deterministic apart from the analysis now travelling through the
+server route first.
+
+Still not done after P5.5:
+
 - production Bedrock environment variables and smoke test evidence
 
 ### P6.0 Vercel Production Readiness Review
