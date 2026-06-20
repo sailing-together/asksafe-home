@@ -44,17 +44,17 @@ names only.
 | `ASKSAFE_SUPPORT_EVENTS_TABLE` | DynamoDB support events table | Non-secret | Confirmed |
 | `ASKSAFE_USERS_TABLE` | DynamoDB users table | Non-secret | Confirmed |
 | `ASKSAFE_HOUSEHOLDS_TABLE` | DynamoDB households table | Non-secret | Confirmed |
-| `ENABLE_BEDROCK_EXPLANATION` | Optional Bedrock explanation assist flag | Non-secret | Default-off unless explicitly enabled |
-| `BEDROCK_MODEL_ID` | Optional Bedrock model id | Non-secret | Not required while Bedrock is disabled |
-| `BEDROCK_MAX_INPUT_CHARS` | Optional Bedrock input bound | Non-secret | Not required while Bedrock is disabled |
-| `BEDROCK_MAX_OUTPUT_TOKENS` | Optional Bedrock output-token bound | Non-secret | Not required while Bedrock is disabled |
-| `BEDROCK_TIMEOUT_MS` | Optional Bedrock server timeout | Non-secret | Not required while Bedrock is disabled |
+| `ENABLE_BEDROCK_EXPLANATION` | Optional Bedrock explanation assist flag | Non-secret | Enabled for production smoke |
+| `BEDROCK_MODEL_ID` | Optional Bedrock model id | Non-secret | Confirmed with AU inference profile |
+| `BEDROCK_MAX_INPUT_CHARS` | Optional Bedrock input bound | Non-secret | Confirmed |
+| `BEDROCK_MAX_OUTPUT_TOKENS` | Optional Bedrock output-token bound | Non-secret | Confirmed |
+| `BEDROCK_TIMEOUT_MS` | Optional Bedrock server timeout | Non-secret | Confirmed |
 
 Current competition boundary:
 
 - Vercel uses scoped AWS runtime credentials for DynamoDB event writes.
 - The runtime key should be rotated or deleted after the competition.
-- Bedrock is not required for the current production flow.
+- Bedrock explanation assist is enabled through a bounded, fallback-safe path.
 
 ## GitHub Repository And Environment Variables
 
@@ -69,7 +69,7 @@ runtime environment variables.
 | `TF_LOCK_TABLE` | Repository variable | Confirmed |
 | `TF_PROJECT_NAME` | Repository variable | Confirmed |
 | `TF_ENVIRONMENT` | Repository variable | Confirmed |
-| `TF_BEDROCK_MODEL_ARNS` | Repository variable | Needed before Bedrock runtime policy apply |
+| `TF_BEDROCK_MODEL_ARNS` | Repository variable | Confirmed |
 | `AWS_GITHUB_ACTIONS_ROLE_ARN` | Repository secret | Confirmed |
 | `aws-infra` | GitHub environment | Confirmed |
 
@@ -81,9 +81,9 @@ runtime environment variables.
 | AWS account id | `893794041695` | Confirmed |
 | AWS region | `ap-southeast-2` | Confirmed |
 | DynamoDB billing mode | Pay-per-request through Terraform | Confirmed |
-| Bedrock model candidate | `anthropic.claude-haiku-4-5-20251001-v1:0` | Needs access / smoke confirmation |
-| Bedrock runtime policy allowlist | Terraform variable `TF_BEDROCK_MODEL_ARNS` | Needs apply |
-| Bedrock usage | Default-off in runtime config | Confirmed until intentionally enabled |
+| Bedrock inference profile | `au.anthropic.claude-haiku-4-5-20251001-v1:0` | Production smoke passed |
+| Bedrock runtime policy allowlist | Terraform variable `TF_BEDROCK_MODEL_ARNS` | Confirmed |
+| Bedrock usage | Bounded explanation assist only, with deterministic fallback | Confirmed |
 | AWS budget alert | Dashboard evidence not recorded here yet | Needs confirmation |
 
 ## Vercel Plan And Cost Controls
