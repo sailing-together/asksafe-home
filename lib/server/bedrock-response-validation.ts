@@ -15,6 +15,13 @@ export type BedrockExplanationValidationResult =
   | {
       valid: false
       reason: "invalid_json" | "invalid_shape" | "safety_invariant_violation"
+      detail?:
+        | "not_object"
+        | "unsupported_keys"
+        | "missing_or_invalid_required_text"
+        | "missing_verification_steps"
+        | "too_many_verification_steps"
+        | "invalid_verification_step"
     }
 
 const ALLOWED_KEYS = new Set([
@@ -45,22 +52,32 @@ export function validateBedrockExplanationResponse(
     }
   }
 
-  if (!isRecord(parsed) || hasUnsupportedKeys(parsed)) {
+  if (!isRecord(parsed)) {
     return {
       valid: false,
       reason: "invalid_shape",
+      detail: "not_object",
+    }
+  }
+
+  if (hasUnsupportedKeys(parsed)) {
+    return {
+      valid: false,
+      reason: "invalid_shape",
+      detail: "unsupported_keys",
     }
   }
 
   const explanation = toValidatedExplanation(parsed)
-  if (!explanation) {
+  if (!explanation.valid) {
     return {
       valid: false,
       reason: "invalid_shape",
+      detail: explanation.detail,
     }
   }
 
-  if (weakensSafetyInvariants(explanation, payload)) {
+  if (weakensSafetyInvariants(explanation.explanation, payload)) {
     return {
       valid: false,
       reason: "safety_invariant_violation",
@@ -69,7 +86,7 @@ export function validateBedrockExplanationResponse(
 
   return {
     valid: true,
-    explanation,
+    explanation: explanation.explanation,
   }
 }
 
@@ -97,7 +114,15 @@ function hasUnsupportedKeys(value: Record<string, unknown>): boolean {
 
 function toValidatedExplanation(
   value: Record<string, unknown>,
-): ValidatedBedrockExplanation | undefined {
+):
+  | { valid: true; explanation: ValidatedBedrockExplanation }
+  | {
+      valid: false
+      detail: Extract<
+        BedrockExplanationValidationResult,
+        { valid: false }
+      >["detail"]
+    } {
   const saferNextStep = readBoundedString(
     value.saferNextStep,
     MAX_SAFER_NEXT_STEP_LENGTH,
@@ -108,25 +133,39 @@ function toValidatedExplanation(
     MAX_TRUSTED_SUPPORT_SUMMARY_LENGTH,
   )
 
-  if (!saferNextStep || !why || !trustedSupportSummary) return undefined
-  if (!Array.isArray(value.verificationSteps)) return undefined
+  if (!saferNextStep || !why || !trustedSupportSummary) {
+    return { valid: false, detail: "missing_or_invalid_required_text" }
+  }
+
+  if (!Array.isArray(value.verificationSteps)) {
+    return { valid: false, detail: "missing_verification_steps" }
+  }
+
+  if (value.verificationSteps.length === 0) {
+    return { valid: false, detail: "missing_verification_steps" }
+  }
+
   if (
-    value.verificationSteps.length === 0 ||
     value.verificationSteps.length > MAX_VERIFICATION_STEPS
   ) {
-    return undefined
+    return { valid: false, detail: "too_many_verification_steps" }
   }
 
   const verificationSteps = value.verificationSteps.map((step) =>
     readBoundedString(step, MAX_VERIFICATION_STEP_LENGTH),
   )
-  if (verificationSteps.some((step) => !step)) return undefined
+  if (verificationSteps.some((step) => !step)) {
+    return { valid: false, detail: "invalid_verification_step" }
+  }
 
   return {
-    saferNextStep,
-    why,
-    verificationSteps: verificationSteps as string[],
-    trustedSupportSummary,
+    valid: true,
+    explanation: {
+      saferNextStep,
+      why,
+      verificationSteps: verificationSteps as string[],
+      trustedSupportSummary,
+    },
   }
 }
 

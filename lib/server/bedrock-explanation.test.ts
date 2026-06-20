@@ -97,3 +97,27 @@ test("maybeAssistSafetyResultWithBedrock rejects invalid model output", async ()
     invalidReason: "invalid_json",
   })
 })
+
+test("maybeAssistSafetyResultWithBedrock includes invalid shape detail", async () => {
+  const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
+    env: {
+      ENABLE_BEDROCK_EXPLANATION: "true",
+      BEDROCK_MODEL_ID: "anthropic.claude-3-haiku-20240307-v1:0",
+    },
+    invoke: async () =>
+      JSON.stringify({
+        saferNextStep: "Pause before paying.",
+        why: "This involves money pressure.",
+        verificationSteps: ["One", "Two", "Three", "Four"],
+        trustedSupportSummary:
+          "I received a money request and want help checking it safely.",
+      }),
+  })
+
+  assert.deepEqual(result, {
+    used: false,
+    outcome: "invalid_response",
+    invalidReason: "invalid_shape",
+    invalidDetail: "too_many_verification_steps",
+  })
+})
