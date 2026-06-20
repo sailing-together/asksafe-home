@@ -96,7 +96,7 @@ test("validateBedrockExplanationResponse rejects oversized copy", () => {
   })
 })
 
-test("validateBedrockExplanationResponse identifies too many verification steps", () => {
+test("validateBedrockExplanationResponse keeps the first three verification steps", () => {
   const result = validateBedrockExplanationResponse(
     JSON.stringify({
       ...validExplanation,
@@ -106,9 +106,11 @@ test("validateBedrockExplanationResponse identifies too many verification steps"
   )
 
   assert.deepEqual(result, {
-    valid: false,
-    reason: "invalid_shape",
-    detail: "too_many_verification_steps",
+    valid: true,
+    explanation: {
+      ...validExplanation,
+      verificationSteps: ["One", "Two", "Three"],
+    },
   })
 })
 
