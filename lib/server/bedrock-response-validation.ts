@@ -145,15 +145,9 @@ function toValidatedExplanation(
     return { valid: false, detail: "missing_verification_steps" }
   }
 
-  if (
-    value.verificationSteps.length > MAX_VERIFICATION_STEPS
-  ) {
-    return { valid: false, detail: "too_many_verification_steps" }
-  }
-
-  const verificationSteps = value.verificationSteps.map((step) =>
-    readBoundedString(step, MAX_VERIFICATION_STEP_LENGTH),
-  )
+  const verificationSteps = value.verificationSteps
+    .slice(0, MAX_VERIFICATION_STEPS)
+    .map((step) => readBoundedString(step, MAX_VERIFICATION_STEP_LENGTH))
   if (verificationSteps.some((step) => !step)) {
     return { valid: false, detail: "invalid_verification_step" }
   }

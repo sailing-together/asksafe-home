@@ -98,7 +98,7 @@ test("maybeAssistSafetyResultWithBedrock rejects invalid model output", async ()
   })
 })
 
-test("maybeAssistSafetyResultWithBedrock includes invalid shape detail", async () => {
+test("maybeAssistSafetyResultWithBedrock keeps the first three verification steps", async () => {
   const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
     env: {
       ENABLE_BEDROCK_EXPLANATION: "true",
@@ -115,9 +115,14 @@ test("maybeAssistSafetyResultWithBedrock includes invalid shape detail", async (
   })
 
   assert.deepEqual(result, {
-    used: false,
-    outcome: "invalid_response",
-    invalidReason: "invalid_shape",
-    invalidDetail: "too_many_verification_steps",
+    used: true,
+    outcome: "success",
+    explanation: {
+      saferNextStep: "Pause before paying.",
+      why: "This involves money pressure.",
+      verificationSteps: ["One", "Two", "Three"],
+      trustedSupportSummary:
+        "I received a money request and want help checking it safely.",
+    },
   })
 })

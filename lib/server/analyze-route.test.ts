@@ -124,7 +124,7 @@ test("handleAnalyzeRequest falls back when Bedrock output is invalid", async () 
   })
 })
 
-test("handleAnalyzeRequest exposes safe invalid response detail", async () => {
+test("handleAnalyzeRequest applies the first three Bedrock verification steps", async () => {
   const response = await handleAnalyzeRequest(
     {
       message: "my daughter asks me to send 2000 AUD right now",
@@ -147,9 +147,8 @@ test("handleAnalyzeRequest exposes safe invalid response detail", async () => {
   assert.equal(response.status, 200)
   assert.equal(response.body.ok, true)
   assert.deepEqual(response.body.bedrock, {
-    used: false,
-    outcome: "invalid_response",
-    invalidReason: "invalid_shape",
-    invalidDetail: "too_many_verification_steps",
+    used: true,
+    outcome: "success",
   })
+  assert.deepEqual(response.body.result.verify, ["One", "Two", "Three"])
 })
