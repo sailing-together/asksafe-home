@@ -251,6 +251,26 @@ The Bedrock-enabled command should print JSON like:
 }
 ```
 
+### Recorded Production Result
+
+2026-06-20 production smoke passed after enabling the AU Claude Haiku 4.5
+inference profile and bounded response validation:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+This used only the synthetic smoke payload above. No real user message, phone
+number, email address, one-time code, password, or private contact detail was
+used.
+
 ### Failure Results To Investigate
 
 - `http-error`: the production route is not accepting the request
