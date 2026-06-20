@@ -76,6 +76,7 @@ test("validateBedrockExplanationResponse rejects unsupported fields", () => {
   assert.deepEqual(result, {
     valid: false,
     reason: "invalid_shape",
+    detail: "unsupported_keys",
   })
 })
 
@@ -91,6 +92,23 @@ test("validateBedrockExplanationResponse rejects oversized copy", () => {
   assert.deepEqual(result, {
     valid: false,
     reason: "invalid_shape",
+    detail: "missing_or_invalid_required_text",
+  })
+})
+
+test("validateBedrockExplanationResponse identifies too many verification steps", () => {
+  const result = validateBedrockExplanationResponse(
+    JSON.stringify({
+      ...validExplanation,
+      verificationSteps: ["One", "Two", "Three", "Four"],
+    }),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: false,
+    reason: "invalid_shape",
+    detail: "too_many_verification_steps",
   })
 })
 

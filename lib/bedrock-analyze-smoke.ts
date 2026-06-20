@@ -38,6 +38,7 @@ type BedrockAnalyzeSmokeFailure =
       bedrockUsed: boolean
       bedrockOutcome: string
       bedrockInvalidReason?: string
+      bedrockInvalidDetail?: string
     }
 
 export type BedrockAnalyzeSmokeEvaluation =
@@ -84,6 +85,9 @@ export function evaluateBedrockAnalyzeSmokeResponse(
     }
     if (typeof bedrock.invalidReason === "string") {
       failure.bedrockInvalidReason = bedrock.invalidReason
+    }
+    if (typeof bedrock.invalidDetail === "string") {
+      failure.bedrockInvalidDetail = bedrock.invalidDetail
     }
     return failure
   }

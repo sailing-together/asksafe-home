@@ -61,6 +61,7 @@ test("evaluateBedrockAnalyzeSmokeResponse includes Bedrock invalid response diag
         used: false,
         outcome: "invalid_response",
         invalidReason: "invalid_shape",
+        invalidDetail: "too_many_verification_steps",
       },
     },
     { expectBedrock: true },
@@ -72,6 +73,7 @@ test("evaluateBedrockAnalyzeSmokeResponse includes Bedrock invalid response diag
     bedrockUsed: false,
     bedrockOutcome: "invalid_response",
     bedrockInvalidReason: "invalid_shape",
+    bedrockInvalidDetail: "too_many_verification_steps",
   })
 })
 

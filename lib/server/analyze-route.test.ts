@@ -123,3 +123,33 @@ test("handleAnalyzeRequest falls back when Bedrock output is invalid", async () 
     invalidReason: "invalid_json",
   })
 })
+
+test("handleAnalyzeRequest exposes safe invalid response detail", async () => {
+  const response = await handleAnalyzeRequest(
+    {
+      message: "my daughter asks me to send 2000 AUD right now",
+      category: "video",
+      requests: ["pay"],
+    },
+    {
+      env: enabledEnv,
+      invokeBedrock: async () =>
+        JSON.stringify({
+          saferNextStep: "Pause before paying.",
+          why: "This involves money pressure.",
+          verificationSteps: ["One", "Two", "Three", "Four"],
+          trustedSupportSummary:
+            "I received a money request and want help checking it safely.",
+        }),
+    },
+  )
+
+  assert.equal(response.status, 200)
+  assert.equal(response.body.ok, true)
+  assert.deepEqual(response.body.bedrock, {
+    used: false,
+    outcome: "invalid_response",
+    invalidReason: "invalid_shape",
+    invalidDetail: "too_many_verification_steps",
+  })
+})

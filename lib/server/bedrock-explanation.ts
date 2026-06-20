@@ -36,6 +36,10 @@ export type BedrockExplanationAssistResult =
         BedrockExplanationValidationResult,
         { valid: false }
       >["reason"]
+      invalidDetail?: Extract<
+        BedrockExplanationValidationResult,
+        { valid: false }
+      >["detail"]
     }
   | {
       used: true
@@ -84,11 +88,16 @@ export async function maybeAssistSafetyResultWithBedrock(
 
     const validation = validateBedrockExplanationResponse(responseText, promptPayload)
     if (!validation.valid) {
-      return {
+      const invalidResult: Extract<
+        BedrockExplanationAssistResult,
+        { used: false }
+      > = {
         used: false,
         outcome: "invalid_response",
         invalidReason: validation.reason,
       }
+      if (validation.detail) invalidResult.invalidDetail = validation.detail
+      return invalidResult
     }
 
     return {

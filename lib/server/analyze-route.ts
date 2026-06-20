@@ -34,6 +34,9 @@ type BedrockApiMetadata = {
   invalidReason?: NonNullable<
     Extract<BedrockExplanationAssistResult, { used: false }>["invalidReason"]
   >
+  invalidDetail?: NonNullable<
+    Extract<BedrockExplanationAssistResult, { used: false }>["invalidDetail"]
+  >
 }
 
 type AnalyzeRouteError = {
@@ -155,11 +158,13 @@ function buildBedrockApiMetadata(
   bedrock: BedrockExplanationAssistResult,
 ): BedrockApiMetadata {
   if (bedrock.outcome === "invalid_response") {
-    return {
+    const metadata: BedrockApiMetadata = {
       used: bedrock.used,
       outcome: bedrock.outcome,
       invalidReason: bedrock.invalidReason,
     }
+    if (bedrock.invalidDetail) metadata.invalidDetail = bedrock.invalidDetail
+    return metadata
   }
 
   return {
