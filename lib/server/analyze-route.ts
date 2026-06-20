@@ -31,10 +31,9 @@ type AnalyzeRouteSuccess = {
 type BedrockApiMetadata = {
   used: boolean
   outcome: BedrockExplanationAssistResult["outcome"]
-  invalidReason?: Extract<
-    BedrockExplanationAssistResult,
-    { outcome: "invalid_response" }
-  >["invalidReason"]
+  invalidReason?: NonNullable<
+    Extract<BedrockExplanationAssistResult, { used: false }>["invalidReason"]
+  >
 }
 
 type AnalyzeRouteError = {
