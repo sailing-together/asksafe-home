@@ -24,8 +24,17 @@ type AnalyzeRouteSuccess = {
   body: {
     ok: true
     result: SafetyResult
-    bedrock: Pick<BedrockExplanationAssistResult, "used" | "outcome">
+    bedrock: BedrockApiMetadata
   }
+}
+
+type BedrockApiMetadata = {
+  used: boolean
+  outcome: BedrockExplanationAssistResult["outcome"]
+  invalidReason?: Extract<
+    BedrockExplanationAssistResult,
+    { outcome: "invalid_response" }
+  >["invalidReason"]
 }
 
 type AnalyzeRouteError = {
@@ -86,10 +95,7 @@ export async function handleAnalyzeRequest(
     body: {
       ok: true,
       result: applyBedrockExplanation(result, bedrock),
-      bedrock: {
-        used: bedrock.used,
-        outcome: bedrock.outcome,
-      },
+      bedrock: buildBedrockApiMetadata(bedrock),
     },
   }
 }
@@ -143,6 +149,23 @@ function applyBedrockExplanation(
     saferStep: bedrock.explanation.saferNextStep,
     why: bedrock.explanation.why,
     verify: bedrock.explanation.verificationSteps,
+  }
+}
+
+function buildBedrockApiMetadata(
+  bedrock: BedrockExplanationAssistResult,
+): BedrockApiMetadata {
+  if (bedrock.outcome === "invalid_response") {
+    return {
+      used: bedrock.used,
+      outcome: bedrock.outcome,
+      invalidReason: bedrock.invalidReason,
+    }
+  }
+
+  return {
+    used: bedrock.used,
+    outcome: bedrock.outcome,
   }
 }
 

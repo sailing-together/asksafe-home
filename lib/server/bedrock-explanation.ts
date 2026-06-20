@@ -2,6 +2,7 @@ import { getAskSafeBedrockEnv, type AskSafeBedrockEnvResult } from "./bedrock-en
 import { BedrockInvocationTimeoutError } from "./bedrock-client.ts"
 import {
   validateBedrockExplanationResponse,
+  type BedrockExplanationValidationResult,
   type ValidatedBedrockExplanation,
 } from "./bedrock-response-validation.ts"
 import { redactSensitiveTextForBedrock } from "./bedrock-redaction.ts"
@@ -31,6 +32,10 @@ export type BedrockExplanationAssistResult =
         | "runtime_error"
         | "timeout"
         | "invalid_response"
+      invalidReason?: Extract<
+        BedrockExplanationValidationResult,
+        { valid: false }
+      >["reason"]
     }
   | {
       used: true
@@ -82,6 +87,7 @@ export async function maybeAssistSafetyResultWithBedrock(
       return {
         used: false,
         outcome: "invalid_response",
+        invalidReason: validation.reason,
       }
     }
 

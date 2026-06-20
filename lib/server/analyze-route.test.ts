@@ -120,5 +120,6 @@ test("handleAnalyzeRequest falls back when Bedrock output is invalid", async () 
   assert.deepEqual(response.body.bedrock, {
     used: false,
     outcome: "invalid_response",
+    invalidReason: "invalid_json",
   })
 })

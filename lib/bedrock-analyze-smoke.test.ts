@@ -52,6 +52,29 @@ test("evaluateBedrockAnalyzeSmokeResponse requires Bedrock success when requeste
   })
 })
 
+test("evaluateBedrockAnalyzeSmokeResponse includes Bedrock invalid response diagnostics", () => {
+  const result = evaluateBedrockAnalyzeSmokeResponse(
+    {
+      ok: true,
+      result: deterministicResult,
+      bedrock: {
+        used: false,
+        outcome: "invalid_response",
+        invalidReason: "invalid_shape",
+      },
+    },
+    { expectBedrock: true },
+  )
+
+  assert.deepEqual(result, {
+    ok: false,
+    reason: "bedrock-not-used",
+    bedrockUsed: false,
+    bedrockOutcome: "invalid_response",
+    bedrockInvalidReason: "invalid_shape",
+  })
+})
+
 test("evaluateBedrockAnalyzeSmokeResponse accepts Bedrock success when requested", () => {
   const result = evaluateBedrockAnalyzeSmokeResponse(
     {
