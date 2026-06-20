@@ -69,6 +69,7 @@ runtime environment variables.
 | `TF_LOCK_TABLE` | Repository variable | Confirmed |
 | `TF_PROJECT_NAME` | Repository variable | Confirmed |
 | `TF_ENVIRONMENT` | Repository variable | Confirmed |
+| `TF_BEDROCK_MODEL_ARNS` | Repository variable | Needed before Bedrock runtime policy apply |
 | `AWS_GITHUB_ACTIONS_ROLE_ARN` | Repository secret | Confirmed |
 | `aws-infra` | GitHub environment | Confirmed |
 
@@ -80,7 +81,9 @@ runtime environment variables.
 | AWS account id | `893794041695` | Confirmed |
 | AWS region | `ap-southeast-2` | Confirmed |
 | DynamoDB billing mode | Pay-per-request through Terraform | Confirmed |
-| Bedrock usage | Default-off in runtime config | Confirmed |
+| Bedrock model candidate | `anthropic.claude-haiku-4-5-20251001-v1:0` | Needs access / smoke confirmation |
+| Bedrock runtime policy allowlist | Terraform variable `TF_BEDROCK_MODEL_ARNS` | Needs apply |
+| Bedrock usage | Default-off in runtime config | Confirmed until intentionally enabled |
 | AWS budget alert | Dashboard evidence not recorded here yet | Needs confirmation |
 
 ## Vercel Plan And Cost Controls

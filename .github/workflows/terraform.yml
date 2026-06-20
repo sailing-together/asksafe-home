@@ -41,6 +41,7 @@ jobs:
       TF_VAR_aws_region: ${{ vars.AWS_REGION }}
       TF_VAR_project_name: ${{ vars.TF_PROJECT_NAME }}
       TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
+      TF_VAR_bedrock_model_arns: ${{ vars.TF_BEDROCK_MODEL_ARNS }}
 
     steps:
       - name: Checkout
