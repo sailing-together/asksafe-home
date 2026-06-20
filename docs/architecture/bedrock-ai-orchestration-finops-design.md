@@ -212,12 +212,13 @@ Use the smallest Bedrock model that produces reliable senior-friendly rewrite qu
 
 Current production smoke-test candidate:
 
-- `anthropic.claude-haiku-4-5-20251001-v1:0`
+- `au.anthropic.claude-haiku-4-5-20251001-v1:0`
 
-This model is selected for low-latency explanation polish, not for autonomous
-classification. If AWS requires an inference profile for this model, use the
-approved inference profile ID as `BEDROCK_MODEL_ID` and allowlist its ARN in the
-runtime IAM policy.
+This AU system-defined inference profile routes Claude Haiku 4.5 requests to
+Sydney (`ap-southeast-2`) and Melbourne (`ap-southeast-4`). It is selected for
+low-latency explanation polish, not for autonomous classification. The runtime
+IAM policy allowlists the inference profile ARN plus the destination-region
+foundation model ARNs.
 
 ## Persistence Metadata
 

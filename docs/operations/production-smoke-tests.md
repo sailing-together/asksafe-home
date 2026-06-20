@@ -201,7 +201,7 @@ private contact detail should be used.
 Before expecting Bedrock to be used, confirm these production settings:
 
 - `ENABLE_BEDROCK_EXPLANATION=true`
-- `BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5-20251001-v1:0`
+- `BEDROCK_MODEL_ID=au.anthropic.claude-haiku-4-5-20251001-v1:0`
 - `BEDROCK_MAX_INPUT_CHARS` is bounded
 - `BEDROCK_MAX_OUTPUT_TOKENS` is bounded
 - `BEDROCK_TIMEOUT_MS` is bounded
@@ -212,12 +212,15 @@ Before expecting Bedrock to be used, confirm these production settings:
 Terraform runtime policy allowlist:
 
 ```json
-["arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0"]
+[
+  "arn:aws:bedrock:ap-southeast-2:893794041695:inference-profile/au.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
+  "arn:aws:bedrock:ap-southeast-4::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0"
+]
 ```
 
-If AWS requires Claude Haiku 4.5 to be invoked through an inference profile,
-replace both the Vercel `BEDROCK_MODEL_ID` and Terraform allowlist with the
-approved inference profile ID / ARN from the Bedrock model detail page.
+Claude Haiku 4.5 is invoked through the AU system-defined inference profile,
+which routes to Sydney (`ap-southeast-2`) and Melbourne (`ap-southeast-4`).
 
 ### Command
 

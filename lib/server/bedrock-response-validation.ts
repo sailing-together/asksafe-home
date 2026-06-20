@@ -37,7 +37,7 @@ export function validateBedrockExplanationResponse(
   let parsed: unknown
 
   try {
-    parsed = JSON.parse(responseText)
+    parsed = JSON.parse(extractJsonObjectText(responseText))
   } catch {
     return {
       valid: false,
@@ -71,6 +71,20 @@ export function validateBedrockExplanationResponse(
     valid: true,
     explanation,
   }
+}
+
+function extractJsonObjectText(responseText: string): string {
+  const trimmed = responseText.trim()
+  const fencedJson = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  if (fencedJson?.[1]) return fencedJson[1].trim()
+
+  const firstBrace = trimmed.indexOf("{")
+  const lastBrace = trimmed.lastIndexOf("}")
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1)
+  }
+
+  return trimmed
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
