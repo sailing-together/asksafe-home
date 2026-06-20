@@ -838,6 +838,36 @@ The evidence log records setting names and confirmation status only. It must not
 store secret values, access keys, one-time codes, passwords, or private contact
 details.
 
+### P5.6 Production Bedrock Analyze Smoke Path
+
+P5.6 added a controlled production smoke-test path for the Bedrock-assisted
+analyze route.
+
+Merged code scope:
+
+- synthetic Bedrock analyze smoke payload
+- response evaluator for `/api/analyze`
+- smoke CLI:
+  `pnpm smoke:bedrock:analyze https://asksafe-home.vercel.app --expect-bedrock`
+- tests that distinguish:
+  - healthy deterministic analyze response
+  - expected Bedrock success
+  - Bedrock not actually used when it was expected
+  - malformed analyze response
+- production smoke-test documentation
+
+Important boundary:
+
+This does not add a new public Bedrock-specific endpoint. It uses the existing
+server analyze route so the same rate limit, validation, deterministic rule
+baseline, Bedrock validation, and fallback behavior are exercised.
+
+Still not done after P5.6:
+
+- enable the production Bedrock environment variables only after model access,
+  IAM runtime permission, and budget controls are confirmed
+- record the actual production smoke-test result after deployment
+
 ## Product Ideas Recorded For Later
 
 ### Trusted Phrase

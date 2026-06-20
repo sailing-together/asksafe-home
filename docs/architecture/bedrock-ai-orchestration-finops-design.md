@@ -268,7 +268,7 @@ Implementation is proceeding in small steps:
 3. Add Bedrock client wrapper with timeout and fallback tests. Done in P5.2.
 4. Add strict response validation and safety invariant tests. Done in P5.3.
 5. Add optional analyze-route integration behind `ENABLE_BEDROCK_EXPLANATION`. Done in P5.4.
-6. Add production smoke-test documentation only after enabling Bedrock in a controlled environment.
+6. Add production smoke-test documentation and a CLI smoke path after enabling Bedrock in a controlled environment. Done in P5.6.
 
 Do not add screenshot analysis, generic chat, family monitoring, or autonomous agent behavior in the first Bedrock implementation.
 
@@ -295,3 +295,10 @@ small client wrapper. If `/api/analyze` fails, returns a non-OK response, or
 returns a malformed payload, or takes too long, the wrapper falls back to the
 existing local deterministic analysis so the user still receives a safety
 result.
+
+P5.6 adds a production smoke-test path for the Bedrock-assisted analyze route.
+It does not add a new public Bedrock endpoint. The smoke path posts a synthetic,
+sanitized test case to the existing `/api/analyze` route and verifies the
+response shape, high-risk deterministic structure, and optional Bedrock outcome.
+When run with `--expect-bedrock`, the smoke test requires
+`bedrock.used=true` and `bedrock.outcome=success`.

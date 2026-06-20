@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/analyze-client.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts lib/server/safety-event-route.test.ts lib/server/feedback-event-route.test.ts lib/server/support-event-route.test.ts lib/server/rate-limit.test.ts lib/safety-event-client.test.ts lib/outcome-event-client.test.ts lib/server/analyze-route.test.ts lib/server/bedrock-env.test.ts lib/server/bedrock-redaction.test.ts lib/server/bedrock-explanation.test.ts lib/server/bedrock-client.test.ts lib/server/bedrock-response-validation.test.ts next.config.test.mjs"
+    "test:rules": "node --no-warnings --experimental-strip-types --test lib/safety-rules.test.ts lib/analyze.test.ts lib/analyze-client.test.ts lib/official-help-resources.test.ts lib/server/aws-env.test.ts lib/server/persistence.test.ts lib/server/safety-event-route.test.ts lib/server/feedback-event-route.test.ts lib/server/support-event-route.test.ts lib/server/rate-limit.test.ts lib/safety-event-client.test.ts lib/outcome-event-client.test.ts lib/server/analyze-route.test.ts lib/bedrock-analyze-smoke.test.ts lib/server/bedrock-env.test.ts lib/server/bedrock-redaction.test.ts lib/server/bedrock-explanation.test.ts lib/server/bedrock-client.test.ts lib/server/bedrock-response-validation.test.ts next.config.test.mjs",
+    "smoke:bedrock:analyze": "node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1071.0",
