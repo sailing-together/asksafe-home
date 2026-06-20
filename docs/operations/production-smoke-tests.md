@@ -171,3 +171,98 @@ Support event:
 
 This verifies P4.5 production persistence for feedback and trusted support
 metadata.
+
+## P5.6 Bedrock Analyze Route Smoke Test
+
+Date: to be run after P5.6 is merged and production is redeployed
+Production URL: `https://asksafe-home.vercel.app`
+Endpoint: `POST /api/analyze`
+
+### Purpose
+
+Verify that the deployed production analyze route can exercise the optional
+Bedrock explanation path without adding a separate public Bedrock endpoint.
+
+This smoke test uses a synthetic scenario only:
+
+```json
+{
+  "message": "A video caller claiming to be my daughter asked me to send 2000 AUD today.",
+  "category": "video",
+  "requests": ["pay"]
+}
+```
+
+No real user message, phone number, email address, one-time code, password, or
+private contact detail should be used.
+
+### Required Production Runtime Settings
+
+Before expecting Bedrock to be used, confirm these production settings:
+
+- `ENABLE_BEDROCK_EXPLANATION=true`
+- `BEDROCK_MODEL_ID=<approved model id>`
+- `BEDROCK_MAX_INPUT_CHARS` is bounded
+- `BEDROCK_MAX_OUTPUT_TOKENS` is bounded
+- `BEDROCK_TIMEOUT_MS` is bounded
+- AWS runtime credentials can invoke only the approved Bedrock model in the
+  chosen region
+- budget alerts and spend controls are in place
+
+### Command
+
+Run the basic route-health smoke test:
+
+```bash
+pnpm smoke:bedrock:analyze https://asksafe-home.vercel.app
+```
+
+Run the Bedrock-enabled smoke test:
+
+```bash
+pnpm smoke:bedrock:analyze https://asksafe-home.vercel.app --expect-bedrock
+```
+
+### Passing Result
+
+The Bedrock-enabled command should print JSON like:
+
+```json
+{
+  "ok": true,
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+### Failure Results To Investigate
+
+- `http-error`: the production route is not accepting the request
+- `malformed-response`: the route response no longer matches the expected
+  analyze shape
+- `unexpected-risk`: deterministic safety structure changed unexpectedly
+- `bedrock-not-used`: Bedrock was expected but the route returned a fallback
+  outcome such as `disabled`, `missing-model-id`, `runtime_error`, `timeout`, or
+  `invalid_response`
+- `request-failed`: local network or DNS request failure
+
+### What This Proves
+
+- The production analyze route is reachable.
+- The deterministic safety baseline still classifies the synthetic scenario as
+  high risk.
+- When `--expect-bedrock` passes, the optional Bedrock explanation assist was
+  invoked successfully and returned validated output.
+- The route still returns only structured result data to the client, not raw
+  Bedrock prompts or completions.
+
+### What This Does Not Prove
+
+- It does not prove Bedrock should be enabled for all public users.
+- It does not prove screenshots, audio, video, or deepfake detection.
+- It does not prove the model can decide whether a caller is real.
+- It does not replace budget monitoring, rate limiting, or incident rollback
+  procedures.
