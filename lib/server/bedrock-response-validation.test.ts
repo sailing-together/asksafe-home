@@ -43,6 +43,18 @@ test("validateBedrockExplanationResponse accepts a bounded valid response", () =
   })
 })
 
+test("validateBedrockExplanationResponse accepts JSON wrapped in a model code fence", () => {
+  const result = validateBedrockExplanationResponse(
+    ["```json", JSON.stringify(validExplanation), "```"].join("\n"),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: true,
+    explanation: validExplanation,
+  })
+})
+
 test("validateBedrockExplanationResponse rejects invalid JSON", () => {
   const result = validateBedrockExplanationResponse("{not json", payload)
 
