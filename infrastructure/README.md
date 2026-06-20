@@ -137,6 +137,18 @@ Expected repository variables:
 - `TF_LOCK_TABLE=asksafe-home-tflock`
 - `TF_PROJECT_NAME=asksafe-home`
 - `TF_ENVIRONMENT=prod`
+- `TF_BEDROCK_MODEL_ARNS=[]` until Bedrock is intentionally enabled
+
+When Bedrock explanation assist is enabled for production smoke testing, set
+`TF_BEDROCK_MODEL_ARNS` to a JSON list of allowed model ARNs. For the current
+Claude Haiku 4.5 candidate in `ap-southeast-2`, use:
+
+```json
+["arn:aws:bedrock:ap-southeast-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0"]
+```
+
+This updates only the runtime IAM policy allowlist. Vercel still needs its
+separate runtime environment variables before the app attempts Bedrock.
 
 Expected repository secret:
 

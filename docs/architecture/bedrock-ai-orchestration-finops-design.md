@@ -210,6 +210,15 @@ Recommended first model posture:
 
 Use the smallest Bedrock model that produces reliable senior-friendly rewrite quality for short structured payloads. Prefer cheaper models for explanation polish. Reserve larger multimodal models for future image-observation experiments only after the text path proves useful.
 
+Current production smoke-test candidate:
+
+- `anthropic.claude-haiku-4-5-20251001-v1:0`
+
+This model is selected for low-latency explanation polish, not for autonomous
+classification. If AWS requires an inference profile for this model, use the
+approved inference profile ID as `BEDROCK_MODEL_ID` and allowlist its ARN in the
+runtime IAM policy.
+
 ## Persistence Metadata
 
 When Bedrock is attempted, persist only privacy-minimized operational metadata.
