@@ -37,6 +37,7 @@ type BedrockAnalyzeSmokeFailure =
       reason: "bedrock-not-used"
       bedrockUsed: boolean
       bedrockOutcome: string
+      bedrockInvalidReason?: string
     }
 
 export type BedrockAnalyzeSmokeEvaluation =
@@ -75,12 +76,16 @@ export function evaluateBedrockAnalyzeSmokeResponse(
   }
 
   if (options.expectBedrock && !(bedrock.used && bedrock.outcome === "success")) {
-    return {
+    const failure: BedrockAnalyzeSmokeFailure = {
       ok: false,
       reason: "bedrock-not-used",
       bedrockUsed: bedrock.used,
       bedrockOutcome: bedrock.outcome,
     }
+    if (typeof bedrock.invalidReason === "string") {
+      failure.bedrockInvalidReason = bedrock.invalidReason
+    }
+    return failure
   }
 
   return {

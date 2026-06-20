@@ -94,5 +94,6 @@ test("maybeAssistSafetyResultWithBedrock rejects invalid model output", async ()
   assert.deepEqual(result, {
     used: false,
     outcome: "invalid_response",
+    invalidReason: "invalid_json",
   })
 })
