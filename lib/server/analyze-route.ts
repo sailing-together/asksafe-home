@@ -137,6 +137,12 @@ function buildBedrockAssistPayload(
     why: result.why,
     verify: result.verify,
     situationSummary: message,
+    clarification: result.clarification
+      ? {
+          question: result.clarification.question,
+          reason: result.clarification.reason,
+        }
+      : undefined,
   }
 }
 

@@ -16,6 +16,7 @@ import {
   Check,
   Volume2,
   Square,
+  CircleHelp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -164,6 +165,25 @@ export function ResultCard({
         <p className="text-base text-muted-foreground">
           Read aloud is not supported in this browser.
         </p>
+      )}
+
+      {result.clarification?.needed && (
+        <section className="rounded-2xl border border-primary/20 bg-secondary/60 p-6">
+          <div className="flex items-start gap-3">
+            <CircleHelp className="mt-1 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+            <div className="space-y-2">
+              <h2 className="font-heading text-xl font-semibold text-foreground">
+                Before you decide
+              </h2>
+              <p className="text-lg leading-relaxed text-foreground">
+                {result.clarification.question}
+              </p>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                {result.clarification.reason}
+              </p>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Safer next step */}

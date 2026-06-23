@@ -271,6 +271,27 @@ This used only the synthetic smoke payload above. No real user message, phone
 number, email address, one-time code, password, or private contact detail was
 used.
 
+## Guided Clarification Manual Check
+
+Use this synthetic scenario to confirm the result can show one clarification
+question without collecting sensitive details:
+
+```json
+{
+  "message": "my daughter asks me for money",
+  "category": "video",
+  "requests": ["pay"]
+}
+```
+
+Expected:
+
+- risk remains `high`;
+- the result includes a `clarification` object;
+- the clarification asks the user to verify through a trusted channel;
+- the clarification does not ask for bank details, one-time codes, passwords,
+  or identity documents.
+
 ### Failure Results To Investigate
 
 - `http-error`: the production route is not accepting the request

@@ -21,6 +21,12 @@ export type RequestType =
   | "screen"
   | "unsure"
 
+export interface SafetyClarification {
+  needed: true
+  question: string
+  reason: string
+}
+
 // What each "what do they want" choice signals, and how strongly.
 const REQUEST_SIGNALS: Record<
   RequestType,
@@ -46,6 +52,7 @@ export interface SafetyResult {
   riskSignals: RiskSignal[]
   scamTypeIds: string[]
   sourceIds: string[]
+  clarification?: SafetyClarification
 }
 
 const HIGH_SIGNALS: { pattern: RegExp; reason: string }[] = [
@@ -74,6 +81,7 @@ export function analyze(
 ): SafetyResult {
   const text = message.trim()
   const ruleAssessment = assessSafetyInput({ message: text, category, requests })
+  const clarification = buildClarification(ruleAssessment)
   const textHigh = HIGH_SIGNALS.filter((s) => s.pattern.test(text))
   const textCaution = CAUTION_SIGNALS.filter((s) => s.pattern.test(text))
 
@@ -118,6 +126,7 @@ export function analyze(
       riskSignals: ruleAssessment.riskSignals,
       scamTypeIds: ruleAssessment.scamTypeIds,
       sourceIds: ruleAssessment.sourceIds,
+      clarification,
     }
   }
 
@@ -140,6 +149,7 @@ export function analyze(
       riskSignals: ruleAssessment.riskSignals,
       scamTypeIds: ruleAssessment.scamTypeIds,
       sourceIds: ruleAssessment.sourceIds,
+      clarification,
     }
   }
 
@@ -157,7 +167,47 @@ export function analyze(
     riskSignals: ruleAssessment.riskSignals,
     scamTypeIds: ruleAssessment.scamTypeIds,
     sourceIds: ruleAssessment.sourceIds,
+    clarification,
   }
+}
+
+function buildClarification(
+  ruleAssessment: ReturnType<typeof assessSafetyInput>,
+): SafetyClarification | undefined {
+  const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  if (hasHardStopSignal(signalIds)) {
+    return undefined
+  }
+
+  if (signalIds.has("family-money-request")) {
+    return {
+      needed: true,
+      question:
+        "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
+      reason: "A money request from someone close should be verified another way before you act.",
+    }
+  }
+
+  if (signalIds.has("payment-request")) {
+    return {
+      needed: true,
+      question:
+        "Before you decide, check one thing: who is asking, and how do they want you to pay?",
+      reason:
+        "The request involves payment, but the person and payment method still need checking.",
+    }
+  }
+
+  return undefined
+}
+
+function hasHardStopSignal(signalIds: Set<string>): boolean {
+  return (
+    signalIds.has("code-request") ||
+    signalIds.has("remote-access") ||
+    signalIds.has("personal-details")
+  )
 }
 
 function highestRisk(current: RiskLevel, next: RiskLevel): RiskLevel {
