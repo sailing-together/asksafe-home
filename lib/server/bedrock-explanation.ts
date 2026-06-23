@@ -20,6 +20,10 @@ export type BedrockAssistPayload = {
   why: string
   verify: readonly string[]
   situationSummary?: string
+  clarification?: {
+    question: string
+    reason: string
+  }
 }
 
 export type BedrockExplanationAssistResult =

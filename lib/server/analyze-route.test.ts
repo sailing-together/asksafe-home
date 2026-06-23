@@ -2,6 +2,7 @@ import test from "node:test"
 import assert from "node:assert/strict"
 
 import { handleAnalyzeRequest } from "./analyze-route.ts"
+import type { BedrockAssistPayload } from "./bedrock-explanation.ts"
 
 const enabledEnv = {
   ENABLE_BEDROCK_EXPLANATION: "true",
@@ -52,7 +53,32 @@ test("handleAnalyzeRequest returns deterministic analysis when Bedrock is disabl
   })
 })
 
+test("handleAnalyzeRequest returns clarification metadata", async () => {
+  const response = await handleAnalyzeRequest(
+    {
+      message: "my daughter asks me for money",
+      category: "video",
+      requests: ["pay"],
+    },
+    {
+      env: {},
+      invokeBedrock: async () => "{}",
+    },
+  )
+
+  assert.equal(response.status, 200)
+  assert.equal(response.body.ok, true)
+  assert.deepEqual(response.body.result.clarification, {
+    needed: true,
+    question:
+      "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
+    reason: "A money request from someone close should be verified another way before you act.",
+  })
+})
+
 test("handleAnalyzeRequest applies validated Bedrock wording without changing safety structure", async () => {
+  let promptPayload: BedrockAssistPayload | undefined
+
   const response = await handleAnalyzeRequest(
     {
       message: "my daughter asks me to send 2000 AUD right now",
@@ -61,8 +87,9 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
     },
     {
       env: enabledEnv,
-      invokeBedrock: async () =>
-        JSON.stringify({
+      invokeBedrock: async ({ promptPayload: payload }) => {
+        promptPayload = payload
+        return JSON.stringify({
           saferNextStep:
             "Pause before paying and contact your daughter using a saved number.",
           why: "This has urgency and a request for money.",
@@ -72,7 +99,8 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
           ],
           trustedSupportSummary:
             "I received an urgent money request and want help checking it safely.",
-        }),
+        })
+      },
     },
   )
 
@@ -95,6 +123,19 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
     "Do not use contact details from the message.",
     "Call your daughter using a number you already trust.",
   ])
+  assert.deepEqual(response.body.result.clarification, {
+    needed: true,
+    question:
+      "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
+    reason: "A money request from someone close should be verified another way before you act.",
+  })
+  const capturedPayload = promptPayload
+  assert.ok(capturedPayload)
+  assert.deepEqual(capturedPayload.clarification, {
+    question:
+      "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
+    reason: "A money request from someone close should be verified another way before you act.",
+  })
   assert.deepEqual(response.body.bedrock, {
     used: true,
     outcome: "success",
