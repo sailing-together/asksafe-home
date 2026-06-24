@@ -185,8 +185,13 @@ function weakensSafetyInvariants(
     .join(" ")
     .toLowerCase()
 
-  return payload.doNotYet.some((warning) =>
-    contradictsWarning(text, warning.toLowerCase()),
+  return (
+    payload.doNotYet.some((warning) =>
+      contradictsWarning(text, warning.toLowerCase()),
+    ) ||
+    asksForSensitiveDetails(text) ||
+    overclaimsCertainty(text) ||
+    usesSuspiciousContactChannel(text)
   )
 }
 
@@ -225,4 +230,52 @@ function contradictsWarning(text: string, warning: string): boolean {
   }
 
   return false
+}
+
+function asksForSensitiveDetails(text: string): boolean {
+  return (
+    /\b(ask|enter|provide|share|give|send)\b.*\b(full )?(bank account|account number|card number|credit card|debit card)\b/.test(
+      text,
+    ) ||
+    /\b(ask|enter|provide|share|give|send)\b.*\b(one[- ]?time code|verification code|otp|pin|password)\b/.test(
+      text,
+    ) ||
+    /\b(ask|enter|provide|share|give|send)\b.*\b(passport|medicare|driver'?s licence|identity document)\b/.test(
+      text,
+    )
+  )
+}
+
+function overclaimsCertainty(text: string): boolean {
+  return (
+    /\b(definitely|certainly|confirmed|proves?)\b.*\b(real|genuine|safe|your daughter|your son|your family)\b/.test(
+      text,
+    ) ||
+    /\b(asksafe|the app|the model)\b.*\b(confirmed|verified|proved)\b.*\b(real|genuine|safe|fake)\b/.test(
+      text,
+    ) ||
+    /\b(this|it|the request|the message|the call|the video call)\b.*\b(is|looks)\b.*\b(definitely|certainly)\b.*\b(real|fake|genuine|safe)\b/.test(
+      text,
+    )
+  )
+}
+
+function usesSuspiciousContactChannel(text: string): boolean {
+  const unsafeCandidateText = removeSafeSuspiciousChannelWarnings(text)
+
+  return (
+    /\b(use|call|contact|reply to|message)\b.*\b(number|link|contact details|email)\b.*\b(they sent|from the message|in the message|from the call|they gave)\b/.test(
+      unsafeCandidateText,
+    ) ||
+    /\b(reply to the message|tap the link|click the link|open the link)\b/.test(
+      unsafeCandidateText,
+    )
+  )
+}
+
+function removeSafeSuspiciousChannelWarnings(text: string): string {
+  return text.replace(
+    /\b(do not|don't|never)\s+use\b[^.!?]*\b(from|in) the message\b[.!?]?/g,
+    " ",
+  )
 }
