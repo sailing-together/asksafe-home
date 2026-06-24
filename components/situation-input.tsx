@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
 import { useSpeechRecognition } from "@/lib/use-voice"
-import { assessSafetyInput } from "@/lib/safety-rules"
+import { getGuidedClarificationInteraction } from "@/lib/guided-clarification-interaction"
 import type { Category, RequestType } from "@/lib/analyze"
 
 const prompts: Record<Category, string> = {
@@ -40,58 +40,19 @@ function buildAssistantReply({
   category,
   nextDetails,
   requests,
-  isShort,
-  askedFollowUp,
+  hasAskedClarification,
 }: {
   category: Category
   nextDetails: string[]
   requests: RequestType[]
-  isShort: boolean
-  askedFollowUp: boolean
+  hasAskedClarification: boolean
 }) {
-  const combined = nextDetails.join(" ")
-  const detailCount = nextDetails.length
-  const assessment = assessSafetyInput({ message: combined, category, requests })
-  const signalIds = new Set(assessment.riskSignals.map((signal) => signal.id))
-  const hasAction = assessment.suggestedRequests.some((request) => request !== "unsure")
-
-  if (!askedFollowUp && (!hasAction || isShort)) {
-    return "Before I check it, what are they asking you to do? You can choose one below or send a little more detail."
-  }
-
-  if (signalIds.has("family-money-request")) {
-    if (detailCount > 1) {
-      return "That still sounds like a money request from someone close to you. The key is to verify with a contact you already know before paying. Add the payment method if helpful, or choose the safer next step."
-    }
-
-    return "I hear a money request from someone close to you. Pause before paying. If you can, add how they contacted you, the amount, and how they want it sent."
-  }
-
-  if (signalIds.has("remote-access")) {
-    return "I hear they may want access to your device. Do not install anything or share your screen yet. Add who they claimed to be if you know."
-  }
-
-  if (signalIds.has("code-request")) {
-    return "I hear they may want a code. Do not share any one-time code yet. Add who asked for it and why they said they need it."
-  }
-
-  if (signalIds.has("link-request")) {
-    return "I hear there may be a link involved. Do not tap it yet. Add who the message claims to be from if you can."
-  }
-
-  if (signalIds.has("payment-request")) {
-    if (detailCount > 1) {
-      return "I have the money request. The safer path is to pause and verify first. Add the payment method if you know it, or choose the safer next step."
-    }
-
-    return "I hear this involves money. Pause before paying or transferring anything. Add who is asking and how they want you to pay."
-  }
-
-  if (detailCount > 1) {
-    return "I have that. Add any new detail if you want, or choose the safer next step when you're ready."
-  }
-
-  return "Got it. You can add one more detail if you want, or choose the safer next step when you're ready."
+  return getGuidedClarificationInteraction({
+    message: nextDetails.join("\n"),
+    category,
+    requests,
+    hasAskedClarification,
+  })
 }
 
 export function SituationInput({
@@ -111,7 +72,7 @@ export function SituationInput({
 }) {
   const [value, setValue] = useState(initialMessage)
   const [details, setDetails] = useState<string[]>([])
-  const [askedFollowUp, setAskedFollowUp] = useState(false)
+  const [hasAskedClarification, setHasAskedClarification] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       role: "assistant",
@@ -161,22 +122,20 @@ export function SituationInput({
     setMessages((prev) => [...prev, { role: "user", text }])
     setValue("")
 
-    const isShort = text.replace(/\s+/g, "").length < 12
-    const reply = buildAssistantReply({
+    const interaction = buildAssistantReply({
       category,
       nextDetails,
       requests,
-      isShort,
-      askedFollowUp,
+      hasAskedClarification,
     })
 
-    if (!askedFollowUp && reply.startsWith("Before I check it")) {
-      setAskedFollowUp(true)
+    if (interaction.type === "clarification") {
+      setHasAskedClarification(true)
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: reply,
+          text: `${interaction.question} ${interaction.helperText}`,
         },
       ])
       return
@@ -186,7 +145,7 @@ export function SituationInput({
       ...prev,
       {
         role: "assistant",
-        text: reply,
+        text: interaction.text,
       },
     ])
   }
