@@ -128,3 +128,84 @@ test("validateBedrockExplanationResponse rejects output that weakens money warni
     reason: "safety_invariant_violation",
   })
 })
+
+test("validateBedrockExplanationResponse rejects requests for sensitive details", () => {
+  const result = validateBedrockExplanationResponse(
+    JSON.stringify({
+      ...validExplanation,
+      saferNextStep:
+        "Ask them for the full bank account number and one-time code before you decide.",
+      why: "This helps confirm the payment.",
+      verificationSteps: ["Ask for their bank details."],
+      trustedSupportSummary: "I need to share a code to confirm this.",
+    }),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: false,
+    reason: "safety_invariant_violation",
+  })
+})
+
+test("validateBedrockExplanationResponse rejects certainty overclaims", () => {
+  const result = validateBedrockExplanationResponse(
+    JSON.stringify({
+      ...validExplanation,
+      saferNextStep: "This is definitely your daughter and the request is safe.",
+      why: "The video call proves it is real.",
+      verificationSteps: ["Send the money."],
+      trustedSupportSummary: "AskSafe confirmed this is genuine.",
+    }),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: false,
+    reason: "safety_invariant_violation",
+  })
+})
+
+test("validateBedrockExplanationResponse rejects suspicious-channel verification", () => {
+  const result = validateBedrockExplanationResponse(
+    JSON.stringify({
+      ...validExplanation,
+      saferNextStep: "Reply to the message and use the phone number they sent.",
+      why: "That will verify the request.",
+      verificationSteps: ["Use the contact details in the message."],
+      trustedSupportSummary: "I should call the number from the message.",
+    }),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: false,
+    reason: "safety_invariant_violation",
+  })
+})
+
+test("validateBedrockExplanationResponse accepts official-channel verification wording", () => {
+  const explanation: ValidatedBedrockExplanation = {
+    saferNextStep:
+      "Pause before paying and contact the person using a number you already trust.",
+    why:
+      "A money request should be checked through another channel before you act.",
+    verificationSteps: [
+      "Do not use contact details from the message.",
+      "Call the person using a saved number.",
+      "Ask whether they really sent the request.",
+    ],
+    trustedSupportSummary:
+      "I received a money request and want help checking it safely.",
+  }
+
+  const result = validateBedrockExplanationResponse(
+    JSON.stringify(explanation),
+    payload,
+  )
+
+  assert.deepEqual(result, {
+    valid: true,
+    explanation,
+  })
+})

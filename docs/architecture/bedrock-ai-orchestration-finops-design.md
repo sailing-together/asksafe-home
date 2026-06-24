@@ -180,6 +180,26 @@ These warnings are controlled by rules and must survive any Bedrock assist when 
 
 Bedrock can make wording clearer, but it cannot weaken these instructions.
 
+## Response Safety UX Review
+
+Bedrock-assisted wording should make a rules-derived result easier to understand. It must not make AskSafe sound more certain than the deterministic workflow can support.
+
+Reject model output that:
+
+- asks the user to provide passwords, PINs, one-time codes, bank account numbers, card numbers, or identity document details;
+- claims a caller, family member, organisation, message, image, voice, or video is definitely real or fake;
+- tells the user to verify through a phone number, link, or contact detail from the suspicious message, call, or chat;
+- says it is safe to send money, click a link, share a code, install an app, or share a screen when the rules result says not to do that;
+- removes official-channel verification advice.
+
+Accept model output that:
+
+- uses calm plain language;
+- keeps the safer next step short and direct;
+- tells the user to pause before acting;
+- recommends using contact details they already trust or official details found separately;
+- helps the user ask a trusted person for a second opinion without shame or pressure.
+
 ## FinOps Guardrails
 
 Bedrock use should be rare, bounded, and observable.
