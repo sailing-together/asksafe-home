@@ -320,3 +320,111 @@ Expected:
 - It does not prove the model can decide whether a caller is real.
 - It does not replace budget monitoring, rate limiting, or incident rollback
   procedures.
+
+## P7.2 Step 2 Guided Clarification Manual Check
+
+Date: to be run after P7.2 is merged and production is redeployed
+Production URL: `https://asksafe-home.vercel.app`
+
+### Purpose
+
+Verify that Step 2 asks one useful clarification question for thin risky
+context without becoming a repetitive chatbot.
+
+### Test Scenario 1: Thin Family Money Request
+
+1. Open AskSafe Home.
+2. Choose `Video call or online chat`.
+3. Type or speak:
+
+   ```text
+   my daughter asked me for money
+   ```
+
+4. Send details.
+
+Expected:
+
+- AskSafe shows one assistant clarification:
+
+  ```text
+  Before you decide, check one thing: how did they contact you, and how do they want the money sent?
+  ```
+
+- The helper text says:
+
+  ```text
+  You can answer this, or choose the safer next step now.
+  ```
+
+- `Show me the safer next step` remains available.
+
+### Test Scenario 2: Clarification Answer Does Not Loop
+
+Continue from scenario 1 and send:
+
+```text
+video call, she said she needs 2000 AUD
+```
+
+Expected:
+
+- AskSafe does not ask another clarification question.
+- AskSafe says:
+
+  ```text
+  Thank you. I have enough to show the safer next step.
+  ```
+
+### Test Scenario 3: Hard-Stop Code Request
+
+1. Start a new check.
+2. Choose `A text or email`.
+3. Select `Share a code`.
+4. Type:
+
+   ```text
+   they asked me for my one-time code
+   ```
+
+Expected:
+
+- AskSafe does not ask a clarification question.
+- AskSafe says:
+
+  ```text
+  I have enough to show the safer next step.
+  ```
+
+### Test Scenario 4: Low-Risk Reminder
+
+1. Start a new check.
+2. Choose `A text or email`.
+3. Type:
+
+   ```text
+   my dentist reminder says my appointment is tomorrow
+   ```
+
+Expected:
+
+- AskSafe does not ask a clarification question.
+- AskSafe says:
+
+  ```text
+  Thank you. I have enough to show the safer next step.
+  ```
+
+### What This Proves
+
+- Step 2 uses the deterministic P7.1 clarification signal.
+- AskSafe asks no more than one clarification question per check.
+- Hard-stop cases skip extra conversation.
+- Voice-entered text and typed text share the same Step 2 behavior after the
+  text is inserted into the composer.
+
+### What This Does Not Prove
+
+- It does not prove AskSafe can verify whether a caller or video participant is real.
+- It does not prove screenshot, image, audio, or deepfake detection.
+- It does not prove Bedrock should generate follow-up questions.
