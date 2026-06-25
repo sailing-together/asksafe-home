@@ -1,5 +1,6 @@
 import {
   FEEDBACK_EVENT_SMOKE_PAYLOAD,
+  SAFETY_EVENT_SMOKE_PAYLOAD,
   SUPPORT_EVENT_SMOKE_PAYLOAD,
   evaluateOutcomeEventSmokeResponse,
 } from "../lib/outcome-event-smoke.ts"
@@ -14,22 +15,34 @@ const baseUrl =
 void main()
 
 async function main() {
+  const safety = await postAndEvaluate(
+    "/api/safety-events",
+    SAFETY_EVENT_SMOKE_PAYLOAD,
+  )
+  const safetyEventId = safety.ok && "id" in safety ? safety.id : "smoke-safety-event"
   const feedback = await postAndEvaluate(
     "/api/feedback-events",
-    FEEDBACK_EVENT_SMOKE_PAYLOAD,
+    {
+      ...FEEDBACK_EVENT_SMOKE_PAYLOAD,
+      safetyEventId,
+    },
   )
   const support = await postAndEvaluate(
     "/api/support-events",
-    SUPPORT_EVENT_SMOKE_PAYLOAD,
+    {
+      ...SUPPORT_EVENT_SMOKE_PAYLOAD,
+      safetyEventId,
+    },
   )
 
   const summary = {
     baseUrl,
+    safety,
     feedback,
     support,
   }
 
-  if (!feedback.ok || !support.ok) {
+  if (!safety.ok || !feedback.ok || !support.ok) {
     fail(summary)
   }
 

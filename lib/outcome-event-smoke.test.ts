@@ -3,12 +3,14 @@ import assert from "node:assert/strict"
 
 import {
   FEEDBACK_EVENT_SMOKE_PAYLOAD,
+  SAFETY_EVENT_SMOKE_PAYLOAD,
   SUPPORT_EVENT_SMOKE_PAYLOAD,
   evaluateOutcomeEventSmokeResponse,
 } from "./outcome-event-smoke.ts"
 
 test("outcome event smoke payloads avoid sensitive user content", () => {
   const combined = JSON.stringify([
+    SAFETY_EVENT_SMOKE_PAYLOAD,
     FEEDBACK_EVENT_SMOKE_PAYLOAD,
     SUPPORT_EVENT_SMOKE_PAYLOAD,
   ])
@@ -16,6 +18,10 @@ test("outcome event smoke payloads avoid sensitive user content", () => {
   assert.equal(combined.includes("password"), false)
   assert.equal(combined.includes("card"), false)
   assert.equal(combined.includes("rawMessage"), false)
+  assert.equal(combined.includes("headline"), false)
+  assert.equal(SAFETY_EVENT_SMOKE_PAYLOAD.category, "message")
+  assert.deepEqual(SAFETY_EVENT_SMOKE_PAYLOAD.requests, ["link"])
+  assert.equal(SAFETY_EVENT_SMOKE_PAYLOAD.result.risk, "caution")
   assert.equal(FEEDBACK_EVENT_SMOKE_PAYLOAD.helpful, true)
   assert.equal(SUPPORT_EVENT_SMOKE_PAYLOAD.action, "summary-shared")
 })

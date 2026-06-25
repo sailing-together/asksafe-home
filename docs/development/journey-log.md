@@ -1090,6 +1090,7 @@ npm run smoke:outcome-events -- https://asksafe-home.vercel.app
 
 Purpose:
 
+- verify `/api/safety-events` can persist a safe safety-result payload
 - verify `/api/feedback-events` can persist a safe feedback payload
 - verify `/api/support-events` can persist a safe support-action payload
 - fail clearly if AWS runtime configuration is missing
@@ -1098,7 +1099,7 @@ Purpose:
 
 Expected production success:
 
-- both endpoints return persisted event IDs
+- all three endpoints return persisted event IDs
 - the CLI exits with status `0`
 
 Expected configuration failure:
@@ -1114,28 +1115,39 @@ Production smoke test run:
 node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
 ```
 
+P7.15 expanded this smoke check so it first creates a safety event and then
+uses that generated safety event ID for the feedback and support event smoke
+payloads.
+
 Result:
 
+- `/api/safety-events` persisted successfully
 - `/api/feedback-events` persisted successfully
 - `/api/support-events` persisted successfully
-- both endpoints returned generated event IDs
+- all three endpoints returned generated event IDs
 
 Smoke output:
 
 ```json
 {
   "baseUrl": "https://asksafe-home.vercel.app",
+  "safety": {
+    "endpoint": "https://asksafe-home.vercel.app/api/safety-events",
+    "ok": true,
+    "persisted": true,
+    "id": "e9061c00-2795-4ac7-aa2e-02e4b2819251"
+  },
   "feedback": {
     "endpoint": "https://asksafe-home.vercel.app/api/feedback-events",
     "ok": true,
     "persisted": true,
-    "id": "002e98b4-2750-44c5-ac23-9eafe103a146"
+    "id": "5baea5a8-9f56-4f97-85d3-f5892520841b"
   },
   "support": {
     "endpoint": "https://asksafe-home.vercel.app/api/support-events",
     "ok": true,
     "persisted": true,
-    "id": "9a67300c-2b2e-4ebb-912d-221d08dfbd8b"
+    "id": "39d4b511-a601-4129-9d96-cc1107600755"
   }
 }
 ```
@@ -1143,7 +1155,8 @@ Smoke output:
 Meaning:
 
 This verifies that the deployed Vercel API routes can reach the configured AWS
-runtime and persist privacy-safe outcome events into DynamoDB.
+runtime and persist privacy-safe safety, feedback, and support events into
+DynamoDB.
 
 Follow-up:
 
