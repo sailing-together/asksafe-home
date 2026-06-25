@@ -111,6 +111,7 @@ export function analyze(
       risk,
       headline: "This looks unsafe. It's good you paused.",
       saferStep:
+        getContextualHighRiskSaferStep(ruleAssessment) ??
         "Stop here for now. Don't reply, pay, or share anything. Take a breath, then talk it through with someone you trust before doing anything else.",
       doNotYet: [
         "Don't send any money, gift cards, or bank details",
@@ -171,6 +172,21 @@ export function analyze(
   }
 }
 
+function getContextualHighRiskSaferStep(
+  ruleAssessment: ReturnType<typeof assessSafetyInput>,
+): string | undefined {
+  const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  if (
+    signalIds.has("remote-access") ||
+    signalIds.has("family-money-request") ||
+    signalIds.has("payment-request")
+  ) {
+    return ruleAssessment.saferNextStep
+  }
+
+  return undefined
+}
 function buildClarification(
   ruleAssessment: ReturnType<typeof assessSafetyInput>,
 ): SafetyClarification | undefined {
