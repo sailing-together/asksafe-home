@@ -25,6 +25,7 @@ export interface SafetyClarification {
   needed: true
   question: string
   reason: string
+  checks: string[]
 }
 
 // What each "what do they want" choice signals, and how strongly.
@@ -222,6 +223,12 @@ function buildClarification(
       question:
         "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
       reason: "A money request from someone close should be verified another way before you act.",
+      checks: [
+        "How did they contact you?",
+        "Is this a new number, account, or chat?",
+        "How much money do they want, and how do they want it sent?",
+        "Can you contact them using a saved number or account you already trust?",
+      ],
     }
   }
 
@@ -232,6 +239,12 @@ function buildClarification(
         "Before you decide, check one thing: who is asking, and how do they want you to pay?",
       reason:
         "The request involves payment, but the person and payment method still need checking.",
+      checks: [
+        "Who is asking you to pay?",
+        "How do they want you to pay?",
+        "Did you expect this request?",
+        "Can you verify it through details you already trust?",
+      ],
     }
   }
 

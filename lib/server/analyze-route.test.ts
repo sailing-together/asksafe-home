@@ -73,6 +73,12 @@ test("handleAnalyzeRequest returns clarification metadata", async () => {
     question:
       "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
     reason: "A money request from someone close should be verified another way before you act.",
+    checks: [
+      "How did they contact you?",
+      "Is this a new number, account, or chat?",
+      "How much money do they want, and how do they want it sent?",
+      "Can you contact them using a saved number or account you already trust?",
+    ],
   })
 })
 
@@ -128,6 +134,12 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
     question:
       "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
     reason: "A money request from someone close should be verified another way before you act.",
+    checks: [
+      "How did they contact you?",
+      "Is this a new number, account, or chat?",
+      "How much money do they want, and how do they want it sent?",
+      "Can you contact them using a saved number or account you already trust?",
+    ],
   })
   const capturedPayload = promptPayload
   assert.ok(capturedPayload)
@@ -135,6 +147,12 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
     question:
       "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
     reason: "A money request from someone close should be verified another way before you act.",
+    checks: [
+      "How did they contact you?",
+      "Is this a new number, account, or chat?",
+      "How much money do they want, and how do they want it sent?",
+      "Can you contact them using a saved number or account you already trust?",
+    ],
   })
   assert.deepEqual(response.body.bedrock, {
     used: true,

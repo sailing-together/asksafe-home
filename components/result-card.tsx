@@ -181,6 +181,22 @@ export function ResultCard({
               <p className="text-base leading-relaxed text-muted-foreground">
                 {result.clarification.reason}
               </p>
+              {result.clarification.checks.length > 0 && (
+                <ul className="mt-3 flex flex-col gap-2">
+                  {result.clarification.checks.map((check) => (
+                    <li
+                      key={check}
+                      className="flex items-start gap-2 text-base leading-relaxed text-foreground"
+                    >
+                      <CircleCheck
+                        className="mt-1 h-4 w-4 shrink-0 text-primary"
+                        aria-hidden="true"
+                      />
+                      <span>{check}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </section>
