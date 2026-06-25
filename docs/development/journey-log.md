@@ -1077,3 +1077,31 @@ Boundary:
 
 This does not add analytics tracking, AI retraining, raw transcript storage, or
 new personal-data collection.
+
+## Phase 8.13: Outcome Event Production Smoke Test
+
+P7.13 added a smoke CLI for the outcome event APIs.
+
+Command:
+
+```bash
+npm run smoke:outcome-events -- https://asksafe-home.vercel.app
+```
+
+Purpose:
+
+- verify `/api/feedback-events` can persist a safe feedback payload
+- verify `/api/support-events` can persist a safe support-action payload
+- fail clearly if AWS runtime configuration is missing
+- avoid sending raw user messages, card numbers, passwords, or trusted-contact
+  details
+
+Expected production success:
+
+- both endpoints return persisted event IDs
+- the CLI exits with status `0`
+
+Expected configuration failure:
+
+- the CLI reports `missing-aws-config`
+- the CLI exits non-zero so deployment checks do not silently pass
