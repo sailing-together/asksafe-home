@@ -334,6 +334,21 @@ Decision:
 This makes the trusted support loop more practical while preserving the rule
 that nothing is shared unless the user chooses to share it.
 
+## Phase 8.11: Share Summary Risk Signal Context
+
+P7.11 added risk signal context to the trusted support share summary.
+
+Decision:
+
+- include the first few rule-derived risk signals in the copied summary;
+- keep the summary short enough to paste into a message;
+- avoid sharing raw chat history or hidden app state;
+- make it easier for a trusted person to understand why AskSafe suggests
+  pausing before acting.
+
+This strengthens the consent-first family support loop without adding a family
+monitoring backend.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.
