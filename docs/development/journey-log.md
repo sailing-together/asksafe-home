@@ -241,6 +241,25 @@ Decision:
 This improves the workflow without making Bedrock responsible for risk
 classification or identity verification.
 
+## Phase 8.6: Trusted Phrase Guidance
+
+The team discussed whether AskSafe should support a family or trusted-person
+phrase for video, voice, and message-based impersonation scenarios.
+
+Decision for the current product slice:
+
+- include trusted phrase guidance as a verification step for family money
+  requests;
+- do not create a stored phrase, key, password, or account setup flow yet;
+- do not ask users to type the phrase or answer into AskSafe;
+- make clear that a face, voice, or message alone is not enough to verify an
+  urgent money request;
+- tell users to contact the person back through a saved number or account they
+  already trust.
+
+This reduces decision pressure without pretending that AskSafe can prove who is
+on a video call or message thread.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.

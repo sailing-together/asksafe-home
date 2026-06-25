@@ -123,7 +123,7 @@ export function analyze(
         reasons.length > 0
           ? `Some of the wording is a common sign of a scam — for example, it's ${joinReasons(reasons)}. These are pressure tactics scammers use to stop you thinking it through.`
           : "Several parts of this match the way scams are usually written, especially the pressure to act quickly.",
-      verify: verifySteps(category),
+      verify: verifySteps(category, ruleAssessment),
       riskSignals: ruleAssessment.riskSignals,
       scamTypeIds: ruleAssessment.scamTypeIds,
       sourceIds: ruleAssessment.sourceIds,
@@ -146,7 +146,7 @@ export function analyze(
         reasons.length > 0
           ? `One part stood out — it's ${joinReasons(reasons)}. That doesn't always mean it's a scam, but it's worth confirming first.`
           : "A few details here are worth confirming before you take any action.",
-      verify: verifySteps(category),
+      verify: verifySteps(category, ruleAssessment),
       riskSignals: ruleAssessment.riskSignals,
       scamTypeIds: ruleAssessment.scamTypeIds,
       sourceIds: ruleAssessment.sourceIds,
@@ -164,7 +164,7 @@ export function analyze(
       "Don't act faster than feels comfortable",
     ],
     why: "I didn't spot the common warning signs of a scam in what you wrote. Your own gut feeling still matters most.",
-    verify: verifySteps(category),
+    verify: verifySteps(category, ruleAssessment),
     riskSignals: ruleAssessment.riskSignals,
     scamTypeIds: ruleAssessment.scamTypeIds,
     sourceIds: ruleAssessment.sourceIds,
@@ -243,7 +243,21 @@ function joinReasons(reasons: string[]): string {
   return `${unique.slice(0, -1).join(", ")}, and ${unique[unique.length - 1]}`
 }
 
-function verifySteps(category: Category): string[] {
+function verifySteps(
+  category: Category,
+  ruleAssessment?: ReturnType<typeof assessSafetyInput>,
+): string[] {
+  const signalIds = new Set(
+    ruleAssessment?.riskSignals.map((signal) => signal.id) ?? [],
+  )
+
+  if (signalIds.has("family-money-request")) {
+    return [
+      "Ask a question only your family would know, but do not enter or save the answer in AskSafe.",
+      "Contact them back using a saved number or account you already trust.",
+      "Do not rely on the face, voice, or message alone before sending money.",
+    ]
+  }
   switch (category) {
     case "caller":
       return [
