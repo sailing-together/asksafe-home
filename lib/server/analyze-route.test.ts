@@ -107,7 +107,7 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
   assert.equal(response.status, 200)
   assert.equal(response.body.ok, true)
   assert.equal(response.body.result.risk, "high")
-  assert.equal(response.body.result.headline, "This looks unsafe. It's good you paused.")
+  assert.equal(response.body.result.headline, "Pause before sending money.")
   assert.deepEqual(response.body.result.doNotYet, [
     "Don't send any money, gift cards, or bank details",
     "Don't click links or install anything they asked for",

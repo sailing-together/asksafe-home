@@ -279,6 +279,23 @@ This improves the feeling that AskSafe is helping the user think through the
 next safe action while preserving the deterministic workflow and existing
 submission contract.
 
+## Phase 8.8: Family Money Result Copy Quality
+
+P7.8 improved result-page copy for family-money and video-call requests.
+
+Decision:
+
+- keep the high-risk safety posture for urgent family-money requests;
+- make the headline and explanation more specific to money requests from someone
+  close to the user;
+- avoid generic scam wording when the safer framing is "pause and verify through
+  another trusted channel";
+- preserve the same risk structure, safer step, verification steps, and result
+  card UI.
+
+This helps the result feel more like contextual decision support and less like a
+blunt scam detector.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.

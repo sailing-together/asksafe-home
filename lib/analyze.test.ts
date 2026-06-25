@@ -32,6 +32,21 @@ test("includes trusted scam pattern and source ids in analysis results", () => {
   assert.equal(result.sourceIds.includes("scamwatch-types"), true)
 })
 
+test("uses context-specific result copy for family money video requests", () => {
+  const result = analyze(
+    "my daughter asks me to send her 2000 AUD from a video call",
+    "video",
+    ["pay"],
+  )
+
+  assert.equal(result.risk, "high")
+  assert.match(result.headline, /pause before sending money/i)
+  assert.match(result.why, /someone close to you/i)
+  assert.match(result.why, /video call/i)
+  assert.match(result.why, /confirm/i)
+  assert.doesNotMatch(result.why, /common sign of a scam/i)
+})
+
 test("adds clarification for a thin family money request", () => {
   const result = analyze("my daughter asks me for money", "video", ["pay"])
 

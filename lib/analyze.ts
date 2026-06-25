@@ -107,9 +107,11 @@ export function analyze(
   const reasons = [...highHits, ...cautionHits].map((s) => s.reason)
 
   if (risk === "high") {
+    const contextualCopy = getContextualHighRiskCopy(ruleAssessment, category)
+
     return {
       risk,
-      headline: "This looks unsafe. It's good you paused.",
+      headline: contextualCopy?.headline ?? "This looks unsafe. It's good you paused.",
       saferStep:
         getContextualHighRiskSaferStep(ruleAssessment) ??
         "Stop here for now. Don't reply, pay, or share anything. Take a breath, then talk it through with someone you trust before doing anything else.",
@@ -120,9 +122,10 @@ export function analyze(
         "Don't feel rushed — real organisations let you take your time",
       ],
       why:
-        reasons.length > 0
+        contextualCopy?.why ??
+        (reasons.length > 0
           ? `Some of the wording is a common sign of a scam — for example, it's ${joinReasons(reasons)}. These are pressure tactics scammers use to stop you thinking it through.`
-          : "Several parts of this match the way scams are usually written, especially the pressure to act quickly.",
+          : "Several parts of this match the way scams are usually written, especially the pressure to act quickly."),
       verify: verifySteps(category, ruleAssessment),
       riskSignals: ruleAssessment.riskSignals,
       scamTypeIds: ruleAssessment.scamTypeIds,
@@ -172,6 +175,23 @@ export function analyze(
   }
 }
 
+function getContextualHighRiskCopy(
+  ruleAssessment: ReturnType<typeof assessSafetyInput>,
+  category: Category,
+): { headline: string; why: string } | undefined {
+  const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  if (signalIds.has("family-money-request")) {
+    const channel = category === "video" ? "video call" : "message or call"
+
+    return {
+      headline: "Pause before sending money.",
+      why: `A request for money from someone close to you over a ${channel} needs a separate check. It may be genuine, but the safer move is to confirm through a saved number or account before you pay.`,
+    }
+  }
+
+  return undefined
+}
 function getContextualHighRiskSaferStep(
   ruleAssessment: ReturnType<typeof assessSafetyInput>,
 ): string | undefined {
