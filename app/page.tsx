@@ -81,7 +81,14 @@ export default function Page() {
   }
 
   function recordFeedback(helpful: boolean, reason: string) {
-    void recordFeedbackEvent({ safetyEventId, helpful, reason })
+    void recordFeedbackEvent({
+      safetyEventId,
+      helpful,
+      reason,
+      risk: result?.risk,
+      riskSignalIds: result?.riskSignals.map((signal) => signal.id),
+      clarificationNeeded: result?.clarification?.needed ?? false,
+    })
   }
 
   return (
