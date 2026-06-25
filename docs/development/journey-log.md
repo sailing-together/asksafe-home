@@ -260,6 +260,25 @@ Decision for the current product slice:
 This reduces decision pressure without pretending that AskSafe can prove who is
 on a video call or message thread.
 
+## Phase 8.7: Guided Clarification Quality Pass
+
+P7.7 tightened the Step 2 guided conversation for family-money scenarios.
+
+Decision:
+
+- avoid repeating the same generic acknowledgement after the user adds more
+  detail;
+- after a family-money clarification, guide the user toward a trusted callback
+  and a family-only question;
+- keep hard-stop scenarios direct so code, remote access, personal detail, app
+  install, and screen-share requests still move quickly to the safer next step;
+- keep low-risk appointment-style contexts calm and generic;
+- do not turn Step 2 into an open-ended chatbot.
+
+This improves the feeling that AskSafe is helping the user think through the
+next safe action while preserving the deterministic workflow and existing
+submission contract.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.

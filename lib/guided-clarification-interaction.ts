@@ -32,6 +32,9 @@ const READY_ACKNOWLEDGEMENT =
 const HARD_STOP_ACKNOWLEDGEMENT =
   "I have enough to show the safer next step."
 
+const FAMILY_MONEY_ACKNOWLEDGEMENT =
+  "Pause before sending money. Contact them back using a saved number or account you already trust, then ask a question only your family would know."
+
 const HARD_STOP_SIGNAL_IDS = new Set([
   "code-request",
   "remote-access",
@@ -54,6 +57,13 @@ export function getGuidedClarificationInteraction({
   }
 
   if (hasAskedClarification) {
+    if (hasSignal(result.riskSignals, "family-money-request")) {
+      return {
+        type: "acknowledgement",
+        text: FAMILY_MONEY_ACKNOWLEDGEMENT,
+      }
+    }
+
     return {
       type: "acknowledgement",
       text: READY_ACKNOWLEDGEMENT,
@@ -79,4 +89,11 @@ function hasHardStopSignal(
   riskSignals: Array<{ id: string; severity: "high" | "caution" }>,
 ): boolean {
   return riskSignals.some((signal) => HARD_STOP_SIGNAL_IDS.has(signal.id))
+}
+
+function hasSignal(
+  riskSignals: Array<{ id: string; severity: "high" | "caution" }>,
+  signalId: string,
+): boolean {
+  return riskSignals.some((signal) => signal.id === signalId)
 }
