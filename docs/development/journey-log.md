@@ -317,6 +317,23 @@ Decision:
 This reduces the risk that AskSafe feels like a blunt label while still giving
 older adults a clear next action.
 
+## Phase 8.10: Trusted Support Share Summary Context
+
+P7.10 made the trusted support share summary more useful for a family member or
+trusted person reviewing the situation.
+
+Decision:
+
+- keep sharing user-initiated and clipboard-based for the current slice;
+- include the risk label, headline, and safer next step;
+- include clarification checks when AskSafe still needs context;
+- include the most important "what not to do yet" and verification steps;
+- keep the summary short enough to paste into a message without exposing hidden
+  app state or contact details.
+
+This makes the trusted support loop more practical while preserving the rule
+that nothing is shared unless the user chooses to share it.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.
