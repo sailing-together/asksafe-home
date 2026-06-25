@@ -271,6 +271,23 @@ This used only the synthetic smoke payload above. No real user message, phone
 number, email address, one-time code, password, or private contact detail was
 used.
 
+2026-06-25 production smoke passed again after P7.3 strengthened Bedrock
+response safety validation:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+This confirms the production route still uses the optional Bedrock explanation
+assist successfully after adding stricter response safety checks.
+
 ## Guided Clarification Manual Check
 
 Use this synthetic scenario to confirm the result can show one clarification

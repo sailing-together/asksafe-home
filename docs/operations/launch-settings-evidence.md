@@ -83,7 +83,7 @@ runtime environment variables.
 | DynamoDB billing mode | Pay-per-request through Terraform | Confirmed |
 | Bedrock inference profile | `au.anthropic.claude-haiku-4-5-20251001-v1:0` | Production smoke passed |
 | Bedrock runtime policy allowlist | Terraform variable `TF_BEDROCK_MODEL_ARNS` | Confirmed |
-| Bedrock usage | Bounded explanation assist only, with deterministic fallback | Confirmed |
+| Bedrock usage | Bounded explanation assist only, with deterministic fallback | Confirmed; production smoke rechecked 2026-06-25 |
 | AWS budget alert | Dashboard evidence not recorded here yet | Needs confirmation |
 
 ## Vercel Plan And Cost Controls
