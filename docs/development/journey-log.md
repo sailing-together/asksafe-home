@@ -222,6 +222,25 @@ This supports the main outcome metric:
 
 The user should feel clearer about the next safe action.
 
+## Phase 8.5: Scenario-Specific Safer Next Steps
+
+The team reviewed a product issue where high-risk results could feel too generic.
+For example, a family money request should not only say "stop here". It should
+also tell the user how to verify safely without relying on the suspicious
+channel.
+
+Decision:
+
+- deterministic rules still own the safety structure;
+- result copy may use a rule-specific safer next step when a clear signal exists;
+- family money requests should tell the user to pause before paying and contact
+  the person through a number or account they already trust;
+- generic hard-stop advice still applies when the rule does not have a safer
+  contextual next step.
+
+This improves the workflow without making Bedrock responsible for risk
+classification or identity verification.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.

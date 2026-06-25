@@ -157,7 +157,11 @@ test("handleAnalyzeRequest falls back when Bedrock output is invalid", async () 
 
   assert.equal(response.status, 200)
   assert.equal(response.body.ok, true)
-  assert.match(response.body.result.saferStep, /Stop here for now/)
+  assert.match(response.body.result.saferStep, /Pause before paying/)
+  assert.match(
+    response.body.result.saferStep,
+    /number or account you already know/,
+  )
   assert.deepEqual(response.body.bedrock, {
     used: false,
     outcome: "invalid_response",

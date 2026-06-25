@@ -43,6 +43,14 @@ test("adds clarification for a thin family money request", () => {
     reason: "A money request from someone close should be verified another way before you act.",
   })
 })
+test("uses family-money safer step for family payment requests", () => {
+  const result = analyze("my daughter asks me for money", "video", ["pay"])
+
+  assert.equal(result.risk, "high")
+  assert.match(result.saferStep, /pause before paying/i)
+  assert.match(result.saferStep, /number or account you already know/i)
+  assert.doesNotMatch(result.saferStep, /stop here for now/i)
+})
 
 test("adds clarification for a vague payment request", () => {
   const result = analyze("someone asked me to pay", "money", ["pay"])
