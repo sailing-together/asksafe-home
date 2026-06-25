@@ -23,6 +23,7 @@ export type BedrockAssistPayload = {
   clarification?: {
     question: string
     reason: string
+    checks?: readonly string[]
   }
 }
 

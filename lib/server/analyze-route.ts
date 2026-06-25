@@ -141,6 +141,7 @@ function buildBedrockAssistPayload(
       ? {
           question: result.clarification.question,
           reason: result.clarification.reason,
+          checks: result.clarification.checks,
         }
       : undefined,
   }

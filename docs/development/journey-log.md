@@ -296,6 +296,27 @@ Decision:
 This helps the result feel more like contextual decision support and less like a
 blunt scam detector.
 
+## Phase 8.9: Clarification Checks On Results
+
+P7.9 made result-page clarification more actionable when AskSafe has enough to
+warn the user, but the situation still needs a few concrete checks before
+they act.
+
+Decision:
+
+- keep high-risk results direct when money, family, or payment signals appear;
+- do not soften the safety posture just because the situation may be genuine;
+- show a short checklist of missing details for thin family-money and payment
+  requests;
+- make the checks practical, such as contact channel, new number or account,
+  amount, payment method, and whether the user can verify through a saved
+  trusted contact;
+- keep the same result structure so Bedrock and persistence contracts remain
+  stable.
+
+This reduces the risk that AskSafe feels like a blunt label while still giving
+older adults a clear next action.
+
 ## Phase 9: Cloud And AI Foundation Design
 
 The team documented a cloud and AI foundation before adding runtime AWS code.

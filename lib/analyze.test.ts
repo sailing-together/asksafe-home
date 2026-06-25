@@ -47,6 +47,17 @@ test("uses context-specific result copy for family money video requests", () => 
   assert.doesNotMatch(result.why, /common sign of a scam/i)
 })
 
+test("adds concrete checks for a thin family money request", () => {
+  const result = analyze("my daughter asks me for money", "video", ["pay"])
+
+  assert.deepEqual(result.clarification?.checks, [
+    "How did they contact you?",
+    "Is this a new number, account, or chat?",
+    "How much money do they want, and how do they want it sent?",
+    "Can you contact them using a saved number or account you already trust?",
+  ])
+})
+
 test("adds clarification for a thin family money request", () => {
   const result = analyze("my daughter asks me for money", "video", ["pay"])
 
@@ -56,6 +67,12 @@ test("adds clarification for a thin family money request", () => {
     question:
       "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
     reason: "A money request from someone close should be verified another way before you act.",
+    checks: [
+      "How did they contact you?",
+      "Is this a new number, account, or chat?",
+      "How much money do they want, and how do they want it sent?",
+      "Can you contact them using a saved number or account you already trust?",
+    ],
   })
 })
 
@@ -102,6 +119,12 @@ test("adds clarification for a vague payment request", () => {
       "Before you decide, check one thing: who is asking, and how do they want you to pay?",
     reason:
       "The request involves payment, but the person and payment method still need checking.",
+    checks: [
+      "Who is asking you to pay?",
+      "How do they want you to pay?",
+      "Did you expect this request?",
+      "Can you verify it through details you already trust?",
+    ],
   })
 })
 
