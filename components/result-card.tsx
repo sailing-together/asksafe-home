@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { OfficialHelp } from "@/components/official-help"
 import { useSpeechSynthesis } from "@/lib/use-voice"
+import { buildSafetyShareSummary } from "@/lib/share-summary"
 import type { SafetyResult } from "@/lib/analyze"
 import type { SupportSetup } from "@/components/trusted-support-dialog"
 
@@ -92,13 +93,7 @@ export function ResultCard({
 
   async function shareSummary() {
     if (!support) return
-    const summary = [
-      "AskSafe Home — safety summary",
-      `Result: ${style.label}`,
-      result.headline,
-      "",
-      `Safer next step: ${result.saferStep}`,
-    ].join("\n")
+    const summary = buildSafetyShareSummary(result)
     try {
       await navigator.clipboard.writeText(summary)
       onSupportAction?.("summary-shared")
