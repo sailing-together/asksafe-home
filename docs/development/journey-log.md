@@ -1090,6 +1090,7 @@ npm run smoke:outcome-events -- https://asksafe-home.vercel.app
 
 Purpose:
 
+- verify `/api/safety-events` can persist a safe safety-result payload
 - verify `/api/feedback-events` can persist a safe feedback payload
 - verify `/api/support-events` can persist a safe support-action payload
 - fail clearly if AWS runtime configuration is missing
@@ -1098,10 +1099,40 @@ Purpose:
 
 Expected production success:
 
-- both endpoints return persisted event IDs
+- all three endpoints return persisted event IDs
 - the CLI exits with status `0`
 
 Expected configuration failure:
 
 - the CLI reports `missing-aws-config`
 - the CLI exits non-zero so deployment checks do not silently pass
+
+P7.15 expanded this smoke check so it first creates a safety event and then
+uses that generated safety event ID for the feedback and support event smoke
+payloads.
+
+Production smoke result:
+
+```json
+{
+  "baseUrl": "https://asksafe-home.vercel.app",
+  "safety": {
+    "endpoint": "https://asksafe-home.vercel.app/api/safety-events",
+    "ok": true,
+    "persisted": true,
+    "id": "e9061c00-2795-4ac7-aa2e-02e4b2819251"
+  },
+  "feedback": {
+    "endpoint": "https://asksafe-home.vercel.app/api/feedback-events",
+    "ok": true,
+    "persisted": true,
+    "id": "5baea5a8-9f56-4f97-85d3-f5892520841b"
+  },
+  "support": {
+    "endpoint": "https://asksafe-home.vercel.app/api/support-events",
+    "ok": true,
+    "persisted": true,
+    "id": "39d4b511-a601-4129-9d96-cc1107600755"
+  }
+}
+```

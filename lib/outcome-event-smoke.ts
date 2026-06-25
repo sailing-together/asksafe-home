@@ -1,3 +1,21 @@
+export const SAFETY_EVENT_SMOKE_PAYLOAD = {
+  category: "message",
+  requests: ["link"],
+  result: {
+    risk: "caution",
+    riskSignals: [
+      {
+        id: "smoke-link-request",
+        label: "asking you to use a link",
+        severity: "caution",
+      },
+    ],
+    scamTypeIds: ["smoke-pattern"],
+    sourceIds: ["smoke-source"],
+  },
+  anonymousSessionId: "smoke-session",
+} as const
+
 export const FEEDBACK_EVENT_SMOKE_PAYLOAD = {
   safetyEventId: "smoke-safety-event",
   helpful: true,
