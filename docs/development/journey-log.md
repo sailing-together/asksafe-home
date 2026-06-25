@@ -1112,6 +1112,21 @@ uses that generated safety event ID for the feedback and support event smoke
 payloads.
 
 Production smoke result:
+## Phase 8.14: Production Outcome Smoke Result
+
+Production smoke test run:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
+```
+
+Result:
+
+- `/api/feedback-events` persisted successfully
+- `/api/support-events` persisted successfully
+- both endpoints returned generated event IDs
+
+Smoke output:
 
 ```json
 {
@@ -1127,6 +1142,7 @@ Production smoke result:
     "ok": true,
     "persisted": true,
     "id": "5baea5a8-9f56-4f97-85d3-f5892520841b"
+    "id": "002e98b4-2750-44c5-ac23-9eafe103a146"
   },
   "support": {
     "endpoint": "https://asksafe-home.vercel.app/api/support-events",
@@ -1136,3 +1152,14 @@ Production smoke result:
   }
 }
 ```
+
+Meaning:
+
+This verifies that the deployed Vercel API routes can reach the configured AWS
+runtime and persist privacy-safe outcome events into DynamoDB.
+
+Follow-up:
+
+The direct Node command printed the expected JSON output. The npm script exited
+successfully but did not print output in this WSL session, so use the direct
+Node command if output capture is needed during demos or release checks.
