@@ -15,6 +15,11 @@ export function buildSafetyShareSummary(result: SafetyResult): string {
     `Safer next step: ${result.saferStep}`,
   ]
 
+  if (result.riskSignals.length) {
+    lines.push("", "What AskSafe noticed:")
+    lines.push(...formatBullets(result.riskSignals.slice(0, 4).map((signal) => signal.label)))
+  }
+
   if (result.clarification?.checks.length) {
     lines.push("", "Before acting, please help me check:")
     lines.push(...formatBullets(result.clarification.checks))
