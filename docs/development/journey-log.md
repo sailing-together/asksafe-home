@@ -1105,3 +1105,48 @@ Expected configuration failure:
 
 - the CLI reports `missing-aws-config`
 - the CLI exits non-zero so deployment checks do not silently pass
+
+## Phase 8.14: Production Outcome Smoke Result
+
+Production smoke test run:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
+```
+
+Result:
+
+- `/api/feedback-events` persisted successfully
+- `/api/support-events` persisted successfully
+- both endpoints returned generated event IDs
+
+Smoke output:
+
+```json
+{
+  "baseUrl": "https://asksafe-home.vercel.app",
+  "feedback": {
+    "endpoint": "https://asksafe-home.vercel.app/api/feedback-events",
+    "ok": true,
+    "persisted": true,
+    "id": "002e98b4-2750-44c5-ac23-9eafe103a146"
+  },
+  "support": {
+    "endpoint": "https://asksafe-home.vercel.app/api/support-events",
+    "ok": true,
+    "persisted": true,
+    "id": "9a67300c-2b2e-4ebb-912d-221d08dfbd8b"
+  }
+}
+```
+
+Meaning:
+
+This verifies that the deployed Vercel API routes can reach the configured AWS
+runtime and persist privacy-safe outcome events into DynamoDB.
+
+Follow-up:
+
+The direct Node command printed the expected JSON output. The npm script exited
+successfully but did not print output in this WSL session, so use the direct
+Node command if output capture is needed during demos or release checks.
