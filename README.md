@@ -26,7 +26,7 @@ The app is designed as a calm decision companion, not a generic chatbot. It guid
 
 ## Current Status
 
-This repository contains the AskSafe Home web app. The current version includes the guided safety-check UI, local deterministic safety logic, trusted-support setup flow, mock one-time-code sign-in flow, voice input, read-aloud support, and official-help references.
+This repository contains the AskSafe Home web app. The current version includes the guided safety-check UI, local deterministic safety logic, trusted-support setup flow, mock one-time-code sign-in flow, voice input, read-aloud support, official-help references, privacy-safe event persistence, and optional Bedrock-assisted result wording.
 
 The current safety analysis is rule-based and deterministic. It is intended to make the product flow shippable while backend, persistence, and AI orchestration are added carefully.
 
@@ -46,6 +46,9 @@ This repository is linked to a [v0](https://v0.app) project. You can continue de
 - Tailwind CSS
 - shadcn/ui-style components
 - Vercel deployment
+- AWS DynamoDB for privacy-safe event persistence
+- Amazon Bedrock for optional bounded explanation assistance
+- Terraform and GitHub Actions for AWS infrastructure
 
 ## Getting Started
 
@@ -71,7 +74,19 @@ npm run dev
 pnpm dev
 pnpm build
 pnpm lint
+pnpm test:rules
+pnpm smoke:outcome-events -- https://asksafe-home.vercel.app
+pnpm smoke:bedrock:analyze -- https://asksafe-home.vercel.app --expect-bedrock
 ```
+
+In the current WSL development environment, the direct Node smoke command is the most reliable way to capture JSON output:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts https://asksafe-home.vercel.app --expect-bedrock
+```
+
+The outcome smoke test verifies the deployed Vercel API can persist privacy-safe safety, feedback, and support events into DynamoDB.
 
 ## Safety Notice
 
