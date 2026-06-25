@@ -38,7 +38,7 @@ test("asks one clarification for a vague payment request", () => {
   })
 })
 
-test("does not ask a second clarification after the user answers", () => {
+test("after the user answers a family money clarification, gives trusted callback guidance", () => {
   const interaction = getGuidedClarificationInteraction({
     message: "my daughter asked me for money\nvideo call, she needs 2000 AUD",
     category: "video",
@@ -48,8 +48,40 @@ test("does not ask a second clarification after the user answers", () => {
 
   assert.deepEqual(interaction, {
     type: "acknowledgement",
-    text: "Thank you. I have enough to show the safer next step.",
+    text:
+      "Pause before sending money. Contact them back using a saved number or account you already trust, then ask a question only your family would know.",
   })
+})
+
+test("after family money clarification, prompts trusted callback instead of a generic acknowledgement", () => {
+  const interaction = getGuidedClarificationInteraction({
+    message: "my daughter asked me for money on video call\nshe needs 2000 AUD today",
+    category: "video",
+    requests: ["pay"],
+    hasAskedClarification: true,
+  })
+
+  assert.deepEqual(interaction, {
+    type: "acknowledgement",
+    text:
+      "Pause before sending money. Contact them back using a saved number or account you already trust, then ask a question only your family would know.",
+  })
+})
+
+test("after a repeated family money detail, avoids repeating the same generic acknowledgement", () => {
+  const interaction = getGuidedClarificationInteraction({
+    message: "my daughter asked me for money\nmy daughter asked me for money again",
+    category: "video",
+    requests: ["pay"],
+    hasAskedClarification: true,
+  })
+
+  assert.equal(interaction.type, "acknowledgement")
+  assert.notEqual(
+    interaction.text,
+    "Thank you. I have enough to show the safer next step.",
+  )
+  assert.match(interaction.text, /saved number|already trust|family would know/i)
 })
 
 test("skips clarification for a one-time code hard stop", () => {
