@@ -1107,11 +1107,6 @@ Expected configuration failure:
 - the CLI reports `missing-aws-config`
 - the CLI exits non-zero so deployment checks do not silently pass
 
-P7.15 expanded this smoke check so it first creates a safety event and then
-uses that generated safety event ID for the feedback and support event smoke
-payloads.
-
-Production smoke result:
 ## Phase 8.14: Production Outcome Smoke Result
 
 Production smoke test run:
@@ -1120,11 +1115,16 @@ Production smoke test run:
 node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
 ```
 
+P7.15 expanded this smoke check so it first creates a safety event and then
+uses that generated safety event ID for the feedback and support event smoke
+payloads.
+
 Result:
 
+- `/api/safety-events` persisted successfully
 - `/api/feedback-events` persisted successfully
 - `/api/support-events` persisted successfully
-- both endpoints returned generated event IDs
+- all three endpoints returned generated event IDs
 
 Smoke output:
 
@@ -1142,7 +1142,6 @@ Smoke output:
     "ok": true,
     "persisted": true,
     "id": "5baea5a8-9f56-4f97-85d3-f5892520841b"
-    "id": "002e98b4-2750-44c5-ac23-9eafe103a146"
   },
   "support": {
     "endpoint": "https://asksafe-home.vercel.app/api/support-events",
@@ -1156,7 +1155,8 @@ Smoke output:
 Meaning:
 
 This verifies that the deployed Vercel API routes can reach the configured AWS
-runtime and persist privacy-safe outcome events into DynamoDB.
+runtime and persist privacy-safe safety, feedback, and support events into
+DynamoDB.
 
 Follow-up:
 
