@@ -81,6 +81,9 @@ test("saveFeedbackEvent writes the DynamoDB feedback table key", async () => {
       helpful: true,
       reason: "clear-next-step",
       anonymousSessionId: "session-123",
+      risk: "high",
+      riskSignalIds: ["family-money-request", "payment-request"],
+      clarificationNeeded: true,
       now: new Date("2026-06-19T02:00:00.000Z"),
     },
     {
@@ -107,6 +110,9 @@ test("saveFeedbackEvent writes the DynamoDB feedback table key", async () => {
     helpful: true,
     reason: "clear-next-step",
     anonymousSessionId: "session-123",
+    risk: "high",
+    riskSignalIds: ["family-money-request", "payment-request"],
+    clarificationNeeded: true,
     createdAt: "2026-06-19T02:00:00.000Z",
   })
 })

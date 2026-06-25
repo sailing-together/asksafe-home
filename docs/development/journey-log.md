@@ -1050,3 +1050,30 @@ The team should keep asking:
 
 > How does this reduce uncertainty, loneliness, fear, or decision pressure for
 > seniors?
+
+## Phase 8.12: Privacy-Safe Feedback Context
+
+P7.12 added result-derived context to feedback events.
+
+Decision:
+
+- feedback should help the team learn which safety outcomes need improvement
+- feedback must not store raw user messages or trusted-contact details
+- safe metadata is enough for product learning at this stage
+
+Added:
+
+- result risk level on feedback events
+- risk signal IDs on feedback events
+- clarification-needed flag on feedback events
+
+Why:
+
+This helps the team understand whether a high-risk, caution, or clarification
+case was actually useful to the user, without collecting the sensitive text that
+the user typed or spoke.
+
+Boundary:
+
+This does not add analytics tracking, AI retraining, raw transcript storage, or
+new personal-data collection.

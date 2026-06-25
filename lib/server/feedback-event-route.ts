@@ -3,6 +3,7 @@ import {
   type FeedbackEventInput,
   type PersistenceResult,
 } from "./persistence.ts"
+import type { RiskLevel } from "../analyze.ts"
 
 export type SaveFeedbackEventFn = (input: FeedbackEventInput) => Promise<PersistenceResult>
 
@@ -63,15 +64,30 @@ function parseFeedbackEventPayload(payload: unknown): FeedbackEventInput | null 
     typeof payload.anonymousSessionId === "string"
       ? payload.anonymousSessionId
       : undefined
+  const risk = isRiskLevel(payload.risk) ? payload.risk : undefined
+  const riskSignalIds = Array.isArray(payload.riskSignalIds)
+    ? payload.riskSignalIds.filter((id): id is string => typeof id === "string")
+    : undefined
+  const clarificationNeeded =
+    typeof payload.clarificationNeeded === "boolean"
+      ? payload.clarificationNeeded
+      : undefined
 
   return {
     safetyEventId,
     helpful: payload.helpful,
     reason,
     anonymousSessionId,
+    risk,
+    riskSignalIds,
+    clarificationNeeded,
   }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function isRiskLevel(value: unknown): value is RiskLevel {
+  return value === "low" || value === "caution" || value === "high"
 }

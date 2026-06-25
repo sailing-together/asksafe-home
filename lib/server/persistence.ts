@@ -62,6 +62,9 @@ export type FeedbackEventInput = {
   helpful: boolean
   reason?: string
   anonymousSessionId?: string
+  risk?: RiskLevel
+  riskSignalIds?: string[]
+  clarificationNeeded?: boolean
   now?: Date
 }
 
@@ -129,6 +132,9 @@ export async function saveFeedbackEvent(
     helpful: input.helpful,
     reason: input.reason,
     anonymousSessionId: input.anonymousSessionId,
+    risk: input.risk,
+    riskSignalIds: input.riskSignalIds,
+    clarificationNeeded: input.clarificationNeeded,
     createdAt: (input.now ?? new Date()).toISOString(),
   })
 }

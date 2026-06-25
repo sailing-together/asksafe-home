@@ -13,6 +13,9 @@ test("buildFeedbackEventPayload keeps only outcome metadata", () => {
     helpful: false,
     reason: "too-confusing",
     anonymousSessionId: "session-123",
+    risk: "high",
+    riskSignalIds: ["family-money-request", "payment-request"],
+    clarificationNeeded: true,
     rawMessage: "My password is secret",
   } as Parameters<typeof buildFeedbackEventPayload>[0] & { rawMessage: string })
 
@@ -21,6 +24,9 @@ test("buildFeedbackEventPayload keeps only outcome metadata", () => {
     helpful: false,
     reason: "too-confusing",
     anonymousSessionId: "session-123",
+    risk: "high",
+    riskSignalIds: ["family-money-request", "payment-request"],
+    clarificationNeeded: true,
   })
   assert.equal(JSON.stringify(payload).includes("password"), false)
 })

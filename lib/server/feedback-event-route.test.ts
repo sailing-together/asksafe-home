@@ -8,6 +8,9 @@ const validPayload = {
   helpful: true,
   reason: "clear-next-step",
   anonymousSessionId: "session-123",
+  risk: "high",
+  riskSignalIds: ["family-money-request", "payment-request"],
+  clarificationNeeded: true,
 }
 
 test("handleFeedbackEventRequest saves a valid feedback event", async () => {

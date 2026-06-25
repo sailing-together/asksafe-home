@@ -1,8 +1,13 @@
+import type { RiskLevel } from "./analyze.ts"
+
 export type FeedbackEventRecordInput = {
   safetyEventId?: string
   helpful: boolean
   reason?: string
   anonymousSessionId?: string
+  risk?: RiskLevel
+  riskSignalIds?: string[]
+  clarificationNeeded?: boolean
 }
 
 export type SupportEventAction = "setup-opened" | "code-created" | "summary-shared"
@@ -18,6 +23,9 @@ export type FeedbackEventPayload = {
   helpful: boolean
   reason?: string
   anonymousSessionId?: string
+  risk?: RiskLevel
+  riskSignalIds?: string[]
+  clarificationNeeded?: boolean
 }
 
 export type SupportEventPayload = {
@@ -38,6 +46,9 @@ export function buildFeedbackEventPayload(
     helpful: input.helpful,
     reason: input.reason,
     anonymousSessionId: input.anonymousSessionId,
+    risk: input.risk,
+    riskSignalIds: input.riskSignalIds,
+    clarificationNeeded: input.clarificationNeeded,
   }
 }
 
