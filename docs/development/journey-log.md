@@ -1163,3 +1163,33 @@ Follow-up:
 The direct Node command printed the expected JSON output. The npm script exited
 successfully but did not print output in this WSL session, so use the direct
 Node command if output capture is needed during demos or release checks.
+
+## Phase 8.15: Bedrock Prompt Contract Hardening
+
+Morning production smoke found that the deployed analyze route invoked Bedrock
+but rejected the model output as invalid:
+
+- outcome: `invalid_response`
+- reason: `invalid_shape`
+- detail: `missing_or_invalid_required_text`
+
+Root cause:
+
+The Bedrock validator requires four exact fields, but the prompt only showed
+the desired JSON shape once. That was not strong enough to make the model
+reliably return every required key.
+
+Fix:
+
+- keep the strict validator unchanged
+- strengthen the prompt contract sent to Bedrock
+- explicitly list required keys
+- instruct the model not to omit required keys
+- instruct the model not to include extra keys
+- instruct the model not to wrap JSON in markdown
+
+Boundary:
+
+This does not relax safety validation, change risk levels, or make Bedrock the
+source of truth. Bedrock remains an optional wording assistant behind the
+deterministic safety workflow.

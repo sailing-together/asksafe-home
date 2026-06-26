@@ -59,6 +59,12 @@ test("invokeBedrockExplanationModel sends a bounded JSON request", async () => {
   assert.equal(requestBody.temperature, 0)
   assert.match(requestBody.messages[0].content, /Do not decide whether the situation is real or fake/)
   assert.match(requestBody.messages[0].content, /urgent-pressure/)
+  assert.match(requestBody.messages[0].content, /Required keys/)
+  assert.match(requestBody.messages[0].content, /saferNextStep/)
+  assert.match(requestBody.messages[0].content, /trustedSupportSummary/)
+  assert.match(requestBody.messages[0].content, /Do not omit any required key/)
+  assert.match(requestBody.messages[0].content, /Do not include any extra keys/)
+  assert.match(requestBody.messages[0].content, /Do not wrap the JSON in markdown/)
 
   const sendOptions = calls[0]?.options as { abortSignal?: AbortSignal }
   assert.ok(sendOptions.abortSignal)
