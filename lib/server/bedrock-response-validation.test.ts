@@ -126,6 +126,7 @@ test("validateBedrockExplanationResponse rejects output that weakens money warni
   assert.deepEqual(result, {
     valid: false,
     reason: "safety_invariant_violation",
+    detail: "contradicts_warning",
   })
 })
 
@@ -145,6 +146,7 @@ test("validateBedrockExplanationResponse rejects requests for sensitive details"
   assert.deepEqual(result, {
     valid: false,
     reason: "safety_invariant_violation",
+    detail: "asks_sensitive_details",
   })
 })
 
@@ -163,6 +165,7 @@ test("validateBedrockExplanationResponse rejects certainty overclaims", () => {
   assert.deepEqual(result, {
     valid: false,
     reason: "safety_invariant_violation",
+    detail: "overclaims_certainty",
   })
 })
 
@@ -181,6 +184,7 @@ test("validateBedrockExplanationResponse rejects suspicious-channel verification
   assert.deepEqual(result, {
     valid: false,
     reason: "safety_invariant_violation",
+    detail: "uses_suspicious_contact_channel",
   })
 })
 

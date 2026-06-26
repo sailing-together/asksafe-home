@@ -1247,3 +1247,29 @@ Why:
 
 This better supports the product principle: AskSafe should reduce uncertainty
 and decision pressure, not simply label a family situation as unsafe.
+
+## Phase 8.18: Bedrock Safety Invariant Diagnostics
+
+Production smoke later showed a different Bedrock failure mode:
+
+- Bedrock returned structured JSON
+- the validator rejected it for `safety_invariant_violation`
+
+Change:
+
+- keep the strict validator
+- add specific invariant failure details:
+  - `contradicts_warning`
+  - `asks_sensitive_details`
+  - `overclaims_certainty`
+  - `uses_suspicious_contact_channel`
+- strengthen the Bedrock prompt to avoid language such as:
+  - safe to send, pay, transfer, click, install, share a screen, or share a code
+  - AskSafe confirmed, verified, or proved the request is real, fake, genuine,
+    or safe
+  - use contact details, links, or numbers from the suspicious request
+
+Why:
+
+This gives the team better production diagnostics while keeping Bedrock bounded
+as a wording assistant behind deterministic safety rules.
