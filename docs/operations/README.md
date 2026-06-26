@@ -8,7 +8,8 @@ AskSafe Home for demos, judging, and production smoke checks.
 1. Read `demo-readiness-checklist.md`.
 2. Keep `demo-scenarios-checklist.md` open for the scenario script.
 3. Use `demo-scenario-run-log.md` as the latest API-level evidence.
-4. If production changed after the latest evidence, rerun the smoke checks in
+4. Use `manual-ui-demo-pass.md` for the browser-level demo pass.
+5. If production changed after the latest evidence, rerun the smoke checks in
    `production-smoke-tests.md`.
 
 ## Demo And Scenario Evidence
@@ -25,6 +26,10 @@ AskSafe Home for demos, judging, and production smoke checks.
     scenarios.
   - Confirms expected risk levels and notes Bedrock / deterministic fallback
     outcomes.
+- `manual-ui-demo-pass.md`
+  - Records the browser-level checks to complete before demo recording.
+  - Covers desktop, mobile, voice input, read-aloud, trusted support, official
+    help, and recording fallbacks.
 
 ## Production Smoke Evidence
 
