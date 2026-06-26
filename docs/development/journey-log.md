@@ -1273,3 +1273,31 @@ Why:
 
 This gives the team better production diagnostics while keeping Bedrock bounded
 as a wording assistant behind deterministic safety rules.
+
+## Phase 8.19: Bedrock Guardrail Smoke Success
+
+After P7.21 was merged and deployed, the Bedrock production smoke test passed.
+
+Command:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts https://asksafe-home.vercel.app --expect-bedrock
+```
+
+Result:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+Meaning:
+
+The stricter Bedrock prompt guardrails and invariant diagnostics did not break
+the successful production Bedrock path.
