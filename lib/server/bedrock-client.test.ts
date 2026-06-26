@@ -65,6 +65,8 @@ test("invokeBedrockExplanationModel sends a bounded JSON request", async () => {
   assert.match(requestBody.messages[0].content, /Do not omit any required key/)
   assert.match(requestBody.messages[0].content, /Do not include any extra keys/)
   assert.match(requestBody.messages[0].content, /Do not wrap the JSON in markdown/)
+  assert.match(requestBody.messages[0].content, /Never say it is safe to send, pay, transfer, click, install, share a screen, or share a code/)
+  assert.match(requestBody.messages[0].content, /Do not say AskSafe confirmed, verified, or proved/)
 
   const sendOptions = calls[0]?.options as { abortSignal?: AbortSignal }
   assert.ok(sendOptions.abortSignal)

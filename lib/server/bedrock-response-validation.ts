@@ -22,6 +22,10 @@ export type BedrockExplanationValidationResult =
         | "missing_verification_steps"
         | "too_many_verification_steps"
         | "invalid_verification_step"
+        | "contradicts_warning"
+        | "asks_sensitive_details"
+        | "overclaims_certainty"
+        | "uses_suspicious_contact_channel"
     }
 
 const ALLOWED_KEYS = new Set([
@@ -77,10 +81,15 @@ export function validateBedrockExplanationResponse(
     }
   }
 
-  if (weakensSafetyInvariants(explanation.explanation, payload)) {
+  const safetyInvariantViolation = getSafetyInvariantViolationDetail(
+    explanation.explanation,
+    payload,
+  )
+  if (safetyInvariantViolation) {
     return {
       valid: false,
       reason: "safety_invariant_violation",
+      detail: safetyInvariantViolation,
     }
   }
 
@@ -172,10 +181,15 @@ function readBoundedString(value: unknown, maxLength: number): string | undefine
   return trimmed
 }
 
-function weakensSafetyInvariants(
+function getSafetyInvariantViolationDetail(
   explanation: ValidatedBedrockExplanation,
   payload: BedrockAssistPayload,
-): boolean {
+):
+  | "contradicts_warning"
+  | "asks_sensitive_details"
+  | "overclaims_certainty"
+  | "uses_suspicious_contact_channel"
+  | undefined {
   const text = [
     explanation.saferNextStep,
     explanation.why,
@@ -185,14 +199,21 @@ function weakensSafetyInvariants(
     .join(" ")
     .toLowerCase()
 
-  return (
+  if (
     payload.doNotYet.some((warning) =>
       contradictsWarning(text, warning.toLowerCase()),
-    ) ||
-    asksForSensitiveDetails(text) ||
-    overclaimsCertainty(text) ||
-    usesSuspiciousContactChannel(text)
-  )
+    )
+  ) {
+    return "contradicts_warning"
+  }
+
+  if (asksForSensitiveDetails(text)) return "asks_sensitive_details"
+  if (overclaimsCertainty(text)) return "overclaims_certainty"
+  if (usesSuspiciousContactChannel(text)) {
+    return "uses_suspicious_contact_channel"
+  }
+
+  return undefined
 }
 
 function contradictsWarning(text: string, warning: string): boolean {
