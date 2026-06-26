@@ -1193,3 +1193,31 @@ Boundary:
 This does not relax safety validation, change risk levels, or make Bedrock the
 source of truth. Bedrock remains an optional wording assistant behind the
 deterministic safety workflow.
+
+## Phase 8.16: Bedrock Production Smoke Success
+
+After P7.17 was merged and deployed, the production Bedrock smoke test passed.
+
+Command:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts https://asksafe-home.vercel.app --expect-bedrock
+```
+
+Result:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+Meaning:
+
+The deployed analyze route can invoke Bedrock, receive a validator-approved
+structured response, and keep the deterministic high-risk assessment intact.
