@@ -85,6 +85,21 @@ test("uses family-money safer step for family payment requests", () => {
   assert.doesNotMatch(result.saferStep, /stop here for now/i)
 })
 
+test("uses family-money specific not-yet actions", () => {
+  const result = analyze(
+    "my daughter asks me to send 2000 AUD from a video call",
+    "video",
+    ["pay"],
+  )
+
+  assert.deepEqual(result.doNotYet, [
+    "Don't send money until you confirm through a saved number or account",
+    "Don't rely on the face, voice, or video call alone",
+    "Don't use a new number, link, or account they gave you in this request",
+    "Don't keep the request secret if it feels rushed or unusual",
+  ])
+})
+
 test("adds trusted phrase guidance for family money requests", () => {
   const result = analyze(
     "my daughter asks me for money from a video call",

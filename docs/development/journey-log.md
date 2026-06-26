@@ -1221,3 +1221,29 @@ Meaning:
 
 The deployed analyze route can invoke Bedrock, receive a validator-approved
 structured response, and keep the deterministic high-risk assessment intact.
+
+## Phase 8.17: Family Money Result Quality
+
+P7.19 improved result copy for family-money requests.
+
+Problem:
+
+The result already recognised family money requests, but the "What not to do
+yet" section still used a generic high-risk list. For a video call or message
+from someone close, that can feel like a blunt scam judgement instead of a
+calm safety workflow.
+
+Change:
+
+- keep the high-risk safety classification
+- keep the trusted callback and trusted phrase guidance
+- replace the generic not-yet list with family-money-specific actions:
+  - do not send money until verified through a saved number or account
+  - do not rely on face, voice, or video alone
+  - do not use new contact or account details from the request
+  - do not keep the request secret if it feels rushed or unusual
+
+Why:
+
+This better supports the product principle: AskSafe should reduce uncertainty
+and decision pressure, not simply label a family situation as unsafe.

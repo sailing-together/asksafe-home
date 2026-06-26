@@ -116,7 +116,7 @@ export function analyze(
       saferStep:
         getContextualHighRiskSaferStep(ruleAssessment) ??
         "Stop here for now. Don't reply, pay, or share anything. Take a breath, then talk it through with someone you trust before doing anything else.",
-      doNotYet: [
+      doNotYet: getContextualHighRiskDoNotYet(ruleAssessment) ?? [
         "Don't send any money, gift cards, or bank details",
         "Don't click links or install anything they asked for",
         "Don't share passwords, PINs, or one-time codes",
@@ -204,6 +204,23 @@ function getContextualHighRiskSaferStep(
     signalIds.has("payment-request")
   ) {
     return ruleAssessment.saferNextStep
+  }
+
+  return undefined
+}
+
+function getContextualHighRiskDoNotYet(
+  ruleAssessment: ReturnType<typeof assessSafetyInput>,
+): string[] | undefined {
+  const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  if (signalIds.has("family-money-request")) {
+    return [
+      "Don't send money until you confirm through a saved number or account",
+      "Don't rely on the face, voice, or video call alone",
+      "Don't use a new number, link, or account they gave you in this request",
+      "Don't keep the request secret if it feels rushed or unusual",
+    ]
   }
 
   return undefined
