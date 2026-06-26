@@ -24,16 +24,19 @@ export type GuidedClarificationInteractionInput = {
 }
 
 const CLARIFICATION_HELPER_TEXT =
-  "You can answer this, or choose the safer next step now."
+  "You can answer this, or see the safer next step now."
 
 const READY_ACKNOWLEDGEMENT =
-  "Thank you. I have enough to show the safer next step."
+  "Thanks. I'll show the safer next step now."
 
 const HARD_STOP_ACKNOWLEDGEMENT =
-  "I have enough to show the safer next step."
+  "This is enough to pause. I'll show the safer next step now."
 
 const FAMILY_MONEY_ACKNOWLEDGEMENT =
   "Pause before sending money. Contact them back using a saved number or account you already trust, then ask a question only your family would know."
+
+const PAYMENT_ACKNOWLEDGEMENT =
+  "Pause before paying. Use a trusted channel you already know to confirm who is asking and whether the payment is expected."
 
 const HARD_STOP_SIGNAL_IDS = new Set([
   "code-request",
@@ -61,6 +64,13 @@ export function getGuidedClarificationInteraction({
       return {
         type: "acknowledgement",
         text: FAMILY_MONEY_ACKNOWLEDGEMENT,
+      }
+    }
+
+    if (hasSignal(result.riskSignals, "payment-request")) {
+      return {
+        type: "acknowledgement",
+        text: PAYMENT_ACKNOWLEDGEMENT,
       }
     }
 

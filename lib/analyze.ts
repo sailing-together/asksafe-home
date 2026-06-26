@@ -114,7 +114,7 @@ export function analyze(
       risk,
       headline: contextualCopy?.headline ?? "This looks unsafe. It's good you paused.",
       saferStep:
-        getContextualHighRiskSaferStep(ruleAssessment) ??
+        getContextualHighRiskSaferStep(ruleAssessment, category) ??
         "Stop here for now. Don't reply, pay, or share anything. Take a breath, then talk it through with someone you trust before doing anything else.",
       doNotYet: getContextualHighRiskDoNotYet(ruleAssessment) ?? [
         "Don't send any money, gift cards, or bank details",
@@ -182,6 +182,14 @@ function getContextualHighRiskCopy(
 ): { headline: string; why: string } | undefined {
   const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
 
+  if (isBankLinkDetailsRequest(ruleAssessment, category)) {
+    return {
+      headline: "Do not use the link in the message.",
+      why:
+        "A message about a bank account problem that asks you to use a link or confirm details needs a separate check. The safer move is to open your bank app, type the official website yourself, or call the number on the back of your card.",
+    }
+  }
+
   if (signalIds.has("family-money-request")) {
     const channel = category === "video" ? "video call" : "message or call"
 
@@ -195,8 +203,13 @@ function getContextualHighRiskCopy(
 }
 function getContextualHighRiskSaferStep(
   ruleAssessment: ReturnType<typeof assessSafetyInput>,
+  category: Category,
 ): string | undefined {
   const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  if (isBankLinkDetailsRequest(ruleAssessment, category)) {
+    return "Don't tap the link or enter details from the message. Open your bank app, type the official website yourself, or call the number on the back of your card."
+  }
 
   if (
     signalIds.has("remote-access") ||
@@ -214,6 +227,20 @@ function getContextualHighRiskDoNotYet(
 ): string[] | undefined {
   const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
 
+  if (
+    signalIds.has("link-request") &&
+    signalIds.has("personal-details") &&
+    (ruleAssessment.scamTypeIds.includes("banking-payment") ||
+      signalIds.has("payment-request"))
+  ) {
+    return [
+      "Don't tap the link in the message",
+      "Don't enter passwords, one-time codes, card details, or identity details",
+      "Don't call numbers from the message",
+      "Don't feel rushed by account closure warnings",
+    ]
+  }
+
   if (signalIds.has("family-money-request")) {
     return [
       "Don't send money until you confirm through a saved number or account",
@@ -225,6 +252,22 @@ function getContextualHighRiskDoNotYet(
 
   return undefined
 }
+
+function isBankLinkDetailsRequest(
+  ruleAssessment: ReturnType<typeof assessSafetyInput>,
+  category: Category,
+): boolean {
+  const signalIds = new Set(ruleAssessment.riskSignals.map((signal) => signal.id))
+
+  return (
+    category === "message" &&
+    signalIds.has("link-request") &&
+    signalIds.has("personal-details") &&
+    (signalIds.has("payment-request") ||
+      ruleAssessment.scamTypeIds.includes("banking-payment"))
+  )
+}
+
 function buildClarification(
   ruleAssessment: ReturnType<typeof assessSafetyInput>,
 ): SafetyClarification | undefined {
@@ -308,6 +351,20 @@ function verifySteps(
       "Do not rely on the face, voice, or message alone before sending money.",
     ]
   }
+
+  if (
+    category === "message" &&
+    signalIds.has("link-request") &&
+    (signalIds.has("personal-details") ||
+      ruleAssessment?.scamTypeIds.includes("banking-payment"))
+  ) {
+    return [
+      "Don't tap any links or numbers in the message.",
+      "Open your bank app, type the official website yourself, or call the number on the back of your card.",
+      "Ask the bank whether your account really needs action.",
+    ]
+  }
+
   switch (category) {
     case "caller":
       return [

@@ -15,7 +15,7 @@ test("asks one clarification for a thin family money request", () => {
     type: "clarification",
     question:
       "Before you decide, check one thing: how did they contact you, and how do they want the money sent?",
-    helperText: "You can answer this, or choose the safer next step now.",
+    helperText: "You can answer this, or see the safer next step now.",
     reason: "A money request from someone close should be verified another way before you act.",
   })
 })
@@ -32,9 +32,24 @@ test("asks one clarification for a vague payment request", () => {
     type: "clarification",
     question:
       "Before you decide, check one thing: who is asking, and how do they want you to pay?",
-    helperText: "You can answer this, or choose the safer next step now.",
+    helperText: "You can answer this, or see the safer next step now.",
     reason:
       "The request involves payment, but the person and payment method still need checking.",
+  })
+})
+
+test("after a vague payment clarification, gives payment pause guidance", () => {
+  const interaction = getGuidedClarificationInteraction({
+    message: "someone asked me to pay\nit says I should transfer money today",
+    category: "money",
+    requests: ["pay"],
+    hasAskedClarification: true,
+  })
+
+  assert.deepEqual(interaction, {
+    type: "acknowledgement",
+    text:
+      "Pause before paying. Use a trusted channel you already know to confirm who is asking and whether the payment is expected.",
   })
 })
 
@@ -94,7 +109,7 @@ test("skips clarification for a one-time code hard stop", () => {
 
   assert.deepEqual(interaction, {
     type: "hard-stop",
-    text: "I have enough to show the safer next step.",
+    text: "This is enough to pause. I'll show the safer next step now.",
   })
 })
 
@@ -108,7 +123,7 @@ test("skips clarification for an install-app hard stop", () => {
 
   assert.deepEqual(interaction, {
     type: "hard-stop",
-    text: "I have enough to show the safer next step.",
+    text: "This is enough to pause. I'll show the safer next step now.",
   })
 })
 
@@ -122,7 +137,7 @@ test("skips clarification for a screen-share hard stop", () => {
 
   assert.deepEqual(interaction, {
     type: "hard-stop",
-    text: "I have enough to show the safer next step.",
+    text: "This is enough to pause. I'll show the safer next step now.",
   })
 })
 
@@ -136,6 +151,6 @@ test("does not ask clarification for low-risk appointment context", () => {
 
   assert.deepEqual(interaction, {
     type: "acknowledgement",
-    text: "Thank you. I have enough to show the safer next step.",
+    text: "Thanks. I'll show the safer next step now.",
   })
 })

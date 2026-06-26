@@ -124,6 +124,36 @@ test("adds trusted phrase guidance for family money requests", () => {
   )
 })
 
+test("uses bank-link specific safer step for account closure messages", () => {
+  const result = analyze(
+    "I received a text saying my bank account will be closed unless I tap a link and confirm my details today.",
+    "message",
+    ["link", "details"],
+  )
+
+  assert.equal(result.risk, "high")
+  assert.match(result.saferStep, /don't tap|do not tap/i)
+  assert.match(result.saferStep, /bank app|official website|back of your card/i)
+  assert.doesNotMatch(result.saferStep, /paying|transferring money/i)
+})
+
+test("uses official-channel verification for bank link messages", () => {
+  const result = analyze(
+    "I received a text saying my bank account will be closed unless I tap a link and confirm my details today.",
+    "message",
+    ["link", "details"],
+  )
+
+  assert.equal(
+    result.verify.some((step) => /bank app|official website|back of your card/i.test(step)),
+    true,
+  )
+  assert.equal(
+    result.verify.some((step) => /don't tap any links|do not tap any links/i.test(step)),
+    true,
+  )
+})
+
 test("adds clarification for a vague payment request", () => {
   const result = analyze("someone asked me to pay", "money", ["pay"])
 
