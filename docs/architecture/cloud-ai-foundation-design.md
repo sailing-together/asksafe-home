@@ -104,7 +104,7 @@ Initial app resources:
 - IAM policy surface for server-side app runtime access.
 - Bedrock invocation permission for the chosen model.
 
-The app Terraform may be destroyed after competition screenshots or demo evidence
+The app Terraform may be destroyed after competition screenshots or release evidence
 are captured. Destroy must not remove the bootstrap stack.
 
 ## System Flow
@@ -427,7 +427,7 @@ Avoid storing:
 - unnecessary full message text
 
 If raw user text is stored for product debugging, it should be temporary,
-explicitly marked, and easy to disable before public demo.
+explicitly marked, and easy to disable before public release.
 
 ## DynamoDB Data Model
 
@@ -586,7 +586,7 @@ Before creating application resources:
 - Request Bedrock model access in the chosen region.
 - Delete or rotate any temporary bootstrap access keys after OIDC works.
 
-## Demo And Evidence Requirements
+## Product Walkthrough And Evidence Requirements
 
 For competition or stakeholder review, capture evidence before destroying app
 resources:
@@ -603,7 +603,7 @@ resources:
 - Bedrock model access or invocation evidence, if enabled.
 - Architecture diagram.
 - Product screenshots for desktop and mobile.
-- Short demo showing safety check, result, official help, and trusted support.
+- Short product walkthrough showing safety check, result, official help, and trusted support.
 - Testing instructions and access credentials if any submitted flow is private.
 - Confirmation that the app remains available through the judging period when
   used for a competition submission.
@@ -771,7 +771,7 @@ Add:
 
 Purpose:
 
-- Support demo evidence, product learning, and later trusted-support workflows.
+- Support release evidence, product learning, and later trusted-support workflows.
 
 Acceptance:
 

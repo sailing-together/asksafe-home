@@ -65,7 +65,7 @@ The largest launch gaps are:
 ## Status Legend
 
 - **Handled:** already present in code, docs, or verified production evidence
-- **Needed before judging:** useful before submission or demo, scoped enough to do soon
+- **Needed before judging:** useful before submission or product walkthrough, scoped enough to do soon
 - **Soon after judging:** important, but not worth blocking the current submission path
 - **Not applicable now:** not needed for the current architecture or plan
 - **Enterprise / plan dependent:** depends on paid Vercel features or enterprise account features
@@ -86,7 +86,7 @@ The largest launch gaps are:
 | Content Security Policy and security headers | Partly handled | `next.config.mjs` sets HSTS, content-type, referrer, frame, permissions, and CSP report-only headers; `next.config.test.mjs` covers the baseline | Observe production behavior, then move CSP from report-only to enforced if safe |
 | Deployment Protection | Needed before judging | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Enable for preview deployments if available; keep production public for judges |
 | Vercel WAF custom rules | Soon after judging / plan dependent | No dashboard evidence | For competition, consider simple bot/rate controls only if available; full WAF can wait |
-| Log Drains | Soon after judging / plan dependent | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Useful after launch; not needed for current demo if logs are monitored manually |
+| Log Drains | Soon after judging / plan dependent | Tracked in `docs/operations/launch-settings-evidence.md`; dashboard state still needs confirmation | Useful after launch; not needed for current product walkthrough if logs are monitored manually |
 | SSL certificate issues | Not applicable now | Vercel domain handles TLS | Recheck when adding `asksafe.ai` |
 | Preview Deployment Suffix | Not applicable now | No custom domain preview suffix needed | Skip for competition |
 | Commit lockfiles | Handled | `pnpm-lock.yaml` committed | Keep lockfile updated |
@@ -189,6 +189,6 @@ The largest launch gaps are:
 
 ## Launch Decision
 
-AskSafe Home is production-shaped for a competition demo, but not yet production-hardened for a public consumer launch.
+AskSafe Home is production-shaped for a competition product walkthrough, but not yet production-hardened for a public consumer launch.
 
 The app can be judged as shippable software because the core safety workflow, production deployment, DynamoDB persistence, and fallback-first Bedrock foundation are real. Before broader public launch, finish the P0 checklist above.

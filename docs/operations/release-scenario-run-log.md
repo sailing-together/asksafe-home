@@ -1,13 +1,13 @@
-# Demo Scenario Run Log
+# Release Scenario Run Log
 
 Date: 2026-06-26
 Production URL: https://asksafe-home.vercel.app
-Source checklist: docs/operations/demo-scenarios-checklist.md
+Source checklist: docs/operations/release-validation-scenarios-checklist.md
 
 ## Summary
 
-This run checked the five demo scenarios against the production `/api/analyze`
-endpoint before demo recording.
+This run checked the five release validation scenarios against the production `/api/analyze`
+endpoint before product walkthrough recording.
 
 - 5 of 5 scenarios returned the expected risk level.
 - 4 scenarios returned `high` risk as expected.
@@ -235,4 +235,4 @@ POST https://asksafe-home.vercel.app/api/analyze
 ```
 
 This is an API-level production validation. A browser-level manual pass is still
-needed before recording final demo footage.
+needed before recording final product walkthrough footage.

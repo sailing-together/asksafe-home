@@ -1,20 +1,20 @@
 # Product Scope Decisions
 
-This document records product boundary decisions that affect demo narrative,
+This document records product boundary decisions that affect product walkthrough narrative,
 feature prioritisation, and future roadmap.
 
 ## P7.29: Digital-First Narrative, Senior-Safety-Compatible Product
 
 Date: 2026-06-27
 Decision owner: Product / BA review
-Status: Active for competition demo
+Status: Active for competition product walkthrough
 
 ### Decision
 
 AskSafe Home will use a digital-first narrative while remaining compatible with
 broader senior-safety decision moments.
 
-The demo and pitch should focus on:
+The product walkthrough and pitch should focus on:
 
 - messages
 - calls
@@ -29,7 +29,7 @@ The product will not describe itself as "digital safety only."
 ### Door / Knock-At-Door Scope
 
 The Step 1 option "Someone at the door" remains in the flow for now, but it is
-not a primary demo or pitch scenario.
+not a primary product walkthrough or pitch scenario.
 
 Why it remains:
 
@@ -37,7 +37,7 @@ Why it remains:
   workers, salespeople, or people requesting entry or payment
 - the product goal is broader than scam detection: it helps a senior pause when
   a request feels uncertain
-- keeping the option avoids disrupting the current shippable flow before demo
+- keeping the option avoids disrupting the current shippable flow before the product walkthrough
 
 Why it is not foregrounded:
 
@@ -47,10 +47,10 @@ Why it is not foregrounded:
 - over-emphasising door scenarios could make the product feel like a general
   home-safety app rather than a focused AI safety decision workflow
 
-### Demo Guidance
+### Product Walkthrough Guidance
 
 Use daughter video money request, bank link, one-time code, remote access, and
-normal appointment reminder as the main demo set.
+normal appointment reminder as the main product walkthrough set.
 
 Do not lead with door or doorstep scenarios unless asked about scope.
 
