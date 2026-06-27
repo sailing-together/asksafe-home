@@ -1,26 +1,10 @@
 import Image from "next/image"
-import { Heart, Ear, ListChecks, Phone, ExternalLink } from "lucide-react"
+import { Phone, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TrustedSupport } from "@/components/trusted-support"
 import { PracticeSection, type PracticeScenario } from "@/components/practice-section"
+import { HOME_SCREEN_COPY } from "@/lib/home-copy"
 
-const points = [
-  {
-    icon: Ear,
-    title: "Tell it what happened",
-    body: "Describe the call, message, or situation in your own words. No special terms needed.",
-  },
-  {
-    icon: ListChecks,
-    title: "Get one clear answer",
-    body: "A simple read on how risky it looks, and the single safest thing to do next.",
-  },
-  {
-    icon: Heart,
-    title: "Never feel rushed",
-    body: "One gentle step at a time, with people you trust only a tap away.",
-  },
-]
 
 export function HomeScreen({
   onStart,
@@ -45,24 +29,23 @@ export function HomeScreen({
           />
         </div>
         <span className="rounded-full bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground">
-          A safe place to pause and think
+          {HOME_SCREEN_COPY.badge}
         </span>
         <h1 className="text-balance font-heading text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-          Not sure if something is safe? Let&apos;s look at it together.
+          {HOME_SCREEN_COPY.headline}
         </h1>
         <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          AskSafe Home helps you make calm, confident decisions when a call,
-          message, or knock at the door leaves you feeling unsure.
+          {HOME_SCREEN_COPY.heroBody}
         </p>
         <Button
           size="lg"
           onClick={onStart}
           className="mt-2 h-auto rounded-2xl px-10 py-6 text-xl font-semibold shadow-sm"
         >
-          I feel unsure about something
+          {HOME_SCREEN_COPY.startButton}
         </Button>
         <p className="text-base text-muted-foreground">
-          Private by design. You choose what to share.
+          {HOME_SCREEN_COPY.privacyNote}
         </p>
       </section>
 
@@ -71,10 +54,10 @@ export function HomeScreen({
           id="how-it-works"
           className="text-center font-heading text-2xl font-semibold text-foreground"
         >
-          How AskSafe helps
+          {HOME_SCREEN_COPY.howTitle}
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          {points.map((point) => (
+          {HOME_SCREEN_COPY.points.map((point) => (
             <div
               key={point.title}
               className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6"

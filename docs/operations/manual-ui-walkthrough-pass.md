@@ -108,6 +108,13 @@ The product walkthrough is ready to record when:
   safety rules.
 - The team has a fallback plan for voice, read-aloud, or production issues.
 
+## P7.34 Home Copy Check
+
+The home screen release-facing copy now leads with message, call, video chat,
+and payment request moments. Someone at the door remains supported as a
+secondary senior-safety category, but it is not foregrounded in the home hero
+or product walkthrough story.
+
 ## Notes For Product Walkthrough Narration
 
 Recommended phrasing:
