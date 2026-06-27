@@ -191,6 +191,13 @@ function getContextualHighRiskCopy(
     }
   }
 
+  if (signalIds.has("payment-request")) {
+    return {
+      headline: "Pause before paying until you know more.",
+      why: "This involves money, and there is not enough context yet to know who is asking or whether the request is expected. You need more information, and the safer move is to verify it through details you already trust before paying.",
+    }
+  }
+
   return undefined
 }
 function getContextualHighRiskSaferStep(
