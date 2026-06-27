@@ -5,15 +5,20 @@ AskSafe Home for demos, judging, and production smoke checks.
 
 ## Start Here Before Recording
 
-1. Read `demo-readiness-checklist.md`.
-2. Keep `demo-scenarios-checklist.md` open for the scenario script.
-3. Use `demo-scenario-run-log.md` as the latest API-level evidence.
-4. Use `manual-ui-demo-pass.md` for the browser-level demo pass.
-5. If production changed after the latest evidence, rerun the smoke checks in
+1. Read `final-demo-narrative-brief.md` for the story, positioning, and judge
+   Q&A talking points.
+2. Read `demo-readiness-checklist.md`.
+3. Keep `demo-scenarios-checklist.md` open for the scenario script.
+4. Use `demo-scenario-run-log.md` as the latest API-level evidence.
+5. Use `manual-ui-demo-pass.md` for the browser-level demo pass.
+6. If production changed after the latest evidence, rerun the smoke checks in
    `production-smoke-tests.md`.
 
 ## Demo And Scenario Evidence
 
+- `final-demo-narrative-brief.md`
+  - Short speaking brief for the final demo story, product positioning, judge
+    Q&A, and team speaking roles.
 - `demo-readiness-checklist.md`
   - Practical checklist for recording the demo video.
   - Includes production URL, recommended demo flow, manual UI pass, and how to
