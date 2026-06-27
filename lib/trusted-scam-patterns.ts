@@ -41,8 +41,8 @@ export const TRUSTED_SCAM_PATTERNS: TrustedScamPattern[] = [
     ],
     safeNextSteps: [
       "Do not send money yet.",
-      "Call the family member using the number already saved.",
-      "Contact another trusted family member if the person cannot be reached.",
+      "Call the family member using a number you already trust.",
+      "If you cannot reach them, ask another trusted person to help you check.",
     ],
   },
   {

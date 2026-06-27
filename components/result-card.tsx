@@ -34,7 +34,7 @@ const helpByRisk: Record<SafetyResult["risk"], string[]> = {
 
 const riskStyles = {
   high: {
-    label: "Pause and check",
+    label: "Pause first",
     icon: ShieldAlert,
     band: "bg-destructive/10 border-destructive/30",
     chip: "bg-destructive text-primary-foreground",
@@ -75,6 +75,14 @@ export function ResultCard({
 }) {
   const style = riskStyles[result.risk]
   const RiskIcon = style.icon
+  // For a family or trusted-person money request, lead with a calm,
+  // verify-first instruction rather than anything that sounds like a verdict.
+  const isFamilyMoneyRequest = result.riskSignals.some(
+    (signal) => signal.id === "family-money-request",
+  )
+  const saferStepText = isFamilyMoneyRequest
+    ? "Do not send money yet. Call the family member using a number you already trust. If you cannot reach them, ask another trusted person to help you check."
+    : result.saferStep
   const [shared, setShared] = useState(false)
   const [feedbackChoice, setFeedbackChoice] = useState<"yes" | "no" | null>(null)
   const speech = useSpeechSynthesis()
@@ -86,7 +94,7 @@ export function ResultCard({
     }
     const script = [
       `${style.label}. ${result.headline}`,
-      `Your safer next step. ${result.saferStep}`,
+      `Your safer next step. ${saferStepText}`,
       `What to hold off on for now. ${result.doNotYet.join(". ")}`,
       `How to check before you act. ${result.verify.join(". ")}`,
     ].join(". ")
@@ -115,7 +123,7 @@ export function ResultCard({
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-6 pb-16">
+    <div className="flex flex-col gap-5 pt-6 pb-16 sm:gap-6">
       {/* Risk banner */}
       <div className={`flex flex-col gap-4 rounded-3xl border p-6 sm:p-7 ${style.band}`}>
         <div className="flex flex-wrap items-center gap-3">
@@ -180,7 +188,7 @@ export function ResultCard({
               </p>
               {result.clarification.checks.length > 0 && (
                 <ul className="mt-3 flex flex-col gap-2">
-                  {result.clarification.checks.map((check) => (
+                  {result.clarification.checks.slice(0, 3).map((check) => (
                     <li
                       key={check}
                       className="flex items-start gap-2 text-base leading-relaxed text-foreground"
@@ -216,7 +224,7 @@ export function ResultCard({
         title="Your safer next step"
       >
         <p className="text-lg leading-relaxed text-foreground">
-          {result.saferStep}
+          {saferStepText}
         </p>
       </Section>
 
@@ -381,7 +389,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6">
+    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
       <h2 className="flex items-center gap-2.5 font-heading text-xl font-semibold text-foreground">
         <Icon className={`h-6 w-6 ${iconClass}`} aria-hidden="true" />
         {title}
