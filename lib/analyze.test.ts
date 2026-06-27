@@ -152,6 +152,20 @@ test("uses non-accusatory guidance for a vague payment request", () => {
   assert.match(result.why, /verify/i)
   assert.doesNotMatch(result.why, /common sign of a scam/i)
 })
+
+test("prioritizes remote access guidance over generic payment copy", () => {
+  const result = analyze(
+    "A caller says my computer is hacked and wants me to install AnyDesk and share my screen.",
+    "caller",
+    ["install", "screen"],
+  )
+
+  assert.equal(result.risk, "high")
+  assert.match(result.headline, /do not install/i)
+  assert.match(result.headline, /share your screen/i)
+  assert.doesNotMatch(result.headline, /paying/i)
+})
+
 test("does not add clarification for a hard-stop code request", () => {
   const result = analyze("they asked me for my one-time code", "message", ["code"])
 
