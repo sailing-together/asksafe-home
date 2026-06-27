@@ -108,6 +108,13 @@ The product walkthrough is ready to record when:
   safety rules.
 - The team has a fallback plan for voice, read-aloud, or production issues.
 
+## P7.36 Clarification Return Action Check
+
+When a result says more context is needed, the result page should offer an
+`Add more details` action. That action returns to the guided input step with the
+previous details shown in the conversation and the selected request chips still
+available, so the user can continue without starting again.
+
 ## P7.35 Result Guidance Quality Check
 
 Thin payment requests should not sound like AskSafe is proving a scam. The
