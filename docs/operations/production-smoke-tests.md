@@ -445,3 +445,88 @@ Expected:
 - It does not prove AskSafe can verify whether a caller or video participant is real.
 - It does not prove screenshot, image, audio, or deepfake detection.
 - It does not prove Bedrock should generate follow-up questions.
+
+## P7.33 Final Production Smoke Pass
+
+Date: 2026-06-27
+Branch tested after merge: `main`
+Production URL: `https://asksafe-home.vercel.app`
+
+### Purpose
+
+Verify the release-facing production runtime after the product walkthrough and
+release readiness documentation updates. This check confirms the deployed app can
+still reach the Bedrock-backed analyze path and persist privacy-safe outcome
+events to DynamoDB.
+
+### Bedrock Analyze Smoke
+
+Command:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts https://asksafe-home.vercel.app --expect-bedrock
+```
+
+Result:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
+```
+
+### Outcome Event Persistence Smoke
+
+Command:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
+```
+
+Result:
+
+```json
+{
+  "baseUrl": "https://asksafe-home.vercel.app",
+  "safety": {
+    "endpoint": "https://asksafe-home.vercel.app/api/safety-events",
+    "ok": true,
+    "persisted": true,
+    "id": "6b338041-4a96-4b13-a6f7-d63c5d0f2d9d"
+  },
+  "feedback": {
+    "endpoint": "https://asksafe-home.vercel.app/api/feedback-events",
+    "ok": true,
+    "persisted": true,
+    "id": "b35e0602-d424-4c12-9183-8e0edef68f9a"
+  },
+  "support": {
+    "endpoint": "https://asksafe-home.vercel.app/api/support-events",
+    "ok": true,
+    "persisted": true,
+    "id": "4249223d-212d-43ee-a8b4-9e1688f79e63"
+  }
+}
+```
+
+### What This Proves
+
+- The production `/api/analyze` route is reachable.
+- Bedrock explanation assist is enabled and returns validated output for the
+  synthetic high-risk scenario.
+- Safety, feedback, and support event endpoints can persist privacy-safe records
+  to DynamoDB.
+- The release-facing production URL is exercising the expected AWS runtime path.
+
+### What This Does Not Prove
+
+- It does not prove AskSafe can identify whether a person in a video, voice
+  call, image, or message is real.
+- It does not replace browser-level product walkthrough checks.
+- It does not replace security, cost, or operational monitoring for a broader
+  public launch.
