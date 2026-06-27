@@ -1336,3 +1336,28 @@ Why:
 AskSafe needs Bedrock support to improve explanation quality, but public traffic
 or abuse must not create uncontrolled token cost. Quota exhaustion now falls back
 to deterministic safety rules instead of continuing model calls.
+
+## Phase 8.22: Bedrock Quota Smoke Script
+
+P7.41 made the Bedrock analyze smoke script useful for quota hard-stop checks.
+
+Changes:
+
+- added an exact Bedrock outcome expectation to the analyze smoke evaluator
+- allowed the smoke CLI to pass a fixed `quotaSubjectId` and `userTier`
+- added an npm script for the expected quota-blocked outcome
+- documented how to run a quota smoke without using real user data
+
+Why:
+
+The team needs to prove that quota protection works in production, not only in
+unit tests. The smoke path can now verify `quota_user_daily_limit` or another
+quota outcome explicitly, while still using the synthetic family-money scenario
+and avoiding raw private user content.
+
+Operational note:
+
+The quota smoke should be run deliberately because successful pre-quota calls
+may still invoke Bedrock. For lowest cost, temporarily lower the relevant daily
+quota in Vercel before running the hard-stop check, then restore the production
+limit after the smoke result is captured.

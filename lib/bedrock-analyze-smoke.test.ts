@@ -101,6 +101,49 @@ test("evaluateBedrockAnalyzeSmokeResponse accepts Bedrock success when requested
   })
 })
 
+test("evaluateBedrockAnalyzeSmokeResponse accepts an expected quota hard stop", () => {
+  const result = evaluateBedrockAnalyzeSmokeResponse(
+    {
+      ok: true,
+      result: deterministicResult,
+      bedrock: {
+        used: false,
+        outcome: "quota_user_daily_limit",
+      },
+    },
+    { expectBedrockOutcome: "quota_user_daily_limit" },
+  )
+
+  assert.deepEqual(result, {
+    ok: true,
+    bedrockUsed: false,
+    bedrockOutcome: "quota_user_daily_limit",
+    risk: "high",
+  })
+})
+
+test("evaluateBedrockAnalyzeSmokeResponse rejects an unexpected Bedrock outcome", () => {
+  const result = evaluateBedrockAnalyzeSmokeResponse(
+    {
+      ok: true,
+      result: deterministicResult,
+      bedrock: {
+        used: true,
+        outcome: "success",
+      },
+    },
+    { expectBedrockOutcome: "quota_user_daily_limit" },
+  )
+
+  assert.deepEqual(result, {
+    ok: false,
+    reason: "unexpected-bedrock-outcome",
+    bedrockUsed: true,
+    bedrockOutcome: "success",
+    expectedBedrockOutcome: "quota_user_daily_limit",
+  })
+})
+
 test("evaluateBedrockAnalyzeSmokeResponse rejects malformed analyze responses", () => {
   const result = evaluateBedrockAnalyzeSmokeResponse({
     ok: true,

@@ -530,3 +530,92 @@ Result:
 - It does not replace browser-level product walkthrough checks.
 - It does not replace security, cost, or operational monitoring for a broader
   public launch.
+
+## P7.41 Bedrock Quota Hard-Stop Smoke
+
+Date: to be run after P7.41 is merged and production is redeployed
+Production URL: `https://asksafe-home.vercel.app`
+Endpoint: `POST /api/analyze`
+
+### Purpose
+
+Verify that production can return a quota hard-stop outcome without silently
+continuing to invoke Bedrock after a configured limit is exhausted.
+
+The smoke uses the same synthetic Bedrock analyze scenario as the normal Bedrock
+smoke test. Do not use real user messages, phone numbers, account details,
+one-time codes, passwords, or private contact details.
+
+### Runtime Settings To Confirm
+
+Before running this smoke, confirm production has quota enforcement enabled:
+
+- `ENABLE_BEDROCK_QUOTA=true`
+- `BEDROCK_GLOBAL_DAILY_CALL_LIMIT`
+- `BEDROCK_GLOBAL_MONTHLY_CALL_LIMIT`
+- `BEDROCK_ANONYMOUS_DAILY_CALL_LIMIT`
+- `BEDROCK_REGISTERED_DAILY_CALL_LIMIT`
+- `ASKSAFE_EVENTS_TABLE=asksafe-home-prod-events`
+
+### Lowest-Cost Smoke Approach
+
+For a deliberate hard-stop check, temporarily lower the relevant daily quota in
+Vercel, redeploy, run the smoke with a fixed synthetic quota subject, then
+restore the production value and redeploy again.
+
+Example with an anonymous subject:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts   https://asksafe-home.vercel.app   --quota-subject-id smoke-quota-anon-2026-06-27   --user-tier anonymous   --expect-bedrock-outcome quota_user_daily_limit
+```
+
+Equivalent npm script:
+
+```bash
+npm run smoke:bedrock:quota --   https://asksafe-home.vercel.app   --quota-subject-id smoke-quota-anon-2026-06-27   --user-tier anonymous
+```
+
+### Passing Result
+
+The command should print JSON like:
+
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": false,
+  "expectBedrockOutcome": "quota_user_daily_limit",
+  "quotaSubjectId": "smoke-quota-anon-2026-06-27",
+  "userTier": "anonymous",
+  "ok": true,
+  "bedrockUsed": false,
+  "bedrockOutcome": "quota_user_daily_limit",
+  "risk": "high"
+}
+```
+
+### Failure Results To Investigate
+
+- `unexpected-bedrock-outcome`: the route returned a different Bedrock outcome
+  than the smoke expected, such as `success`
+- `bedrock-not-used`: `--expect-bedrock` was used but Bedrock did not return a
+  successful model response
+- `malformed-response`: the analyze route response no longer matches the smoke
+  evaluator shape
+- `http-error`: the production route rejected the request
+- `request-failed`: local network or DNS request failure
+
+### What This Proves
+
+- The production analyze route accepts quota subject metadata.
+- The server-side Bedrock quota gate can stop model invocation before prompt
+  construction and Bedrock runtime calls.
+- Quota exhaustion falls back to deterministic safety output instead of blocking
+  the user from seeing a safer next step.
+
+### What This Does Not Prove
+
+- It does not replace AWS Budgets or billing alerts.
+- It does not prove every abuse pattern is blocked.
+- It does not prove the quota counters should be used as long-term billing or
+  account-management records.
+- It does not remove the need for ongoing spend monitoring during public launch.

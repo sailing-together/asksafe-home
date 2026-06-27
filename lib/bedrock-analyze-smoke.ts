@@ -13,6 +13,7 @@ export const BEDROCK_ANALYZE_SMOKE_PAYLOAD: {
 
 type BedrockAnalyzeSmokeOptions = {
   expectBedrock?: boolean
+  expectBedrockOutcome?: string
 }
 
 type BedrockAnalyzeSmokeSuccess = {
@@ -39,6 +40,13 @@ type BedrockAnalyzeSmokeFailure =
       bedrockOutcome: string
       bedrockInvalidReason?: string
       bedrockInvalidDetail?: string
+    }
+  | {
+      ok: false
+      reason: "unexpected-bedrock-outcome"
+      bedrockUsed: boolean
+      bedrockOutcome: string
+      expectedBedrockOutcome: string
     }
 
 export type BedrockAnalyzeSmokeEvaluation =
@@ -74,6 +82,19 @@ export function evaluateBedrockAnalyzeSmokeResponse(
 
   if (typeof bedrock.used !== "boolean" || typeof bedrock.outcome !== "string") {
     return { ok: false, reason: "malformed-response" }
+  }
+
+  if (
+    options.expectBedrockOutcome &&
+    bedrock.outcome !== options.expectBedrockOutcome
+  ) {
+    return {
+      ok: false,
+      reason: "unexpected-bedrock-outcome",
+      bedrockUsed: bedrock.used,
+      bedrockOutcome: bedrock.outcome,
+      expectedBedrockOutcome: options.expectBedrockOutcome,
+    }
   }
 
   if (options.expectBedrock && !(bedrock.used && bedrock.outcome === "success")) {
