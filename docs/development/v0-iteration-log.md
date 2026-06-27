@@ -355,6 +355,131 @@ Follow-up feedback:
   rather than repeating generic acknowledgements
 - clicking the AskSafe Home brand should return home
 
+
+## Prompt 9: Result Page Polish And Contextual Official Help
+
+Purpose:
+
+Refine the result page so it feels like a calm safety decision workflow rather
+than a generic risk report. Make official help visible when risk is high, but do
+not overload low-risk outcomes with too many help services.
+
+Result:
+
+v0 polished the result page hierarchy around a clearer pause-first message,
+shorter decision questions, risk signals, safer next step, official help,
+trusted support, and feedback actions. The team also decided that official help
+should be contextual: full help for high-risk outcomes, lighter help for safer
+or lower-risk outcomes.
+
+Operational prompt summary:
+
+```text
+Please refine the result page only.
+
+Make the top result feel calmer and more action-oriented:
+- Use a short status badge such as "Pause first".
+- Use a clear headline such as "Pause before sending money." when the result is about a risky money request.
+- Keep the tone calm and supportive, not alarmist.
+
+Add a compact "Before you decide" section with only the most useful questions.
+For a money request from someone close, include checks such as:
+- Is this a new number, account, or chat?
+- How much money do they want, and how do they want it sent?
+- Can you contact them using a saved number or account you already trust?
+
+Keep the existing sections for safer next step, what stood out, what to hold off on, why this is worth a pause, and how to check before you act.
+
+Make Official help in Australia contextual:
+- High-risk results can show the full official help section.
+- Medium-risk results can show a smaller help section focused on checking through official channels.
+- Low-risk or safer results should not show a large official help block; keep only light footer links or a brief note.
+
+Do not change backend, AWS, Bedrock, database, authentication, or persistence code.
+```
+
+Follow-up feedback:
+
+- the page should not show every official help service for every safe or low-risk
+  result
+- help depth should match the risk level and signal type
+- the result page should avoid making every situation feel like an emergency
+
+## Prompt 10: Footer Disclaimer Polish
+
+Purpose:
+
+Make the footer disclaimer feel more like a formal product footer and less like
+a heavy warning block.
+
+Result:
+
+v0 was asked to combine the two disclaimer sentences into one concise paragraph
+while keeping the current footer structure and links.
+
+Prompt:
+
+```text
+Please make a small footer polish only.
+
+In the footer disclaimer card, combine the two disclaimer sentences into one paragraph instead of two separate paragraphs.
+
+Use this exact text:
+
+AskSafe is not an emergency service, government service, legal adviser, financial adviser, or medical adviser. Do not enter passwords, one-time codes, full card numbers, or sensitive identity details.
+
+Keep the current footer layout, colours, spacing, links, and copyright text.
+Do not change any other page sections.
+Do not add backend, authentication, AWS, Bedrock, or database changes.
+```
+
+Notes:
+
+- `Built for H0 with Vercel and AWS.` was intentionally removed from the
+  copyright line.
+- The footer should support trust without making the product look like a
+  prototype or competition-only artifact.
+
+## Prompt 11: Official Help Card Layout Polish
+
+Purpose:
+
+Improve the visual balance of the Official help in Australia section without
+wrapping the entire section in another heavy outer card.
+
+Result:
+
+v0 was asked to keep the orange verification reminder and individual service
+cards, but reduce empty space and make card heights feel balanced across desktop
+and mobile.
+
+Prompt:
+
+```text
+Please polish the Official help in Australia section only.
+
+Do not wrap the whole section in another large outer card.
+
+Keep the orange verification reminder bar.
+
+Keep the help services as individual cards, but make the card heights feel balanced:
+- Emergency should not look much taller or emptier than the other cards.
+- Use consistent padding, minimum height, and vertical spacing across the four service cards.
+- Desktop: keep a clean 2-column grid.
+- Mobile: stack cards in one column.
+- Keep all buttons large and easy to tap.
+
+Do not change the result logic, analyzer, backend, AWS, Bedrock, or database code.
+```
+
+Notes:
+
+- The team chose not to add an outer section card because the service cards are
+  already framed.
+- The desktop official help block can be more compact, especially the Emergency
+  card.
+- Mobile can remain more spacious as long as the tap targets stay comfortable.
+
 ## Scope Guards Repeated Throughout v0 Work
 
 The team repeatedly used these boundaries to keep the product focused:
