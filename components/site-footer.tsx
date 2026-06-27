@@ -25,11 +25,9 @@ export function SiteFooter() {
         <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
           <p className="text-sm leading-relaxed text-foreground">
             AskSafe is not an emergency service, government service, legal
-            adviser, financial adviser, or medical adviser.
-          </p>
-          <p className="text-sm leading-relaxed text-foreground">
-            Do not enter passwords, one-time codes, full card numbers, or
-            sensitive identity details.
+            adviser, financial adviser, or medical adviser. Do not enter
+            passwords, one-time codes, full card numbers, or sensitive identity
+            details.
           </p>
         </div>
 
