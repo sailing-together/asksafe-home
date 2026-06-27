@@ -34,21 +34,21 @@ const helpByRisk: Record<SafetyResult["risk"], string[]> = {
 
 const riskStyles = {
   high: {
-    label: "High risk",
+    label: "Pause and check",
     icon: ShieldAlert,
     band: "bg-destructive/10 border-destructive/30",
     chip: "bg-destructive text-primary-foreground",
     iconColor: "text-destructive",
   },
   caution: {
-    label: "Be careful",
+    label: "Take a closer look",
     icon: ShieldQuestion,
     band: "bg-accent/10 border-accent/40",
     chip: "bg-accent text-accent-foreground",
     iconColor: "text-accent",
   },
   low: {
-    label: "Looks okay",
+    label: "Looks okay so far",
     icon: ShieldCheck,
     band: "bg-primary/8 border-primary/25",
     chip: "bg-primary text-primary-foreground",
@@ -87,8 +87,8 @@ export function ResultCard({
     const script = [
       `${style.label}. ${result.headline}`,
       `Your safer next step. ${result.saferStep}`,
-      `What not to do yet. ${result.doNotYet.join(". ")}`,
-      `How to check it's real. ${result.verify.join(". ")}`,
+      `What to hold off on for now. ${result.doNotYet.join(". ")}`,
+      `How to check before you act. ${result.verify.join(". ")}`,
     ].join(". ")
     speech.speak(script)
   }
@@ -224,7 +224,7 @@ export function ResultCard({
         <Section
           icon={SearchCheck}
           iconClass="text-primary"
-          title="What I noticed"
+          title="What stood out"
         >
           <ul className="flex flex-wrap gap-2.5">
             {result.riskSignals.slice(0, 4).map((signal) => (
@@ -238,14 +238,15 @@ export function ResultCard({
           </ul>
           {result.sourceIds.length > 0 && (
             <p className="text-base leading-relaxed text-muted-foreground">
-              Based on common scam-safety patterns from Australian sources.
+              These are general safety patterns worth knowing about — not proof
+              that anything is wrong.
             </p>
           )}
         </Section>
       )}
 
       {/* What not to do yet */}
-      <Section icon={Ban} iconClass="text-destructive" title="What not to do yet">
+      <Section icon={Ban} iconClass="text-destructive" title="What to hold off on for now">
         <ul className="flex flex-col gap-2.5">
           {result.doNotYet.map((item) => (
             <li key={item} className="flex items-start gap-3 text-lg leading-relaxed text-foreground">
@@ -257,12 +258,12 @@ export function ResultCard({
       </Section>
 
       {/* Why */}
-      <Section icon={Info} iconClass="text-accent" title="Why I'm saying this">
+      <Section icon={Info} iconClass="text-accent" title="Why this is worth a pause">
         <p className="text-lg leading-relaxed text-foreground">{result.why}</p>
       </Section>
 
       {/* Verify */}
-      <Section icon={ListChecks} iconClass="text-primary" title="How to check it's real">
+      <Section icon={ListChecks} iconClass="text-primary" title="How to check before you act">
         <ol className="flex flex-col gap-3">
           {result.verify.map((step, i) => (
             <li key={step} className="flex items-start gap-3 text-lg leading-relaxed text-foreground">
@@ -283,45 +284,50 @@ export function ResultCard({
 
       {/* Support actions */}
       {support?.trustedName ? (
-        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-7">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <p className="text-lg font-medium leading-relaxed text-foreground">
-              Want {support.trustedName} to take a look? You can share this
-              safety summary with them.
+              Would it help to check this with {support.trustedName}? Copy a
+              short, plain-language summary to send them.
             </p>
             <Button
               type="button"
               size="lg"
               onClick={shareSummary}
-              className="h-auto shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold"
+              className="h-auto w-full shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto"
             >
               {shared ? (
                 <Check className="mr-2 h-5 w-5" aria-hidden="true" />
               ) : (
                 <Share2 className="mr-2 h-5 w-5" aria-hidden="true" />
               )}
-              {shared ? "Summary copied" : "Share this safety summary"}
+              {shared ? "Copied — now paste it to them" : `Copy summary for ${support.trustedName}`}
             </Button>
           </div>
           <p className="text-base leading-relaxed text-muted-foreground">
-            Nothing is shared unless you choose to share it.
+            You stay in control. Nothing is sent until you choose to share it.
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-lg font-medium leading-relaxed text-foreground">
-            It&apos;s your choice - if you&apos;d like a second opinion, talk it
-            over with someone you trust.
+        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-7">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <p className="text-lg font-medium leading-relaxed text-foreground">
+              You don&apos;t have to decide alone. Set up a trusted person and
+              you can share this safety summary with them in one tap.
+            </p>
+            <Button
+              type="button"
+              size="lg"
+              onClick={onOpenSupport}
+              className="h-auto w-full shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto"
+            >
+              <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
+              Add someone I trust
+            </Button>
+          </div>
+          <p className="text-base leading-relaxed text-muted-foreground">
+            This is your choice, and it&apos;s always optional.
           </p>
-          <Button
-            type="button"
-            size="lg"
-            onClick={onOpenSupport}
-            className="h-auto shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold"
-          >
-            <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
-            Talk to someone I trust
-          </Button>
         </div>
       )}
 

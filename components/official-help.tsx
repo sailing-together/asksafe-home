@@ -4,7 +4,7 @@ import { getOfficialHelpResources } from "@/lib/official-help-resources"
 export function OfficialHelp({
   ids,
   title = "Official help in Australia",
-  description = "Official Australian services you can contact directly to check, report, or get support — whenever you decide to.",
+  description = "Trusted Australian services you can contact yourself to check, report, or get support — whenever you decide to.",
   showReminder = false,
 }: {
   ids?: string[]
@@ -33,8 +33,9 @@ export function OfficialHelp({
             aria-hidden="true"
           />
           <p className="text-base font-medium leading-relaxed text-foreground">
-            Do not use phone numbers or links from the message. Look them up
-            separately using the official details below.
+            Verify through a channel you already trust. Don&apos;t call numbers
+            or tap links from the message itself — use the official contacts
+            below, which you can look up on your own.
           </p>
         </div>
       )}
