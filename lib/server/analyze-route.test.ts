@@ -115,10 +115,10 @@ test("handleAnalyzeRequest applies validated Bedrock wording without changing sa
   assert.equal(response.body.result.risk, "high")
   assert.equal(response.body.result.headline, "Pause before sending money.")
   assert.deepEqual(response.body.result.doNotYet, [
-    "Don't send any money, gift cards, or bank details",
-    "Don't click links or install anything they asked for",
-    "Don't share passwords, PINs, or one-time codes",
-    "Don't feel rushed — real organisations let you take your time",
+    "Don't send money until you confirm through a saved number or account",
+    "Don't rely on the face, voice, or video call alone",
+    "Don't use a new number, link, or account they gave you in this request",
+    "Don't keep the request secret if it feels rushed or unusual",
   ])
   assert.equal(
     response.body.result.saferStep,

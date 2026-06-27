@@ -8,17 +8,8 @@ import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
 import { useSpeechRecognition } from "@/lib/use-voice"
 import { getGuidedClarificationInteraction } from "@/lib/guided-clarification-interaction"
+import { getSituationStartMessages } from "@/lib/entry-copy"
 import type { Category, RequestType } from "@/lib/analyze"
-
-const prompts: Record<Category, string> = {
-  caller: "What did the caller say? For example, who did they claim to be and what did they ask you to do?",
-  message: "What does the message say? You can type it out or describe it in your own words.",
-  money: "What were you asked to pay, and how? Who is asking for it?",
-  door: "Who is at the door, and what are they asking for?",
-  online: "What did you see online? For example, a pop-up, an offer, or a website warning.",
-  video: "What happened on the video call or chat? Who were they, and what did they ask you to do?",
-  other: "Tell me what happened and what feels unsure to you.",
-}
 
 const requestOptions: { value: RequestType; label: string; icon: typeof Banknote }[] = [
   { value: "pay", label: "Pay money", icon: Banknote },
@@ -74,15 +65,10 @@ export function SituationInput({
   const [details, setDetails] = useState<string[]>([])
   const [hasAskedClarification, setHasAskedClarification] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    {
-      role: "assistant",
-      text: prompts[category],
-    },
-    {
-      role: "assistant",
-      text:
-        "Choose any action that fits, then type or use voice to describe what happened. I will check it after you send details.",
-    },
+    ...getSituationStartMessages(category).map((text) => ({
+      role: "assistant" as const,
+      text,
+    })),
   ])
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSendDetails = value.trim().length >= 3
@@ -182,10 +168,10 @@ export function SituationInput({
       </div>
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-balance font-heading text-3xl font-semibold text-foreground sm:text-4xl">
-          Tell me what happened
+          Tell AskSafe what happened
         </h1>
         <p className="text-lg text-muted-foreground">
-          Use your own words. There&apos;s no rush, and nothing is shared.
+          Start in your own words. There&apos;s no rush, and nothing is shared.
         </p>
       </div>
 

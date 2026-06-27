@@ -1,21 +1,16 @@
 import { Phone, MessageSquare, Banknote, DoorOpen, Globe, Video, HelpCircle, ArrowLeft } from "lucide-react"
 import type { Category } from "@/lib/analyze"
+import { getCategoryOptionGroups, type CategoryIconName } from "@/lib/entry-copy"
 
-const moneyOption: { value: Category; label: string; hint: string; icon: typeof Phone } = {
-  value: "money",
-  label: "Money or payments",
-  hint: "Asked to pay, transfer, or send money",
-  icon: Banknote,
+const icons: Record<CategoryIconName, typeof Phone> = {
+  phone: Phone,
+  message: MessageSquare,
+  money: Banknote,
+  door: DoorOpen,
+  online: Globe,
+  video: Video,
+  help: HelpCircle,
 }
-
-const options: { value: Category; label: string; hint: string; icon: typeof Phone }[] = [
-  { value: "caller", label: "A phone call", hint: "Someone rang me", icon: Phone },
-  { value: "message", label: "A text or email", hint: "A message I received", icon: MessageSquare },
-  { value: "door", label: "Someone at the door", hint: "A visitor or knock", icon: DoorOpen },
-  { value: "online", label: "Something online", hint: "A website or pop-up", icon: Globe },
-  { value: "video", label: "Video call or online chat", hint: "A video call, chat app, or social message", icon: Video },
-  { value: "other", label: "Something else", hint: "Not sure / other", icon: HelpCircle },
-]
 
 export function CategoryStep({
   onSelect,
@@ -24,6 +19,9 @@ export function CategoryStep({
   onSelect: (category: Category) => void
   onBack: () => void
 }) {
+  const { primary: moneyOption, standard: options } = getCategoryOptionGroups()
+  const MoneyIcon = icons[moneyOption.iconName]
+
   return (
     <div className="flex flex-col gap-6 pt-6 pb-16">
       <StepBack onBack={onBack} step="Step 1 of 2" />
@@ -41,7 +39,7 @@ export function CategoryStep({
         className="flex items-center gap-4 rounded-2xl border-2 border-accent/50 bg-accent/10 p-6 text-left transition-colors hover:border-accent hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-          <moneyOption.icon className="h-8 w-8" aria-hidden="true" />
+          <MoneyIcon className="h-8 w-8" aria-hidden="true" />
         </span>
         <span>
           <span className="block font-heading text-2xl font-semibold text-foreground">
@@ -54,26 +52,29 @@ export function CategoryStep({
       </button>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => onSelect(option.value)}
-            className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
-              <option.icon className="h-7 w-7" aria-hidden="true" />
-            </span>
-            <span>
-              <span className="block font-heading text-xl font-semibold text-foreground">
-                {option.label}
+        {options.map((option) => {
+          const OptionIcon = icons[option.iconName]
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onSelect(option.value)}
+              className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+                <OptionIcon className="h-7 w-7" aria-hidden="true" />
               </span>
-              <span className="block text-base text-muted-foreground">
-                {option.hint}
+              <span>
+                <span className="block font-heading text-xl font-semibold text-foreground">
+                  {option.label}
+                </span>
+                <span className="block text-base text-muted-foreground">
+                  {option.hint}
+                </span>
               </span>
-            </span>
-          </button>
-        ))}
+            </button>
+          )
+        })}
       </div>
     </div>
   )
