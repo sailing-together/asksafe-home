@@ -5,18 +5,23 @@ AskSafe Home for product walkthroughs, judging, and production smoke checks.
 
 ## Start Here Before Recording
 
-1. Read `product-walkthrough-narrative-brief.md` for the story, positioning,
+1. Read `release-readiness-summary.md` for the shippable software evidence,
+   current limits, and release decision.
+2. Read `product-walkthrough-narrative-brief.md` for the story, positioning,
    and judge Q&A talking points.
-2. Read `product-walkthrough-readiness-checklist.md`.
-3. Keep `release-validation-scenarios-checklist.md` open for the scenario script.
-4. Use `release-scenario-run-log.md` as the latest API-level evidence.
-5. Use `manual-ui-walkthrough-pass.md` for the browser-level product
+3. Read `product-walkthrough-readiness-checklist.md`.
+4. Keep `release-validation-scenarios-checklist.md` open for the scenario script.
+5. Use `release-scenario-run-log.md` as the latest API-level evidence.
+6. Use `manual-ui-walkthrough-pass.md` for the browser-level product
    walkthrough pass.
-6. If production changed after the latest evidence, rerun the smoke checks in
+7. If production changed after the latest evidence, rerun the smoke checks in
    `production-smoke-tests.md`.
 
 ## Product Walkthrough And Release Evidence
 
+- `release-readiness-summary.md`
+  - Top-level release summary for shippable software evidence, known limits,
+    product walkthrough focus, and release decision.
 - `product-walkthrough-narrative-brief.md`
   - Short speaking brief for the final product walkthrough story, product
     positioning, judge Q&A, and team speaking roles.
