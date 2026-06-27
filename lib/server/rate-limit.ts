@@ -18,7 +18,7 @@ type RateLimitBlocked = {
   retryAfterSeconds: number
 }
 
-type EventApiRateLimitResponse =
+type ApiRateLimitResponse =
   | { ok: true }
   | {
       ok: false
@@ -77,12 +77,29 @@ const eventApiRateLimiter = createInMemoryRateLimiter({
   windowMs: 60_000,
 })
 
+const analyzeApiRateLimiter = createInMemoryRateLimiter({
+  limit: 12,
+  windowMs: 60_000,
+})
+
 export function checkEventApiRateLimit(
   request: Request,
   routeName: string,
-): EventApiRateLimitResponse {
+): ApiRateLimitResponse {
+  return checkApiRateLimit(eventApiRateLimiter, request, routeName)
+}
+
+export function checkAnalyzeApiRateLimit(request: Request): ApiRateLimitResponse {
+  return checkApiRateLimit(analyzeApiRateLimiter, request, "analyze")
+}
+
+function checkApiRateLimit(
+  limiter: ReturnType<typeof createInMemoryRateLimiter>,
+  request: Request,
+  routeName: string,
+): ApiRateLimitResponse {
   const clientKey = getRateLimitClientKey(request)
-  const result = eventApiRateLimiter.check(`${routeName}:${clientKey}`)
+  const result = limiter.check(`${routeName}:${clientKey}`)
 
   if (result.ok) return { ok: true }
 

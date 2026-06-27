@@ -48,6 +48,7 @@ Recommended environment variables:
 - `BEDROCK_MAX_INPUT_CHARS=1800`
 - `BEDROCK_MAX_OUTPUT_TOKENS=500`
 - `BEDROCK_TIMEOUT_MS=4500`
+- `ANALYZE_MAX_MESSAGE_CHARS=1800`
 
 Runtime rule:
 
@@ -210,11 +211,12 @@ Controls:
 - model ARN allowlist in Terraform through `bedrock_model_arns`
 - no Bedrock IAM permission unless model ARNs are configured
 - small input payloads built from structured analysis, not full chat history
+- analyze API rejects overlong user descriptions before deterministic analysis or Bedrock assist
 - strict max input characters
 - strict max output tokens
 - short server timeout
 - no streaming for the first implementation unless there is a clear UX need
-- no calls for empty, low-information, or repeated input
+- no calls for empty, low-information, overlong, or repeated input
 - no calls during every voice recognition interim transcript
 - no calls in local development unless explicitly enabled
 

@@ -215,3 +215,35 @@ test("handleAnalyzeRequest applies the first three Bedrock verification steps", 
   })
   assert.deepEqual(response.body.result.verify, ["One", "Two", "Three"])
 })
+
+test("handleAnalyzeRequest rejects overlong messages before Bedrock", async () => {
+  let invoked = false
+
+  const response = await handleAnalyzeRequest(
+    {
+      message: "x".repeat(41),
+      category: "message",
+      requests: ["unsure"],
+    },
+    {
+      env: {
+        ...enabledEnv,
+        ANALYZE_MAX_MESSAGE_CHARS: "40",
+      },
+      invokeBedrock: async () => {
+        invoked = true
+        return "{}"
+      },
+    },
+  )
+
+  assert.equal(invoked, false)
+  assert.deepEqual(response, {
+    status: 413,
+    body: {
+      ok: false,
+      reason: "message-too-long",
+      maxMessageChars: 40,
+    },
+  })
+})

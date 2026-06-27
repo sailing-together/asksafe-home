@@ -4,6 +4,7 @@ import test from "node:test"
 import {
   createInMemoryRateLimiter,
   getRateLimitClientKey,
+  checkAnalyzeApiRateLimit,
 } from "./rate-limit.ts"
 
 test("blocks a client after the configured request limit", () => {
@@ -49,4 +50,25 @@ test("uses the first forwarded IP as the client key", () => {
   })
 
   assert.equal(getRateLimitClientKey(request), "203.0.113.10")
+})
+
+test("rate limits analyze requests separately from event writes", () => {
+  const request = new Request("https://asksafe-home.vercel.app/api/analyze", {
+    headers: {
+      "x-forwarded-for": "198.51.100.238",
+    },
+  })
+
+  for (let index = 0; index < 12; index += 1) {
+    assert.deepEqual(checkAnalyzeApiRateLimit(request), { ok: true })
+  }
+
+  const blocked = checkAnalyzeApiRateLimit(request)
+
+  assert.equal(blocked.ok, false)
+  if (!blocked.ok) {
+    assert.equal(blocked.status, 429)
+    assert.deepEqual(blocked.body, { ok: false, reason: "rate-limited" })
+    assert.equal(typeof blocked.retryAfterSeconds, "number")
+  }
 })
