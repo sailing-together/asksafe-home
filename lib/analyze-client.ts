@@ -11,6 +11,8 @@ type AnalyzeSafetyInput = {
   message: string
   category: Category
   requests: RequestType[]
+  userTier?: "anonymous" | "registered"
+  quotaSubjectId?: string
 }
 
 type AnalyzeSafetyOptions = {

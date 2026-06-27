@@ -50,12 +50,18 @@ names only.
 | `BEDROCK_MAX_OUTPUT_TOKENS` | Optional Bedrock output-token bound | Non-secret | Confirmed |
 | `BEDROCK_TIMEOUT_MS` | Optional Bedrock server timeout | Non-secret | Confirmed |
 | `ANALYZE_MAX_MESSAGE_CHARS` | Optional analyze message length cap | Non-secret | Optional; defaults to 1800 |
+| `ENABLE_BEDROCK_QUOTA` | Enables runtime Bedrock quota hard stop | Non-secret | Recommended `true` for production |
+| `BEDROCK_GLOBAL_DAILY_CALL_LIMIT` | Global daily Bedrock call cap | Non-secret | Recommended conservative value |
+| `BEDROCK_GLOBAL_MONTHLY_CALL_LIMIT` | Global monthly Bedrock call cap | Non-secret | Recommended conservative value |
+| `BEDROCK_ANONYMOUS_DAILY_CALL_LIMIT` | Anonymous daily Bedrock call cap | Non-secret | Recommended low value |
+| `BEDROCK_REGISTERED_DAILY_CALL_LIMIT` | Setup/signed-in daily Bedrock call cap | Non-secret | Recommended moderate value |
 
 Current competition boundary:
 
 - Vercel uses scoped AWS runtime credentials for DynamoDB event writes.
 - The runtime key should be rotated or deleted after the competition.
 - Bedrock explanation assist is enabled through a bounded, fallback-safe path.
+- Bedrock quota hard stop should be enabled before public sharing so quota exhaustion falls back to deterministic rules instead of continuing model calls.
 
 ## GitHub Repository And Environment Variables
 

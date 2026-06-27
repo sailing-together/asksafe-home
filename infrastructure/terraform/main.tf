@@ -256,6 +256,7 @@ data "aws_iam_policy_document" "runtime" {
       "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:Query",
+      "dynamodb:TransactWriteItems",
       "dynamodb:UpdateItem",
     ]
 

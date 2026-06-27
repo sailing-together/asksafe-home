@@ -16,6 +16,8 @@ test("analyzeSafetyWithFallback posts to the analyze API and returns server resu
       message: "Your parcel is waiting. Pay a fee now.",
       category: "message",
       requests: ["link", "pay"],
+      userTier: "registered",
+      quotaSubjectId: "session-abc",
     },
     {
       fetch: async (url, init) => {
@@ -51,6 +53,8 @@ test("analyzeSafetyWithFallback posts to the analyze API and returns server resu
     message: "Your parcel is waiting. Pay a fee now.",
     category: "message",
     requests: ["link", "pay"],
+    userTier: "registered",
+    quotaSubjectId: "session-abc",
   })
 })
 

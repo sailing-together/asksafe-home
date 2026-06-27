@@ -247,3 +247,37 @@ test("handleAnalyzeRequest rejects overlong messages before Bedrock", async () =
     },
   })
 })
+
+test("handleAnalyzeRequest passes user tier and subject id to Bedrock quota", async () => {
+  let quotaInput: unknown
+
+  const response = await handleAnalyzeRequest(
+    {
+      message: "my daughter asks me to send 2000 AUD right now",
+      category: "video",
+      requests: ["pay"],
+      userTier: "registered",
+      quotaSubjectId: "session-abc",
+    },
+    {
+      env: enabledEnv,
+      checkBedrockQuota: async (input) => {
+        quotaInput = input
+        return { allowed: false, outcome: "quota_user_daily_limit" }
+      },
+      invokeBedrock: async () => {
+        throw new Error("Bedrock should not be invoked after quota blocks")
+      },
+    },
+  )
+
+  assert.equal(response.status, 200)
+  assert.deepEqual(response.body.bedrock, {
+    used: false,
+    outcome: "quota_user_daily_limit",
+  })
+  assert.deepEqual(quotaInput, {
+    userTier: "registered",
+    subjectId: "session-abc",
+  })
+})

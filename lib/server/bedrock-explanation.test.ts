@@ -126,3 +126,50 @@ test("maybeAssistSafetyResultWithBedrock keeps the first three verification step
     },
   })
 })
+test("maybeAssistSafetyResultWithBedrock skips invocation when global daily quota is exhausted", async () => {
+  let invoked = false
+
+  const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
+    env: {
+      ENABLE_BEDROCK_EXPLANATION: "true",
+      BEDROCK_MODEL_ID: "anthropic.claude-3-haiku-20240307-v1:0",
+    },
+    quota: {
+      userTier: "registered",
+      subjectId: "session-123",
+      check: async () => ({ allowed: false, outcome: "quota_global_daily_limit" }),
+    },
+    invoke: async () => {
+      invoked = true
+      return "{}"
+    },
+  })
+
+  assert.equal(invoked, false)
+  assert.deepEqual(result, {
+    used: false,
+    outcome: "quota_global_daily_limit",
+  })
+})
+
+test("maybeAssistSafetyResultWithBedrock fails closed when quota is enforced but not configured", async () => {
+  let invoked = false
+
+  const result = await maybeAssistSafetyResultWithBedrock(basePayload, {
+    env: {
+      ENABLE_BEDROCK_EXPLANATION: "true",
+      ENABLE_BEDROCK_QUOTA: "true",
+      BEDROCK_MODEL_ID: "anthropic.claude-3-haiku-20240307-v1:0",
+    },
+    invoke: async () => {
+      invoked = true
+      return "{}"
+    },
+  })
+
+  assert.equal(invoked, false)
+  assert.deepEqual(result, {
+    used: false,
+    outcome: "quota_not_configured",
+  })
+})
