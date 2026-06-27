@@ -27,12 +27,12 @@ export function OfficialHelp({
       </div>
 
       {showReminder && (
-        <div className="flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-5">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-accent/40 bg-accent/10 p-4 sm:gap-3 sm:p-5">
           <ShieldAlert
-            className="mt-0.5 h-6 w-6 shrink-0 text-accent"
+            className="mt-0.5 h-5 w-5 shrink-0 text-accent sm:h-6 sm:w-6"
             aria-hidden="true"
           />
-          <p className="text-base font-medium leading-relaxed text-foreground">
+          <p className="text-sm font-medium leading-relaxed text-foreground sm:text-base">
             Verify through a channel you already trust. Don&apos;t call numbers
             or tap links from the message itself — use the official contacts
             below, which you can look up on your own.
@@ -40,11 +40,11 @@ export function OfficialHelp({
         </div>
       )}
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="grid items-start gap-4 sm:grid-cols-2">
         {list.map((r) => (
           <li
             key={r.id}
-            className={`flex h-full min-h-44 flex-col gap-4 rounded-2xl border p-5 ${
+            className={`flex flex-col gap-4 rounded-2xl border p-5 ${
               r.urgent
                 ? "border-accent/40 bg-accent/10"
                 : "border-border bg-card"
@@ -66,7 +66,7 @@ export function OfficialHelp({
                 </p>
               </div>
             </div>
-            <div className="mt-auto flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               {r.phone && (
                 <a
                   href={`tel:${r.phone}`}
