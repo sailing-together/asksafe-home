@@ -20,9 +20,9 @@ export function TrustedSupport({ onOpenSupport }: { onOpenSupport: () => void })
               Trusted Support
             </h2>
             <p className="mt-1 max-w-md text-base leading-relaxed text-muted-foreground">
-              It&apos;s your choice whether to involve anyone. If you&apos;d
-              like a second opinion, reach someone you trust — you never have to
-              decide alone.
+              Add a family member or friend you trust. Then, if something feels
+              unsure, you can share a safety summary with them in one tap. It&apos;s
+              always your choice — you never have to decide alone.
             </p>
           </div>
         </div>

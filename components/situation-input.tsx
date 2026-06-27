@@ -41,6 +41,46 @@ function buildAssistantReply({
   })
 }
 
+// Calm, specific follow-ups so repeated details never get the same canned reply.
+const FAMILY_MONEY_FOLLOW_UPS = [
+  "One helpful check: can you reach them on a phone number or account you already have saved, rather than the one used here?",
+  "Take your time. Until you've reached them a way you already trust, it's safer to hold off on sending anything.",
+  "If it helps, ask something only your real family member would know — but wait until you've reached them on a saved number before acting.",
+]
+
+const READY_FOLLOW_UPS = [
+  "Thanks for adding that. Whenever you feel ready, tap the green button below for your safer next step.",
+  "That's useful. If anything else comes to mind — who contacted you, or exactly what they want — you can add it. Otherwise your safer next step is ready below.",
+  "Got it, there's no rush. Add more if you'd like, or see your safer next step now.",
+]
+
+const HARD_STOP_FOLLOW_UPS = [
+  "I still have what I need for this one. Tap the green button below whenever you're ready for your safer next step.",
+  "There's nothing more you need to add here. Your safer next step is ready below.",
+]
+
+// On the first reply use the original guidance; on repeats, rotate a gentle,
+// non-repetitive follow-up so the conversation feels attentive, not scripted.
+function varyAssistantReply(
+  interaction: ReturnType<typeof getGuidedClarificationInteraction>,
+  replyIndex: number,
+): string {
+  if (interaction.type === "clarification") {
+    return `${interaction.question} ${interaction.helperText}`
+  }
+
+  const isFamilyMoney = /saved number|sending money|family would know/i.test(interaction.text)
+  const rotation =
+    interaction.type === "hard-stop"
+      ? HARD_STOP_FOLLOW_UPS
+      : isFamilyMoney
+        ? FAMILY_MONEY_FOLLOW_UPS
+        : READY_FOLLOW_UPS
+
+  if (replyIndex <= 0) return interaction.text
+  return rotation[(replyIndex - 1) % rotation.length]
+}
+
 export function SituationInput({
   category,
   initialMessage = "",
@@ -70,6 +110,9 @@ export function SituationInput({
   const canAnalyze = details.length > 0
   const voice = useSpeechRecognition()
   const voiceBaseRef = useRef("")
+  // Tracks how many non-question assistant replies have been shown so repeats
+  // can rotate to a fresh follow-up instead of repeating the same line.
+  const assistantReplyCountRef = useRef(0)
 
   function handleVoice() {
     if (voice.listening) {
@@ -116,17 +159,19 @@ export function SituationInput({
         ...prev,
         {
           role: "assistant",
-          text: `${interaction.question} ${interaction.helperText}`,
+          text: varyAssistantReply(interaction, 0),
         },
       ])
       return
     }
 
+    const replyIndex = assistantReplyCountRef.current
+    assistantReplyCountRef.current += 1
     setMessages((prev) => [
       ...prev,
       {
         role: "assistant",
-        text: interaction.text,
+        text: varyAssistantReply(interaction, replyIndex),
       },
     ])
   }

@@ -4,7 +4,7 @@ import { getOfficialHelpResources } from "@/lib/official-help-resources"
 export function OfficialHelp({
   ids,
   title = "Official help in Australia",
-  description = "Official Australian services you can contact directly to check, report, or get support — whenever you decide to.",
+  description = "Trusted Australian services you can contact yourself to check, report, or get support — whenever you decide to.",
   showReminder = false,
 }: {
   ids?: string[]
@@ -33,8 +33,9 @@ export function OfficialHelp({
             aria-hidden="true"
           />
           <p className="text-base font-medium leading-relaxed text-foreground">
-            Do not use phone numbers or links from the message. Look them up
-            separately using the official details below.
+            Verify through a channel you already trust. Don&apos;t call numbers
+            or tap links from the message itself — use the official contacts
+            below, which you can look up on your own.
           </p>
         </div>
       )}
@@ -43,7 +44,7 @@ export function OfficialHelp({
         {list.map((r) => (
           <li
             key={r.id}
-            className={`flex flex-col gap-3 rounded-2xl border p-5 ${
+            className={`flex h-full min-h-44 flex-col gap-4 rounded-2xl border p-5 ${
               r.urgent
                 ? "border-accent/40 bg-accent/10"
                 : "border-border bg-card"
@@ -65,34 +66,36 @@ export function OfficialHelp({
                 </p>
               </div>
             </div>
-            {r.phone && (
-              <a
-                href={`tel:${r.phone}`}
-                className="inline-flex min-h-11 w-fit max-w-full items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
-              >
-                <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
-                <span className="truncate">
-                  {r.phoneLabel}
-                  {r.phoneLabelExtra && (
-                    <span className="hidden sm:inline">
-                      {" "}
-                      {r.phoneLabelExtra}
-                    </span>
-                  )}
-                </span>
-              </a>
-            )}
-            {r.url && (
-              <a
-                href={r.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-fit items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
-              >
-                <ExternalLink className="h-5 w-5" aria-hidden="true" />
-                {r.urlLabel}
-              </a>
-            )}
+            <div className="mt-auto flex flex-col gap-3">
+              {r.phone && (
+                <a
+                  href={`tel:${r.phone}`}
+                  className="inline-flex min-h-11 w-fit max-w-full items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
+                >
+                  <Phone className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  <span className="truncate">
+                    {r.phoneLabel}
+                    {r.phoneLabelExtra && (
+                      <span className="hidden sm:inline">
+                        {" "}
+                        {r.phoneLabelExtra}
+                      </span>
+                    )}
+                  </span>
+                </a>
+              )}
+              {r.url && (
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 w-fit items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-base font-semibold text-primary hover:bg-secondary/70"
+                >
+                  <ExternalLink className="h-5 w-5" aria-hidden="true" />
+                  {r.urlLabel}
+                </a>
+              )}
+            </div>
           </li>
         ))}
       </ul>
