@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 
 import { handleAnalyzeRequest } from "@/lib/server/analyze-route"
-import { checkEventApiRateLimit } from "@/lib/server/rate-limit"
+import { checkAnalyzeApiRateLimit } from "@/lib/server/rate-limit"
 
 export async function POST(request: Request) {
-  const rateLimit = checkEventApiRateLimit(request, "analyze")
+  const rateLimit = checkAnalyzeApiRateLimit(request)
   if (!rateLimit.ok) {
     return NextResponse.json(rateLimit.body, {
       status: rateLimit.status,

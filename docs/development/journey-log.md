@@ -1301,3 +1301,20 @@ Meaning:
 
 The stricter Bedrock prompt guardrails and invariant diagnostics did not break
 the successful production Bedrock path.
+
+## Phase 8.20: Analyze API FinOps Guardrails
+
+P7.38 added explicit cost and abuse guardrails around the analyze endpoint.
+
+Changes:
+
+- added a dedicated analyze API rate limit before request body parsing
+- rejected overlong safety-check descriptions before deterministic analysis or Bedrock assist
+- added `ANALYZE_MAX_MESSAGE_CHARS`, defaulting to 1800 characters and only allowing lower configured limits
+- documented the analyze cap alongside the Bedrock FinOps controls
+
+Why:
+
+Bedrock assist is useful, but production traffic must stay bounded. This keeps
+AskSafe shippable while reducing the risk that accidental or hostile repeated
+requests create unnecessary token cost.

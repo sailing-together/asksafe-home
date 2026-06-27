@@ -39,13 +39,22 @@ type BedrockApiMetadata = {
   >
 }
 
-type AnalyzeRouteError = {
-  status: 400
-  body: {
-    ok: false
-    reason: "invalid-payload"
-  }
-}
+type AnalyzeRouteError =
+  | {
+      status: 400
+      body: {
+        ok: false
+        reason: "invalid-payload"
+      }
+    }
+  | {
+      status: 413
+      body: {
+        ok: false
+        reason: "message-too-long"
+        maxMessageChars: number
+      }
+    }
 
 type AnalyzeRouteResponse = AnalyzeRouteSuccess | AnalyzeRouteError
 
@@ -70,22 +79,42 @@ const REQUEST_TYPES: readonly RequestType[] = [
   "unsure",
 ]
 
+const DEFAULT_MAX_ANALYZE_MESSAGE_CHARS = 1800
+
 export async function handleAnalyzeRequest(
   payload: unknown,
   options: AnalyzeRouteOptions = {},
 ): Promise<AnalyzeRouteResponse> {
-  const input = parseAnalyzePayload(payload)
+  const input = parseAnalyzePayload(payload, options.env)
 
-  if (!input) {
+  if (!input.ok) {
+    if (input.reason === "message-too-long") {
+      return {
+        status: 413,
+        body: {
+          ok: false,
+          reason: "message-too-long",
+          maxMessageChars: input.maxMessageChars,
+        },
+      }
+    }
+
     return {
       status: 400,
       body: { ok: false, reason: "invalid-payload" },
     }
   }
 
-  const result = analyze(input.message, input.category, input.requests)
+  const analyzeInput = input.value
+
+  const result = analyze(analyzeInput.message, analyzeInput.category, analyzeInput.requests)
   const bedrock = await maybeAssistSafetyResultWithBedrock(
-    buildBedrockAssistPayload(input.message, input.category, input.requests, result),
+    buildBedrockAssistPayload(
+      analyzeInput.message,
+      analyzeInput.category,
+      analyzeInput.requests,
+      result,
+    ),
     {
       env: options.env,
       invoke: options.invokeBedrock ?? invokeBedrockExplanationModel,
@@ -104,20 +133,53 @@ export async function handleAnalyzeRequest(
 
 function parseAnalyzePayload(
   payload: unknown,
-): { message: string; category: Category; requests: RequestType[] } | null {
-  if (!isRecord(payload)) return null
-  if (typeof payload.message !== "string") return null
-  if (!isCategory(payload.category)) return null
-  if (!isRequestArray(payload.requests)) return null
+  env: EnvInput = process.env,
+):
+  | {
+      ok: true
+      value: { message: string; category: Category; requests: RequestType[] }
+    }
+  | { ok: false; reason: "invalid-payload" }
+  | { ok: false; reason: "message-too-long"; maxMessageChars: number } {
+  if (!isRecord(payload)) return { ok: false, reason: "invalid-payload" }
+  if (typeof payload.message !== "string") return { ok: false, reason: "invalid-payload" }
+  if (!isCategory(payload.category)) return { ok: false, reason: "invalid-payload" }
+  if (!isRequestArray(payload.requests)) return { ok: false, reason: "invalid-payload" }
 
   const message = payload.message.trim()
-  if (!message) return null
+  if (!message) return { ok: false, reason: "invalid-payload" }
+
+  const maxMessageChars = readBoundedPositiveInteger(
+    env,
+    "ANALYZE_MAX_MESSAGE_CHARS",
+    DEFAULT_MAX_ANALYZE_MESSAGE_CHARS,
+  )
+  if (message.length > maxMessageChars) {
+    return { ok: false, reason: "message-too-long", maxMessageChars }
+  }
 
   return {
-    message,
-    category: payload.category,
-    requests: payload.requests.length > 0 ? payload.requests : ["unsure"],
+    ok: true,
+    value: {
+      message,
+      category: payload.category,
+      requests: payload.requests.length > 0 ? payload.requests : ["unsure"],
+    },
   }
+}
+
+function readBoundedPositiveInteger(
+  env: EnvInput,
+  name: string,
+  maximum: number,
+): number {
+  const raw = env[name]?.trim() ?? ""
+  if (!raw) return maximum
+
+  const parsed = Number.parseInt(raw, 10)
+  if (!Number.isFinite(parsed) || parsed <= 0) return maximum
+
+  return Math.min(parsed, maximum)
 }
 
 function buildBedrockAssistPayload(

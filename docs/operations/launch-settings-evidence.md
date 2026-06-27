@@ -49,6 +49,7 @@ names only.
 | `BEDROCK_MAX_INPUT_CHARS` | Optional Bedrock input bound | Non-secret | Confirmed |
 | `BEDROCK_MAX_OUTPUT_TOKENS` | Optional Bedrock output-token bound | Non-secret | Confirmed |
 | `BEDROCK_TIMEOUT_MS` | Optional Bedrock server timeout | Non-secret | Confirmed |
+| `ANALYZE_MAX_MESSAGE_CHARS` | Optional analyze message length cap | Non-secret | Optional; defaults to 1800 |
 
 Current competition boundary:
 
