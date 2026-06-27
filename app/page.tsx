@@ -37,6 +37,7 @@ export default function Page() {
   const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
   const [safetyEventId, setSafetyEventId] = useState<string | undefined>()
   const [inputDraft, setInputDraft] = useState<InputDraft | null>(null)
+  const [quotaSubjectId] = useState(getOrCreateQuotaSubjectId)
 
   function signOut() {
     setSignedIn(false)
@@ -71,6 +72,8 @@ export default function Page() {
         message,
         category,
         requests: selectedRequests,
+        userTier: signedIn ? "registered" : "anonymous",
+        quotaSubjectId,
       }).then((safetyResult) => {
         setResult(safetyResult)
         void recordSafetyEvent({ category, requests: selectedRequests, result: safetyResult }).then((event) => {
@@ -179,4 +182,15 @@ export default function Page() {
       />
     </div>
   )
+}
+function getOrCreateQuotaSubjectId(): string {
+  if (typeof window === "undefined") return "server-render"
+
+  const storageKey = "asksafe-quota-subject-id"
+  const existing = window.localStorage.getItem(storageKey)
+  if (existing) return existing
+
+  const generated = window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+  window.localStorage.setItem(storageKey, generated)
+  return generated
 }

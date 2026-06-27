@@ -11,12 +11,14 @@ import {
   type BedrockExplanationAssistOptions,
   type BedrockExplanationAssistResult,
 } from "./bedrock-explanation.ts"
+import type { BedrockQuotaDecision, BedrockQuotaInput } from "./bedrock-quota.ts"
 
 type EnvInput = Record<string, string | undefined>
 
 type AnalyzeRouteOptions = {
   env?: EnvInput
   invokeBedrock?: BedrockExplanationAssistOptions["invoke"]
+  checkBedrockQuota?: (input: BedrockQuotaInput) => Promise<BedrockQuotaDecision>
 }
 
 type AnalyzeRouteSuccess = {
@@ -117,6 +119,11 @@ export async function handleAnalyzeRequest(
     ),
     {
       env: options.env,
+      quota: {
+        userTier: analyzeInput.userTier,
+        subjectId: analyzeInput.quotaSubjectId,
+        check: options.checkBedrockQuota,
+      },
       invoke: options.invokeBedrock ?? invokeBedrockExplanationModel,
     },
   )
@@ -137,7 +144,13 @@ function parseAnalyzePayload(
 ):
   | {
       ok: true
-      value: { message: string; category: Category; requests: RequestType[] }
+      value: {
+        message: string
+        category: Category
+        requests: RequestType[]
+        userTier: "anonymous" | "registered"
+        quotaSubjectId?: string
+      }
     }
   | { ok: false; reason: "invalid-payload" }
   | { ok: false; reason: "message-too-long"; maxMessageChars: number } {
@@ -164,6 +177,11 @@ function parseAnalyzePayload(
       message,
       category: payload.category,
       requests: payload.requests.length > 0 ? payload.requests : ["unsure"],
+      userTier: payload.userTier === "registered" ? "registered" : "anonymous",
+      quotaSubjectId:
+        typeof payload.quotaSubjectId === "string"
+          ? payload.quotaSubjectId.trim().slice(0, 80)
+          : undefined,
     },
   }
 }

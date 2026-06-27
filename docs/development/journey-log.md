@@ -1318,3 +1318,21 @@ Why:
 Bedrock assist is useful, but production traffic must stay bounded. This keeps
 AskSafe shippable while reducing the risk that accidental or hostile repeated
 requests create unnecessary token cost.
+## Phase 8.21: Bedrock Quotas And Runtime Hard Stop
+
+P7.39/P7.40 added runtime quota protection for Bedrock-assisted analysis.
+
+Changes:
+
+- added a Bedrock quota gate before prompt construction and model invocation
+- added global daily, global monthly, anonymous daily, and registered daily call caps
+- added fail-closed behavior when `ENABLE_BEDROCK_QUOTA=true` but quota storage is not configured
+- reused the existing DynamoDB events table for privacy-safe quota counter items
+- passed a local quota subject id and anonymous or registered tier from the client to `/api/analyze`
+- documented that AWS Budgets provide alerts, while app-side quota checks provide the runtime hard stop
+
+Why:
+
+AskSafe needs Bedrock support to improve explanation quality, but public traffic
+or abuse must not create uncontrolled token cost. Quota exhaustion now falls back
+to deterministic safety rules instead of continuing model calls.

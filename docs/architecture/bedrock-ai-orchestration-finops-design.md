@@ -49,6 +49,11 @@ Recommended environment variables:
 - `BEDROCK_MAX_OUTPUT_TOKENS=500`
 - `BEDROCK_TIMEOUT_MS=4500`
 - `ANALYZE_MAX_MESSAGE_CHARS=1800`
+- `ENABLE_BEDROCK_QUOTA=true`
+- `BEDROCK_GLOBAL_DAILY_CALL_LIMIT=100`
+- `BEDROCK_GLOBAL_MONTHLY_CALL_LIMIT=1000`
+- `BEDROCK_ANONYMOUS_DAILY_CALL_LIMIT=3`
+- `BEDROCK_REGISTERED_DAILY_CALL_LIMIT=20`
 
 Runtime rule:
 
@@ -212,6 +217,8 @@ Controls:
 - no Bedrock IAM permission unless model ARNs are configured
 - small input payloads built from structured analysis, not full chat history
 - analyze API rejects overlong user descriptions before deterministic analysis or Bedrock assist
+- Bedrock quota gate runs before prompt construction or model invocation
+- quota counters use DynamoDB transactional conditional updates so exhausted buckets stop calls without partially consuming other quota buckets
 - strict max input characters
 - strict max output tokens
 - short server timeout
@@ -223,6 +230,7 @@ Controls:
 Operational safeguards:
 
 - AWS Budgets alerts before enabling Bedrock
+- AWS Budgets are alerting controls only; AskSafe quota checks are the runtime hard stop
 - manual model access request only for the chosen region
 - record model family and outcome metadata, not raw prompt or completion text
 - review CloudWatch or provider cost reports during testing
@@ -231,6 +239,10 @@ Operational safeguards:
 Recommended first model posture:
 
 Use the smallest Bedrock model that produces reliable senior-friendly rewrite quality for short structured payloads. Prefer cheaper models for explanation polish. Reserve larger multimodal models for future image-observation experiments only after the text path proves useful.
+
+Quota storage posture:
+
+Use the existing events table for privacy-safe quota counter items with keys such as `quota#bedrock#global#day#2026-06-27` and `quota#bedrock#anonymous#session-id#day#2026-06-27`. These items are updated transactionally and store call counts and operational timestamps only. They must not store raw user messages, prompts, completions, emails, or phone numbers.
 
 Current production smoke-test candidate:
 

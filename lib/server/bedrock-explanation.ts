@@ -6,6 +6,12 @@ import {
   type ValidatedBedrockExplanation,
 } from "./bedrock-response-validation.ts"
 import { redactSensitiveTextForBedrock } from "./bedrock-redaction.ts"
+import {
+  checkBedrockQuota,
+  type BedrockQuotaBlockedOutcome,
+  type BedrockQuotaDecision,
+  type BedrockQuotaInput,
+} from "./bedrock-quota.ts"
 
 type EnvInput = Record<string, string | undefined>
 
@@ -37,6 +43,7 @@ export type BedrockExplanationAssistResult =
         | "runtime_error"
         | "timeout"
         | "invalid_response"
+        | BedrockQuotaBlockedOutcome
       invalidReason?: Extract<
         BedrockExplanationValidationResult,
         { valid: false }
@@ -54,6 +61,9 @@ export type BedrockExplanationAssistResult =
 
 export type BedrockExplanationAssistOptions = {
   env?: EnvInput
+  quota?: BedrockQuotaInput & {
+    check?: (input: BedrockQuotaInput) => Promise<BedrockQuotaDecision>
+  }
   invoke?: (payload: {
     config: Extract<AskSafeBedrockEnvResult, { enabled: true }>["config"]
     promptPayload: BedrockAssistPayload
@@ -77,6 +87,22 @@ export async function maybeAssistSafetyResultWithBedrock(
     return {
       used: false,
       outcome: "not_configured",
+    }
+  }
+
+  const quotaInput: BedrockQuotaInput = {
+    userTier: options.quota?.userTier,
+    subjectId: options.quota?.subjectId,
+  }
+  if (options.quota?.now) quotaInput.now = options.quota.now
+  const quotaDecision = options.quota?.check
+    ? await options.quota.check(quotaInput)
+    : await checkBedrockQuota(quotaInput, { env: options.env })
+
+  if (!quotaDecision.allowed) {
+    return {
+      used: false,
+      outcome: quotaDecision.outcome,
     }
   }
 
