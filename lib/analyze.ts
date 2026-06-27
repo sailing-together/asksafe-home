@@ -191,6 +191,13 @@ function getContextualHighRiskCopy(
     }
   }
 
+  if (signalIds.has("remote-access")) {
+    return {
+      headline: "Do not install anything or share your screen.",
+      why: "A caller, message, or pop-up asking for remote access can put your device and accounts at risk. End the interaction and contact the person or company another way you already trust.",
+    }
+  }
+
   if (signalIds.has("payment-request")) {
     return {
       headline: "Pause before paying until you know more.",

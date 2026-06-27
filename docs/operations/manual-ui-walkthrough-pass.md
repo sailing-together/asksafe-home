@@ -108,6 +108,14 @@ The product walkthrough is ready to record when:
   safety rules.
 - The team has a fallback plan for voice, read-aloud, or production issues.
 
+## P7.37 Guidance Scenario Quality Set
+
+The core guidance quality set covers five release-critical situations: vague
+money request, daughter video call money request, bank link message, one-time
+code request, and remote support screen-share request. These scenarios should
+keep safer next steps specific, avoid certainty overclaims, preserve hard-stop
+warnings, and ask for more context only when that helps the user decide safely.
+
 ## P7.36 Clarification Return Action Check
 
 When a result says more context is needed, the result page should offer an
