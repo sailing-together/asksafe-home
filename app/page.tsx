@@ -11,6 +11,7 @@ import { TrustedSupportDialog, type SupportSetup } from "@/components/trusted-su
 import { SiteFooter } from "@/components/site-footer"
 import type { PracticeScenario } from "@/components/practice-section"
 import { type Category, type RequestType, type SafetyResult } from "@/lib/analyze"
+import { splitDraftMessageIntoDetails } from "@/lib/situation-input-state"
 import { analyzeSafetyWithFallback } from "@/lib/analyze-client"
 import { recordSafetyEvent } from "@/lib/safety-event-client"
 import {
@@ -21,6 +22,11 @@ import {
 
 type Step = "home" | "category" | "input" | "thinking" | "result"
 
+type InputDraft = {
+  message: string
+  requests: RequestType[]
+}
+
 export default function Page() {
   const [step, setStep] = useState<Step>("home")
   const [category, setCategory] = useState<Category>("other")
@@ -30,6 +36,7 @@ export default function Page() {
   const [signedIn, setSignedIn] = useState(false)
   const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
   const [safetyEventId, setSafetyEventId] = useState<string | undefined>()
+  const [inputDraft, setInputDraft] = useState<InputDraft | null>(null)
 
   function signOut() {
     setSignedIn(false)
@@ -41,12 +48,14 @@ export default function Page() {
     setResult(null)
     setPrefill(null)
     setSafetyEventId(undefined)
+    setInputDraft(null)
     setStep("home")
   }
 
   function tryExample(scenario: PracticeScenario) {
     setPrefill(scenario)
     setSafetyEventId(undefined)
+    setInputDraft(null)
     setCategory(scenario.category)
     setStep("input")
   }
@@ -54,6 +63,7 @@ export default function Page() {
   function runAnalysis(message: string, requests: RequestType[]) {
     setStep("thinking")
     const selectedRequests: RequestType[] = requests.length > 0 ? requests : ["unsure"]
+    setInputDraft({ message, requests: selectedRequests })
 
     // Brief, deliberate pause so the result doesn't feel rushed.
     window.setTimeout(() => {
@@ -73,6 +83,12 @@ export default function Page() {
 
   function recordSupportAction(action: SupportEventAction) {
     void recordSupportEvent({ action, safetyEventId })
+  }
+
+  function addMoreDetails() {
+    if (!result?.clarification?.needed) return
+    setSafetyEventId(undefined)
+    setStep("input")
   }
 
   function openSupport() {
@@ -114,6 +130,7 @@ export default function Page() {
             onSelect={(c) => {
               setPrefill(null)
               setSafetyEventId(undefined)
+              setInputDraft(null)
               setCategory(c)
               setStep("input")
             }}
@@ -122,10 +139,11 @@ export default function Page() {
 
         {step === "input" && (
           <SituationInput
-            key={prefill ? prefill.message : "blank"}
+            key={inputDraft ? `draft-${inputDraft.message}` : prefill ? prefill.message : "blank"}
             category={category}
-            initialMessage={prefill?.message ?? ""}
-            initialRequests={prefill?.requests ?? []}
+            initialMessage={inputDraft ? "" : prefill?.message ?? ""}
+            initialDetails={inputDraft ? splitDraftMessageIntoDetails(inputDraft.message) : undefined}
+            initialRequests={inputDraft?.requests ?? prefill?.requests ?? []}
             onBack={() => setStep("category")}
             onHome={reset}
             onSubmit={runAnalysis}
@@ -141,6 +159,7 @@ export default function Page() {
             onOpenSupport={openSupport}
             onSupportAction={recordSupportAction}
             onFeedback={recordFeedback}
+            onAddMoreDetails={addMoreDetails}
             onCheckAnother={reset}
           />
         )}

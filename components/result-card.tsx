@@ -62,6 +62,7 @@ export function ResultCard({
   onOpenSupport,
   onSupportAction,
   onFeedback,
+  onAddMoreDetails,
   onCheckAnother,
 }: {
   result: SafetyResult
@@ -69,6 +70,7 @@ export function ResultCard({
   onOpenSupport: () => void
   onSupportAction?: (action: "summary-shared") => void
   onFeedback?: (helpful: boolean, reason: string) => void
+  onAddMoreDetails: () => void
   onCheckAnother: () => void
 }) {
   const style = riskStyles[result.risk]
@@ -192,6 +194,16 @@ export function ResultCard({
                   ))}
                 </ul>
               )}
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={onAddMoreDetails}
+                className="mt-4 h-auto rounded-2xl border-primary/30 bg-card px-5 py-4 text-base font-semibold text-primary hover:bg-background"
+              >
+                <CircleHelp className="mr-2 h-5 w-5" aria-hidden="true" />
+                Add more details
+              </Button>
             </div>
           </div>
         </section>

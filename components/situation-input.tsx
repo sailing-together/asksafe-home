@@ -8,7 +8,7 @@ import { StepBack } from "@/components/category-step"
 import { cn } from "@/lib/utils"
 import { useSpeechRecognition } from "@/lib/use-voice"
 import { getGuidedClarificationInteraction } from "@/lib/guided-clarification-interaction"
-import { getSituationStartMessages } from "@/lib/entry-copy"
+import { buildInitialSituationMessages } from "@/lib/situation-input-state"
 import type { Category, RequestType } from "@/lib/analyze"
 
 const requestOptions: { value: RequestType; label: string; icon: typeof Banknote }[] = [
@@ -21,11 +21,6 @@ const requestOptions: { value: RequestType; label: string; icon: typeof Banknote
   { value: "screen", label: "Share my screen", icon: MonitorSmartphone },
   { value: "unsure", label: "Not sure", icon: CircleHelp },
 ]
-
-type ChatMessage = {
-  role: "assistant" | "user"
-  text: string
-}
 
 function buildAssistantReply({
   category,
@@ -50,6 +45,7 @@ export function SituationInput({
   category,
   initialMessage = "",
   initialRequests = [],
+  initialDetails,
   onSubmit,
   onBack,
   onHome,
@@ -57,19 +53,18 @@ export function SituationInput({
   category: Category
   initialMessage?: string
   initialRequests?: RequestType[]
+  initialDetails?: string[]
   onSubmit: (message: string, requests: RequestType[]) => void
   onBack: () => void
   onHome: () => void
 }) {
+  const restoredDetails = initialDetails ?? []
   const [value, setValue] = useState(initialMessage)
-  const [details, setDetails] = useState<string[]>([])
-  const [hasAskedClarification, setHasAskedClarification] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    ...getSituationStartMessages(category).map((text) => ({
-      role: "assistant" as const,
-      text,
-    })),
-  ])
+  const [details, setDetails] = useState<string[]>(restoredDetails)
+  const [hasAskedClarification, setHasAskedClarification] = useState(restoredDetails.length > 0)
+  const [messages, setMessages] = useState(() =>
+    buildInitialSituationMessages(category, restoredDetails),
+  )
   const [requests, setRequests] = useState<RequestType[]>(initialRequests)
   const canSendDetails = value.trim().length >= 3
   const canAnalyze = details.length > 0
