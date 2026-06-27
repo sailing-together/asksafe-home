@@ -1,7 +1,7 @@
-# Final Demo Narrative Brief
+# Product Walkthrough Narrative Brief
 
-Use this brief when preparing the AskSafe Home demo video, judge walkthrough, or
-team pitch practice. It turns the product scope, demo scenarios, and operations
+Use this brief when preparing the AskSafe Home product walkthrough video, judge walkthrough, or
+team pitch practice. It turns the product scope, release validation scenarios, and operations
 checklists into a single story the team can say out loud.
 
 ## One-Line Positioning
@@ -13,7 +13,7 @@ It is not a generic chatbot and it does not claim to prove whether something is
 real or fake. It helps the user pause, notice risk signals, choose a safer next
 step, and decide whether to involve someone they trust.
 
-## Main Demo Story
+## Main Product Story
 
 Lead with the daughter video money request scenario:
 
@@ -38,7 +38,7 @@ Core message to say:
 
 ## What To Show
 
-Recommended demo path:
+Recommended product walkthrough path:
 
 1. Open the production home screen.
 2. Say AskSafe Home is designed for moments when a senior feels unsure and needs
@@ -62,7 +62,7 @@ Recommended demo path:
 
 ## What Not To Lead With
 
-Do not lead the demo with:
+Do not lead the product walkthrough with:
 
 - door or doorstep scenarios
 - claims that AskSafe can prove whether a video, voice, or message is real
@@ -103,7 +103,7 @@ replacement for emergency, government, legal, financial, or medical services.
 
 ### What is stored?
 
-AskSafe stores privacy-safe event data to support product quality and demo
+AskSafe stores privacy-safe event data to support product quality and product walkthrough
 verification. The product warns users not to enter passwords, one-time codes,
 full card numbers, or sensitive identity details.
 
@@ -129,7 +129,7 @@ voice/read-aloud experience, and front-end result quality.
 
 ### Yang
 
-Business value, user problem, competition story, market relevance, demo flow,
+Business value, user problem, competition story, market relevance, product walkthrough flow,
 and why the product reduces pressure at the moment of decision.
 
 ### Emilie

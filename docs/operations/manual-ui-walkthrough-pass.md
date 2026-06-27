@@ -1,16 +1,16 @@
-# Manual UI Demo Pass
+# Manual UI Walkthrough Pass
 
 Date: 2026-06-26
 Production URL: https://asksafe-home.vercel.app
-Related checklist: docs/operations/demo-readiness-checklist.md
+Related checklist: docs/operations/product-walkthrough-readiness-checklist.md
 
 ## Purpose
 
 This document records the manual UI checks to complete before recording the
-AskSafe Home demo video.
+AskSafe Home product walkthrough video.
 
 The API-level scenario evidence proves the production analysis path works. This
-manual pass focuses on the user-facing demo experience: navigation, input,
+manual pass focuses on the user-facing product walkthrough experience: navigation, input,
 result readability, trusted support, official help, and recording fallbacks.
 
 ## Scope
@@ -39,7 +39,7 @@ Check these items on the production site:
 | Risk signals | Risk signals are visible and understandable | To check |
 | Not-yet actions | The result clearly says what not to do yet | To check |
 | Verification steps | The result explains how to verify through a trusted channel | To check |
-| Read aloud | Works in the target browser, or can be skipped without disrupting the demo | To check |
+| Read aloud | Works in the target browser, or can be skipped without disrupting the product walkthrough | To check |
 | Trusted support | Trusted support action opens from the result page | To check |
 | Official help | Official help links are visible and clickable | To check |
 | Feedback | Feedback controls do not distract from the main result story | To check |
@@ -59,7 +59,7 @@ Check these items on a phone-sized viewport or real mobile device:
 | Official help | Emergency and Scamwatch actions remain easy to find | To check |
 | Footer | Disclaimer and official help references remain readable | To check |
 
-## Main Demo Scenario
+## Main Product Walkthrough Scenario
 
 Use this synthetic scenario for the primary recording:
 
@@ -97,7 +97,7 @@ Use these fallbacks if browser features behave differently during recording:
 
 ## Pass Criteria
 
-The demo is ready to record when:
+The product walkthrough is ready to record when:
 
 - The main daughter video call money request flow reaches a clear high-risk
   result.
@@ -108,7 +108,7 @@ The demo is ready to record when:
   safety rules.
 - The team has a fallback plan for voice, read-aloud, or production issues.
 
-## Notes For Demo Narration
+## Notes For Product Walkthrough Narration
 
 Recommended phrasing:
 
@@ -118,5 +118,5 @@ It helps someone pause, notice risk signals, and choose a safer next step before
 they act.
 ```
 
-Keep the demo focused on reducing uncertainty, fear, and decision pressure for
+Keep the product walkthrough focused on reducing uncertainty, fear, and decision pressure for
 seniors.

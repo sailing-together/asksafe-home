@@ -1,9 +1,9 @@
-# Demo Readiness Checklist
+# Product Walkthrough Readiness Checklist
 
-Use this checklist before recording the AskSafe Home demo video or presenting the
+Use this checklist before recording the AskSafe Home product walkthrough video or presenting the
 production app to judges.
 
-## Demo Environment
+## Production Walkthrough Environment
 
 - Production app: `https://asksafe-home.vercel.app`
 - Production branch: `main`
@@ -13,8 +13,8 @@ production app to judges.
 
 ## Evidence Already Recorded
 
-- Demo scenario definitions: `docs/operations/demo-scenarios-checklist.md`
-- Demo scenario production run: `docs/operations/demo-scenario-run-log.md`
+- Release validation scenario definitions: `docs/operations/release-validation-scenarios-checklist.md`
+- Release validation scenario production run: `docs/operations/release-scenario-run-log.md`
 - Production smoke tests: `docs/operations/production-smoke-tests.md`
 - Vercel readiness review: `docs/operations/vercel-production-readiness.md`
 - Launch settings evidence: `docs/operations/launch-settings-evidence.md`
@@ -35,7 +35,7 @@ Check these items on the day of recording:
 - Browser sound is ready if read-aloud will be shown.
 - Keep one backup browser tab open with the production URL already loaded.
 
-## Demo Flow To Record
+## Product Walkthrough Flow To Record
 
 Recommended order:
 
@@ -62,7 +62,7 @@ Recommended order:
    It helps the user pause, avoid acting under pressure, and verify another way.
 9. Return home and briefly show one normal low-risk scenario if time allows.
 
-## Demo Scenarios To Keep Ready
+## Release Validation Scenarios To Keep Ready
 
 Use synthetic examples only.
 
@@ -127,7 +127,7 @@ Before recording, check:
 - Text input works.
 - Voice input does not block typed input.
 - Read-aloud works in the target browser, or is skipped without disrupting the
-  demo.
+  product walkthrough.
 - Result page can be reached from typed input.
 - Risk signals are visible on the result page.
 - Official help links are clickable.
@@ -163,6 +163,6 @@ Expected:
 
 ## Final Reminder
 
-The demo should show that AskSafe Home reduces uncertainty, fear, and decision
+The product walkthrough should show that AskSafe Home reduces uncertainty, fear, and decision
 pressure. Keep the story focused on helping the user pause and choose a safer
 next step.

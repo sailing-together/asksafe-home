@@ -1,13 +1,13 @@
-# Demo Scenarios Checklist
+# Release Validation Scenarios Checklist
 
-Use this checklist before recording demos, running team reviews, or showing the
+Use this checklist before recording product walkthroughs, running team reviews, or showing the
 product to judges.
 
 The goal is not to prove that AskSafe can decide whether something is real or
 fake. The goal is to show that AskSafe helps someone pause, notice risk signals,
 choose a safer next step, and decide whether to involve someone they trust.
 
-## Demo Principles
+## Release Validation Principles
 
 - Use synthetic examples only.
 - Do not enter real passwords, one-time codes, card numbers, phone numbers, or
@@ -168,7 +168,7 @@ This proves AskSafe can stay calm when the situation does not look risky.
 
 ## Manual Pass Criteria
 
-Before a demo, check that:
+Before a product walkthrough, check that:
 
 - The home screen loads on desktop and mobile.
 - The "I feel unsure" flow reaches the result screen.
@@ -181,7 +181,7 @@ Before a demo, check that:
 
 ## Production Smoke Checks
 
-Run these before the final demo if production has changed:
+Run these before the final product walkthrough if production has changed:
 
 ```bash
 node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app

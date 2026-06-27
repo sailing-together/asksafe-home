@@ -1,38 +1,44 @@
 # AskSafe Home Operations Docs
 
 This folder contains the operational evidence and checklists used to prepare
-AskSafe Home for demos, judging, and production smoke checks.
+AskSafe Home for product walkthroughs, judging, and production smoke checks.
 
 ## Start Here Before Recording
 
-1. Read `final-demo-narrative-brief.md` for the story, positioning, and judge
-   Q&A talking points.
-2. Read `demo-readiness-checklist.md`.
-3. Keep `demo-scenarios-checklist.md` open for the scenario script.
-4. Use `demo-scenario-run-log.md` as the latest API-level evidence.
-5. Use `manual-ui-demo-pass.md` for the browser-level demo pass.
-6. If production changed after the latest evidence, rerun the smoke checks in
+1. Read `release-readiness-summary.md` for the shippable software evidence,
+   current limits, and release decision.
+2. Read `product-walkthrough-narrative-brief.md` for the story, positioning,
+   and judge Q&A talking points.
+3. Read `product-walkthrough-readiness-checklist.md`.
+4. Keep `release-validation-scenarios-checklist.md` open for the scenario script.
+5. Use `release-scenario-run-log.md` as the latest API-level evidence.
+6. Use `manual-ui-walkthrough-pass.md` for the browser-level product
+   walkthrough pass.
+7. If production changed after the latest evidence, rerun the smoke checks in
    `production-smoke-tests.md`.
 
-## Demo And Scenario Evidence
+## Product Walkthrough And Release Evidence
 
-- `final-demo-narrative-brief.md`
-  - Short speaking brief for the final demo story, product positioning, judge
-    Q&A, and team speaking roles.
-- `demo-readiness-checklist.md`
-  - Practical checklist for recording the demo video.
-  - Includes production URL, recommended demo flow, manual UI pass, and how to
-    explain Bedrock fallback.
-- `demo-scenarios-checklist.md`
-  - Defines the five synthetic demo scenarios and expected outcomes.
-  - Use this as the source script for team practice and demo recording.
-- `demo-scenario-run-log.md`
-  - Records the latest production `/api/analyze` run for the five demo
-    scenarios.
+- `release-readiness-summary.md`
+  - Top-level release summary for shippable software evidence, known limits,
+    product walkthrough focus, and release decision.
+- `product-walkthrough-narrative-brief.md`
+  - Short speaking brief for the final product walkthrough story, product
+    positioning, judge Q&A, and team speaking roles.
+- `product-walkthrough-readiness-checklist.md`
+  - Practical checklist for recording the product walkthrough video.
+  - Includes production URL, recommended product walkthrough flow, manual UI
+    pass, and how to explain Bedrock fallback.
+- `release-validation-scenarios-checklist.md`
+  - Defines the five synthetic release validation scenarios and expected outcomes.
+  - Use this as the source script for team practice and product walkthrough recording.
+- `release-scenario-run-log.md`
+  - Records the latest production `/api/analyze` run for the five product
+    walkthrough scenarios.
   - Confirms expected risk levels and notes Bedrock / deterministic fallback
     outcomes.
-- `manual-ui-demo-pass.md`
-  - Records the browser-level checks to complete before demo recording.
+- `manual-ui-walkthrough-pass.md`
+  - Records the browser-level checks to complete before product walkthrough recording.
   - Covers desktop, mobile, voice input, read-aloud, trusted support, official
     help, and recording fallbacks.
 
@@ -55,7 +61,7 @@ AskSafe Home for demos, judging, and production smoke checks.
   - Use if production is down, unsafe output appears, AWS credentials need to be
     disabled, or a deployment needs rollback.
 
-## Demo Safety Rules
+## Product Walkthrough Safety Rules
 
 - Use synthetic examples only.
 - Do not enter real passwords, one-time codes, card numbers, phone numbers, or

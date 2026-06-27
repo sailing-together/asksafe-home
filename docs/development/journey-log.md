@@ -1162,7 +1162,7 @@ Follow-up:
 
 The direct Node command printed the expected JSON output. The npm script exited
 successfully but did not print output in this WSL session, so use the direct
-Node command if output capture is needed during demos or release checks.
+Node command if output capture is needed during product walkthroughs or release checks.
 
 ## Phase 8.15: Bedrock Prompt Contract Hardening
 

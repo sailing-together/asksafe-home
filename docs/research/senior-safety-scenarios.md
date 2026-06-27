@@ -1,6 +1,6 @@
 # Senior Safety Scenarios
 
-This document records realistic AskSafe Home safety scenarios for product review, demo preparation, and future rule or test expansion.
+This document records realistic AskSafe Home safety scenarios for product review, product walkthrough preparation, and future rule or test expansion.
 
 The scenarios are written from a senior-first perspective. Each one should help the team answer:
 
