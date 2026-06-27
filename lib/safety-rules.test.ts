@@ -29,7 +29,7 @@ test("matches family emergency trusted scam pattern with source ids", () => {
   assert.equal(assessment.scamTypeIds.includes("family-emergency"), true)
   assert.equal(assessment.sourceIds.includes("scamwatch-types"), true)
   assert.equal(assessment.sourceIds.includes("scamwatch-methods"), true)
-  assert.match(assessment.saferNextStep, /call.*family.*saved/i)
+  assert.match(assessment.saferNextStep, /call.*family.*already trust/i)
 })
 
 test("matches parcel delivery fee trusted scam pattern with official-channel guidance", () => {
