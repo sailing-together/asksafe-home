@@ -143,6 +143,15 @@ test("adds clarification for a vague payment request", () => {
   })
 })
 
+test("uses non-accusatory guidance for a vague payment request", () => {
+  const result = analyze("someone asked me for money", "money", [])
+
+  assert.equal(result.risk, "high")
+  assert.match(result.headline, /pause before paying/i)
+  assert.match(result.why, /need more information/i)
+  assert.match(result.why, /verify/i)
+  assert.doesNotMatch(result.why, /common sign of a scam/i)
+})
 test("does not add clarification for a hard-stop code request", () => {
   const result = analyze("they asked me for my one-time code", "message", ["code"])
 
