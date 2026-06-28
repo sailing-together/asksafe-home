@@ -19,8 +19,8 @@ results only after each check is run.
 
 ## Required Evidence Status
 
-- [ ] Product remains available on Vercel production URL.
-- [ ] GitHub repository link is accessible.
+- [x] Product remains available on Vercel production URL.
+- [x] GitHub repository link is accessible.
 - [ ] Product walkthrough video is public and under 3 minutes.
 - [ ] Architecture diagram is attached or linked.
 - [ ] DynamoDB usage screenshot is captured.
@@ -35,7 +35,7 @@ Record the final result:
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| Home page loads | TBD | |
+| Home page loads | Passed | `curl -I` returned HTTP/2 200 from production URL. |
 | Core safety flow starts without login | TBD | |
 | Situation selection works | TBD | |
 | Text input works | TBD | |
@@ -81,19 +81,40 @@ submission preparation.
 Command:
 
 ```bash
-npm run smoke:outcome:production
+node --no-warnings --experimental-strip-types scripts/smoke-outcome-events.ts https://asksafe-home.vercel.app
 ```
 
 Result:
 
-```text
-TBD
+```json
+{
+  "baseUrl": "https://asksafe-home.vercel.app",
+  "safety": {
+    "endpoint": "https://asksafe-home.vercel.app/api/safety-events",
+    "ok": true,
+    "persisted": true,
+    "id": "ba83b3a3-8d26-41bc-aea7-ec3e94170a08"
+  },
+  "feedback": {
+    "endpoint": "https://asksafe-home.vercel.app/api/feedback-events",
+    "ok": true,
+    "persisted": true,
+    "id": "18924d6d-c702-4118-9754-5c248e891450"
+  },
+  "support": {
+    "endpoint": "https://asksafe-home.vercel.app/api/support-events",
+    "ok": true,
+    "persisted": true,
+    "id": "afc15362-8411-42f4-9a36-41824f04a43d"
+  }
+}
 ```
 
 Notes:
 
 ```text
-TBD
+Direct Node command completed successfully. The deployed Vercel API routes can
+write synthetic safety, feedback, and support events to DynamoDB.
 ```
 
 ### Bedrock Analyze Smoke
@@ -101,19 +122,27 @@ TBD
 Command:
 
 ```bash
-npm run smoke:bedrock:production
+node --no-warnings --experimental-strip-types scripts/smoke-bedrock-analyze.ts https://asksafe-home.vercel.app --expect-bedrock
 ```
 
 Result:
 
-```text
-TBD
+```json
+{
+  "endpoint": "https://asksafe-home.vercel.app/api/analyze",
+  "expectBedrock": true,
+  "ok": true,
+  "bedrockUsed": true,
+  "bedrockOutcome": "success",
+  "risk": "high"
+}
 ```
 
 Notes:
 
 ```text
-TBD
+Direct Node command completed successfully. Production analysis used Bedrock and
+returned a validated high-risk result.
 ```
 
 ### Bedrock Quota Smoke
@@ -138,11 +167,11 @@ Only run if cost impact is controlled.
 
 ## Vercel Deployment Check
 
-- Latest production deployment URL: `TBD`
-- Deployment status: `TBD`
+- Latest production deployment URL: `https://asksafe-home.vercel.app`
+- Deployment status: `Production URL returned HTTP/2 200`
 - Build status: `TBD`
 - TypeScript/build status: `TBD`
-- Runtime API status: `TBD`
+- Runtime API status: `Outcome event and Bedrock analyze smoke checks passed`
 - Notes: `TBD`
 
 ## GitHub Actions Check
@@ -168,7 +197,7 @@ Bedrock:
 - Inference profile ID:
   `au.anthropic.claude-haiku-4-5-20251001-v1:0`
 - Region: `ap-southeast-2`
-- Production behavior: `TBD`
+- Production behavior: `Bedrock analyze smoke used Bedrock successfully with outcome success`
 
 FinOps:
 
