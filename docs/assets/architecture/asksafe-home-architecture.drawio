@@ -100,7 +100,7 @@
     <mxCell id="cf" value="CloudFormation bootstrap" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ff;strokeColor=#8ab6e8;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
       <mxGeometry x="1100" y="746" width="190" height="44" as="geometry"/>
     </mxCell>
-    <mxCell id="iam" value="IAM runtime roles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4ea;strokeColor=#9cc5aa;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
+    <mxCell id="iam" value="AWS IAM roles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4ea;strokeColor=#9cc5aa;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
       <mxGeometry x="1310" y="746" width="150" height="44" as="geometry"/>
     </mxCell>
     <mxCell id="e1" value="" style="endArrow=block;html=1;rounded=1;strokeColor=#557266;strokeWidth=2;" edge="1" parent="1" source="senior" target="vercel">
