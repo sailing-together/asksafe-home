@@ -24,6 +24,20 @@ Terraform and GitHub Actions manage AWS infrastructure, while FinOps guardrails
 such as rate limits, input caps, Bedrock quota hard stops, and AWS Budgets help
 control abuse and token cost.
 
+## Visual Architecture Assets
+
+Presentation-ready SVG and editable source:
+
+- `docs/assets/architecture/asksafe-home-architecture.svg`
+- `docs/assets/architecture/asksafe-home-architecture.drawio`
+- `docs/assets/architecture/ICON_SOURCES.md`
+
+Use the SVG asset for the Devpost architecture diagram and product walkthrough
+video when a rendered image is preferred over Mermaid. Use the `.drawio` file as
+the editable source for diagrams.net / draw.io revisions. The diagram uses selected
+official AWS Architecture Icons for AWS services, sourced brand SVG icons for
+major non-AWS platforms, and a custom FinOps cost guardrail cue.
+
 ## Mermaid Architecture Diagram
 
 This diagram is suitable for Markdown renderers and can be used as the basis
@@ -64,6 +78,7 @@ flowchart LR
   subgraph delivery["Infrastructure and operations"]
     github["GitHub repository"]
     actions["GitHub Actions"]
+    cloudformation["CloudFormation bootstrap"]
     terraform["Terraform"]
     iam["Scoped AWS IAM runtime role"]
     budget["AWS Budget"]
@@ -86,7 +101,10 @@ flowchart LR
   dynamodb --> support
   dynamodb --> setup
   dynamodb --> quota
-  github --> actions --> terraform
+  github --> actions
+  actions --> cloudformation
+  actions --> terraform
+  cloudformation -. "state + OIDC" .-> terraform
   terraform --> dynamodb
   terraform --> iam
   terraform --> budget
@@ -125,29 +143,28 @@ collector -> action classifier -> trusted patterns -> deterministic reasoner -> 
 
 For the final visual diagram, use the same structure with recognizable icons.
 
-Recommended icons:
+Recommended icons and asset sources:
 
 - Senior user: person icon
 - Browser/mobile: browser or phone icon
 - AskSafe UI: React icon or component icon
-- v0.app: v0.app icon, v0 wordmark, or small `v0.app` badge
-- Vercel: Vercel triangle icon
-- Next.js: Next.js icon
+- v0.app: sourced v0 SVG icon plus `v0.app` label
+- Vercel: sourced Vercel SVG icon
+- Next.js: sourced Next.js SVG icon
 - API routes: serverless function icon
 - Safety rules: shield/checklist icon
 - Amazon Bedrock: AWS Bedrock icon
 - Validation/fallback: shield gate icon
 - Amazon DynamoDB: AWS DynamoDB icon
 - IAM role: AWS IAM or key icon
-- Terraform: Terraform icon
-- GitHub Actions: GitHub Actions icon
+- CloudFormation: AWS CloudFormation icon
+- Terraform: sourced Terraform SVG icon
+- GitHub Actions: sourced GitHub Actions SVG icon
 - AWS Budget: cost/budget icon
 - FinOps guardrails: custom coin + shield, meter + shield, or cost stop icon
 - Smoke checks: checkmark/test icon
 
-If the drawing tool does not provide a FinOps icon, create a simple custom icon
-using a coin or dollar mark plus a shield or gauge. The meaning should be cost
-control and abuse prevention, not generic finance.
+The checked-in SVG uses official AWS Architecture Icons for AWS services, sourced Simple Icons SVGs for Vercel, Next.js, GitHub Actions, Terraform, and v0, and a custom FinOps cost guardrail cue. If another drawing tool does not provide a FinOps icon, create a simple custom icon using a coin or dollar mark plus a shield or gauge. The meaning should be cost control and abuse prevention, not generic finance.
 
 ## Short Diagram Caption
 
@@ -168,7 +185,8 @@ flow through Next.js API routes into deterministic safety rules, with optional
 Amazon Bedrock assistance for clearer wording. Bedrock output is validated
 before use and can fall back to deterministic results. DynamoDB is the primary
 AWS database for privacy-safe safety events, feedback, trusted support actions,
-setup data, and Bedrock quota counters. Terraform and GitHub Actions manage AWS
+setup data, and Bedrock quota counters. CloudFormation bootstraps Terraform
+state and GitHub OIDC access; Terraform and GitHub Actions manage AWS app
 infrastructure, while IAM scoping, rate limits, input caps, quota hard stops,
 AWS Budget, and production smoke checks support security, cost control, and
 operational readiness.

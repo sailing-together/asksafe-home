@@ -6,9 +6,17 @@ diagram for the H0 submission.
 The diagram should look like a real shipped product architecture, not a generic
 AI app sketch. Use recognizable product icons where possible.
 
+## Visual Asset
+
+The current presentation-ready SVG diagram lives at:
+
+- `docs/assets/architecture/asksafe-home-architecture.svg`
+
+Use the checklist below to review that asset before submission.
+
 ## Recommended Diagram Style
 
-- Use official or familiar icons for major platforms.
+- Use official AWS icons and sourced brand icons for major platforms where available.
 - Keep the diagram to one page.
 - Show left-to-right data flow from user to Vercel to AWS.
 - Separate runtime flow from delivery/infrastructure flow.
@@ -34,20 +42,19 @@ AI app sketch. Use recognizable product icons where possible.
 | AWS Budget | Cost/budget icon | AWS Budget |
 | FinOps | Coin + shield, meter + shield, or simple custom cost-control icon | FinOps guardrails |
 | Quota controls | Gauge/stop icon | Bedrock quota hard stop |
+| CloudFormation | AWS CloudFormation icon | Bootstrap foundation |
 | Terraform | Terraform icon | Terraform |
 | GitHub Actions | GitHub Actions icon | CI/CD workflow |
 | Vercel environment | Lock/config icon | Vercel environment variables |
 | Smoke tests | Checkmark/test icon | Production smoke checks |
 
-If official icons are not available in the drawing tool, use simple consistent
-line icons with text labels.
+The checked-in SVG uses official AWS Architecture Icons for AWS services and sourced Simple Icons SVGs for Vercel, Next.js, GitHub Actions, Terraform, and v0. If official or sourced brand icons are not available in another drawing tool, use simple consistent line icons with text labels.
 
-For FinOps, a custom icon is acceptable if no official icon is available. Use a
+For FinOps, a custom icon is acceptable because no single official product-specific FinOps icon is available. Use a
 simple coin or dollar symbol combined with a shield, stop sign, or gauge. The
 visual message should be cost control, not generic finance.
 
-For v0.app, use the v0 app icon or wordmark if available. If not, use a small
-`v0.app` label badge next to the UI foundation node.
+For v0.app, the checked-in SVG uses the sourced v0 icon plus a `v0.app` label next to the UI foundation node.
 
 ## Runtime Flow To Show
 
@@ -128,14 +135,16 @@ Add a separate lower band for delivery and infrastructure:
 
 1. GitHub repository
 2. GitHub Actions
-3. Terraform
-4. AWS infrastructure
-5. Vercel production deployment
+3. CloudFormation bootstrap for Terraform state and GitHub OIDC
+4. Terraform-managed app infrastructure
+5. AWS infrastructure
+6. Vercel production deployment
 
 Show that Terraform manages AWS-side infrastructure, not Vercel UI layout.
 
 Recommended labels:
 
+- `CloudFormation bootstrap foundation`
 - `GitHub Actions Terraform workflow`
 - `Terraform-managed AWS resources`
 - `Vercel production deployment`
@@ -175,7 +184,7 @@ Use this layout:
      +--> [DynamoDB privacy-safe events]
 
 Lower band:
-[GitHub] --> [GitHub Actions] --> [Terraform] --> [AWS resources]
+[GitHub] --> [GitHub Actions] --> [CloudFormation bootstrap] --> [Terraform] --> [AWS resources]
 ```
 
 For a more polished diagram, use grouped boxes:
@@ -196,8 +205,17 @@ Before using the architecture diagram in the final submission, confirm:
 - [ ] Bedrock is shown as bounded assistance with validation/fallback.
 - [ ] deterministic safety rules are visible.
 - [ ] outcome events and support events connect to DynamoDB.
+- [ ] CloudFormation bootstrap is visible.
 - [ ] Terraform and GitHub Actions are visible.
 - [ ] FinOps controls are visible.
 - [ ] no secrets, account IDs, or real personal data appear.
 - [ ] the diagram does not claim deepfake detection or identity verification.
 - [ ] the diagram matches the current product implementation.
+
+## Visual Asset Source Evidence
+
+- `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready architecture image.
+- `docs/assets/architecture/icons/aws/` stores selected official AWS Architecture Icons used in the diagram.
+- `docs/assets/architecture/ICON_SOURCES.md` records official AWS icon sources, sourced non-AWS brand SVGs, and the custom FinOps cue.
+
+- `docs/assets/architecture/asksafe-home-architecture.drawio` is the editable diagrams.net / draw.io source for future architecture revisions.
