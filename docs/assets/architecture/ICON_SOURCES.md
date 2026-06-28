@@ -24,7 +24,7 @@ The original downloaded zip is intentionally not committed so the repository onl
 
 The diagram also includes sourced SVG brand icons for non-AWS tools that appear in the architecture:
 
-- `icons/brand/vercel.svg` - Vercel icon from Simple Icons (`vercel`)
+- `icons/brand/vercel.svg` - Vercel circle treatment composed from the Vercel triangle mark for diagram readability
 - `icons/brand/nextjs.svg` - Next.js icon from Simple Icons (`nextdotjs`)
 - `icons/brand/github-actions.svg` - GitHub Actions icon from Simple Icons (`githubactions`)
 - `icons/brand/github.svg` - GitHub icon from Simple Icons (`github`), kept for future diagram variants

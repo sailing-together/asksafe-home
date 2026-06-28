@@ -1,4 +1,4 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
   <title id="title">AskSafe Home Architecture</title>
   <desc id="desc">Architecture diagram showing AskSafe Home on Vercel with Next.js, deterministic safety rules, bounded Amazon Bedrock assistance, DynamoDB persistence, Terraform delivery, GitHub Actions, IAM, AWS Budgets, and FinOps guardrails.</desc>
   <defs>
@@ -49,7 +49,7 @@
   </g>
   <g transform="translate(392 164)">
     <text class="h" x="0" y="0">2. Vercel Application</text><rect class="lane" x="0" y="24" width="286" height="530" rx="22"/>
-    <rect class="card" x="30" y="58" width="226" height="100" rx="18"/><svg x="62" y="82" width="58" height="58" viewBox="0 0 24 24" fill="#17281e"><path d="m12 1.608 12 20.784H0Z"/></svg><text class="label" x="142" y="94">Vercel</text><text class="small" x="142" y="118">production deployment</text>
+    <rect class="card" x="30" y="58" width="226" height="100" rx="18"/><svg x="62" y="82" width="58" height="58" viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="#000000"/><path d="M32 16 L50 48 H14 Z" fill="#FFFFFF"/></svg><text class="label" x="142" y="94">Vercel</text><text class="small" x="142" y="118">production deployment</text>
     <rect class="card" x="30" y="188" width="226" height="100" rx="18"/><svg x="50" y="208" width="60" height="60" viewBox="0 0 24 24" fill="#17281e"><path d="M18.665 21.978C16.758 23.255 14.465 24 12 24 5.377 24 0 18.623 0 12S5.377 0 12 0s12 5.377 12 12c0 3.583-1.574 6.801-4.067 9.001L9.219 7.2H7.2v9.596h1.615V9.251l9.85 12.727Zm-3.332-8.533 1.6 2.061V7.2h-1.6v6.245Z"/></svg><text class="label" x="130" y="226">Next.js</text><text class="small" x="130" y="250">App Router</text>
     <rect class="card-green" x="30" y="318" width="226" height="100" rx="18"/><circle cx="80" cy="368" r="26" fill="#e7f3e9" stroke="#176b43" stroke-width="3"/><path d="M56 368 H104 M80 344 V392" stroke="#176b43" stroke-width="4" stroke-linecap="round"/><text class="label" x="130" y="356">API routes</text><text class="small" x="130" y="380">server-side only</text>
     <rect class="card" x="30" y="452" width="226" height="48" rx="14"/><text class="small" x="48" y="481">Vercel env vars + AWS runtime</text>
