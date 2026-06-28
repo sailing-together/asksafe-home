@@ -44,13 +44,13 @@
     <circle cx="45" cy="264" r="24" fill="#dff1e5"/><rect x="28" y="249" width="34" height="26" rx="4" fill="none" stroke="#176b43" stroke-width="4"/><path d="M35 302 H55" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
     <text class="label" x="92" y="256">AskSafe Home UI</text><text class="small" x="92" y="282">React, Tailwind, shadcn/ui</text><text class="tiny" x="92" y="304">guided safety workflow</text>
     <rect class="card-orange" x="0" y="398" width="250" height="132" rx="18"/>
-    <circle cx="45" cy="447" r="23" fill="#fff6eb" stroke="#f5be8a"/><text x="45" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#f26a21">v0</text>
+    <image href="icons/brand/v0.svg" x="22" y="424" width="46" height="46"/>
     <text class="label" x="92" y="440">v0.app</text><text class="small" x="92" y="466">UI foundation</text><text class="tiny" x="92" y="488">rapid product iteration</text>
   </g>
   <g transform="translate(392 164)">
     <text class="h" x="0" y="0">2. Vercel Application</text><rect class="lane" x="0" y="24" width="286" height="530" rx="22"/>
-    <rect class="card" x="30" y="58" width="226" height="100" rx="18"/><path d="M65 116 L94 66 L123 116 Z" fill="#17281e"/><text class="label" x="142" y="94">Vercel</text><text class="small" x="142" y="118">production deployment</text>
-    <rect class="card" x="30" y="188" width="226" height="100" rx="18"/><circle cx="80" cy="238" r="30" fill="none" stroke="#17281e" stroke-width="5"/><text x="80" y="246" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#17281e">N</text><text class="label" x="130" y="226">Next.js</text><text class="small" x="130" y="250">App Router</text>
+    <rect class="card" x="30" y="58" width="226" height="100" rx="18"/><image href="icons/brand/vercel.svg" x="62" y="82" width="58" height="58"/><text class="label" x="142" y="94">Vercel</text><text class="small" x="142" y="118">production deployment</text>
+    <rect class="card" x="30" y="188" width="226" height="100" rx="18"/><image href="icons/brand/nextjs.svg" x="50" y="208" width="60" height="60"/><text class="label" x="130" y="226">Next.js</text><text class="small" x="130" y="250">App Router</text>
     <rect class="card-green" x="30" y="318" width="226" height="100" rx="18"/><circle cx="80" cy="368" r="26" fill="#e7f3e9" stroke="#176b43" stroke-width="3"/><path d="M56 368 H104 M80 344 V392" stroke="#176b43" stroke-width="4" stroke-linecap="round"/><text class="label" x="130" y="356">API routes</text><text class="small" x="130" y="380">server-side only</text>
     <rect class="card" x="30" y="452" width="226" height="48" rx="14"/><text class="small" x="48" y="481">Vercel env vars + AWS runtime</text>
   </g>
@@ -72,13 +72,13 @@
   <g transform="translate(92 738)">
     <rect class="card" x="0" y="0" width="1416" height="82" rx="18"/><text class="h" x="24" y="31">5. Infrastructure and Operations</text><text class="small" x="24" y="58">GitHub Actions runs Terraform to provision AWS infrastructure; production smoke checks verify API routes, DynamoDB persistence, Bedrock behavior, and quota guardrails.</text>
     <g transform="translate(724 18)">
-      <circle cx="24" cy="24" r="18" fill="#17281e"/><text x="24" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#fff">GH</text><text class="small" x="52" y="29">GitHub Actions</text>
-      <rect x="196" y="5" width="38" height="38" rx="7" fill="#f2ecff" stroke="#6b46c1"/><text x="215" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" fill="#6b46c1">TF</text><text class="small" x="246" y="29">Terraform</text>
+      <image href="icons/brand/github-actions.svg" x="2" y="2" width="44" height="44"/><text class="small" x="52" y="29">GitHub Actions</text>
+      <image href="icons/brand/terraform.svg" x="194" y="3" width="42" height="42"/><text class="small" x="246" y="29">Terraform</text>
       <image href="icons/aws/aws-cloudformation.svg" x="366" y="4" width="42" height="42"/><text class="small" x="416" y="29">CloudFormation bootstrap</text>
       <image href="icons/aws/aws-iam.svg" x="604" y="4" width="42" height="42"/><text class="small" x="654" y="29">IAM runtime roles</text>
     </g>
   </g>
   <g transform="translate(92 880)">
-    <rect class="warn" x="0" y="0" width="1416" height="98" rx="20"/><text class="caption" x="26" y="36">Caption for submission:</text><text class="small" x="26" y="63">DynamoDB is the primary AWS database. Bedrock is bounded by deterministic fallback, validation, rate limits, input caps, and FinOps quota hard stops.</text><text class="tiny" x="26" y="84">AWS service icons are from the official AWS Architecture Icons package. Non-AWS marks are simplified diagram cues unless noted in the icon source file.</text>
+    <rect class="warn" x="0" y="0" width="1416" height="98" rx="20"/><text class="caption" x="26" y="36">Caption for submission:</text><text class="small" x="26" y="63">DynamoDB is the primary AWS database. Bedrock is bounded by deterministic fallback, validation, rate limits, input caps, and FinOps quota hard stops.</text><text class="tiny" x="26" y="84">AWS service icons use official AWS Architecture Icons. Non-AWS platform icons are sourced brand SVGs where available; FinOps remains a custom cost guardrail cue.</text>
   </g>
 </svg>

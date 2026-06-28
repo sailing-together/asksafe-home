@@ -20,6 +20,19 @@ https://d1.awsstatic.com/onedam/marketing-channels/website/aws/en_US/architectur
 
 The original downloaded zip is intentionally not committed so the repository only stores the small selected SVG assets needed for the architecture diagram.
 
-## Non-AWS marks
+## Non-AWS platform icons
 
-The diagram uses simple drawn or text-based cues for Vercel, Next.js, GitHub Actions, Terraform, v0.app, and FinOps. These are not claimed as official brand assets. They are included only to keep the architecture image readable and to avoid relying on unverified downloaded logos.
+The diagram also includes sourced SVG brand icons for non-AWS tools that appear in the architecture:
+
+- `icons/brand/vercel.svg` - Vercel icon from Simple Icons (`vercel`)
+- `icons/brand/nextjs.svg` - Next.js icon from Simple Icons (`nextdotjs`)
+- `icons/brand/github-actions.svg` - GitHub Actions icon from Simple Icons (`githubactions`)
+- `icons/brand/github.svg` - GitHub icon from Simple Icons (`github`), kept for future diagram variants
+- `icons/brand/terraform.svg` - Terraform icon from Simple Icons (`terraform`)
+- `icons/brand/v0.svg` - v0 icon from Simple Icons (`v0`)
+
+Simple Icons assets are used as sourced brand SVGs for diagram readability. They are not AWS Architecture Icons. Follow each brand's trademark guidelines for external publication.
+
+## Custom diagram marks
+
+FinOps is shown as a custom cost guardrail cue because there is no single official FinOps architecture service icon for this product context.

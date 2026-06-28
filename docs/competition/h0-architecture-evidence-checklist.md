@@ -16,7 +16,7 @@ Use the checklist below to review that asset before submission.
 
 ## Recommended Diagram Style
 
-- Use official or familiar icons for major platforms.
+- Use official AWS icons and sourced brand icons for major platforms where available.
 - Keep the diagram to one page.
 - Show left-to-right data flow from user to Vercel to AWS.
 - Separate runtime flow from delivery/infrastructure flow.
@@ -48,15 +48,13 @@ Use the checklist below to review that asset before submission.
 | Vercel environment | Lock/config icon | Vercel environment variables |
 | Smoke tests | Checkmark/test icon | Production smoke checks |
 
-If official icons are not available in the drawing tool, use simple consistent
-line icons with text labels.
+The checked-in SVG uses official AWS Architecture Icons for AWS services and sourced Simple Icons SVGs for Vercel, Next.js, GitHub Actions, Terraform, and v0. If official or sourced brand icons are not available in another drawing tool, use simple consistent line icons with text labels.
 
-For FinOps, a custom icon is acceptable if no official icon is available. Use a
+For FinOps, a custom icon is acceptable because no single official product-specific FinOps icon is available. Use a
 simple coin or dollar symbol combined with a shield, stop sign, or gauge. The
 visual message should be cost control, not generic finance.
 
-For v0.app, use the v0 app icon or wordmark if available. If not, use a small
-`v0.app` label badge next to the UI foundation node.
+For v0.app, the checked-in SVG uses the sourced v0 icon plus a `v0.app` label next to the UI foundation node.
 
 ## Runtime Flow To Show
 
@@ -218,6 +216,6 @@ Before using the architecture diagram in the final submission, confirm:
 
 - `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready architecture image.
 - `docs/assets/architecture/icons/aws/` stores selected official AWS Architecture Icons used in the diagram.
-- `docs/assets/architecture/ICON_SOURCES.md` records the source package and notes which non-AWS marks are simplified diagram cues.
+- `docs/assets/architecture/ICON_SOURCES.md` records official AWS icon sources, sourced non-AWS brand SVGs, and the custom FinOps cue.
 
 - `docs/assets/architecture/asksafe-home-architecture.drawio` is the editable diagrams.net / draw.io source for future architecture revisions.
