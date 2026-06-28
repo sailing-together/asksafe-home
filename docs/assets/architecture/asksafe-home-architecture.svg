@@ -1,190 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
   <title id="title">AskSafe Home Architecture</title>
-  <desc id="desc">Architecture diagram showing AskSafe Home on Vercel, Next.js API routes, deterministic safety workflow, bounded Amazon Bedrock assistance, DynamoDB, Terraform, GitHub Actions, IAM, AWS Budget, and FinOps guardrails.</desc>
+  <desc id="desc">Architecture diagram showing AskSafe Home on Vercel with Next.js, deterministic safety rules, bounded Amazon Bedrock assistance, DynamoDB persistence, Terraform delivery, GitHub Actions, IAM, AWS Budgets, and FinOps guardrails.</desc>
   <defs>
     <style>
       .bg { fill: #f8f5ec; }
-      .panel { fill: #fffdf8; stroke: #d9dfd2; stroke-width: 2; }
-      .panel-soft { fill: #eef6ee; stroke: #bfd6c6; stroke-width: 2; }
-      .panel-warn { fill: #fff1e4; stroke: #f5a15d; stroke-width: 2; }
-      .title { font: 700 34px Georgia, serif; fill: #17281e; }
+      .sheet { fill: #fffdf8; stroke: #d9dfd2; stroke-width: 2; }
+      .lane { fill: #eef6ee; stroke: #bdd8c6; stroke-width: 2; }
+      .lane-white { fill: #fffdf8; stroke: #d9dfd2; stroke-width: 2; }
+      .warn { fill: #fff1e4; stroke: #f28b2e; stroke-width: 2; }
+      .card { fill: #ffffff; stroke: #d8decf; stroke-width: 1.5; }
+      .card-green { fill: #e8f4ea; stroke: #9cc5aa; stroke-width: 1.5; }
+      .card-blue { fill: #edf5ff; stroke: #8ab6e8; stroke-width: 1.5; }
+      .card-purple { fill: #f2ecff; stroke: #b69bea; stroke-width: 1.5; }
+      .card-orange { fill: #fff0e0; stroke: #f28b2e; stroke-width: 1.5; }
+      .title { font: 700 36px Georgia, serif; fill: #17281e; }
       .subtitle { font: 400 18px Arial, sans-serif; fill: #52635a; }
-      .layer-title { font: 700 18px Arial, sans-serif; fill: #16643d; letter-spacing: .2px; }
-      .label { font: 700 17px Arial, sans-serif; fill: #17281e; }
+      .h { font: 700 18px Arial, sans-serif; fill: #16643d; }
+      .label { font: 700 16px Arial, sans-serif; fill: #17281e; }
       .small { font: 400 13px Arial, sans-serif; fill: #52635a; }
-      .tiny { font: 400 12px Arial, sans-serif; fill: #52635a; }
-      .node { fill: #ffffff; stroke: #d8decf; stroke-width: 1.5; }
-      .node-green { fill: #e7f3e9; stroke: #9cc5aa; stroke-width: 1.5; }
-      .node-orange { fill: #fff0e0; stroke: #f28b2e; stroke-width: 1.5; }
-      .node-blue { fill: #edf5ff; stroke: #8ab6e8; stroke-width: 1.5; }
-      .node-purple { fill: #f2ecff; stroke: #b69bea; stroke-width: 1.5; }
-      .icon-green { fill: #176b43; stroke: #176b43; }
-      .icon-orange { fill: #f26a21; stroke: #f26a21; }
-      .icon-dark { fill: #17281e; stroke: #17281e; }
-      .icon-blue { fill: #2b6cb0; stroke: #2b6cb0; }
-      .icon-purple { fill: #6b46c1; stroke: #6b46c1; }
-      .line { fill: none; stroke: #557266; stroke-width: 2.3; }
-      .line-soft { fill: none; stroke: #93aa9d; stroke-width: 2; stroke-dasharray: 7 7; }
-      .line-orange { fill: none; stroke: #e87a24; stroke-width: 2.3; }
-      .caption { font: 700 16px Arial, sans-serif; fill: #173f2b; }
-      .badge { fill: #dff1e5; stroke: #b7d8c3; stroke-width: 1; }
+      .tiny { font: 400 11px Arial, sans-serif; fill: #52635a; }
+      .caption { font: 700 15px Arial, sans-serif; fill: #173f2b; }
+      .line { fill: none; stroke: #557266; stroke-width: 2.4; }
+      .dash { fill: none; stroke: #93aa9d; stroke-width: 2; stroke-dasharray: 7 7; }
+      .cost-line { fill: none; stroke: #e87a24; stroke-width: 2.3; }
     </style>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#557266"/>
-    </marker>
-    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#e87a24"/>
-    </marker>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M2,2 L10,6 L2,10 Z" fill="#557266"/></marker>
+    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M2,2 L10,6 L2,10 Z" fill="#e87a24"/></marker>
   </defs>
-
-  <rect class="bg" width="1600" height="980"/>
-
-  <g transform="translate(70 46)">
-    <path d="M28 3 L52 14 L48 49 L28 64 L8 49 L4 14 Z" fill="#f26a21"/>
-    <text x="28" y="43" text-anchor="middle" font-family="Arial, sans-serif" font-size="35" font-weight="800" fill="#fff">?</text>
-    <text x="82" y="31" class="title">AskSafe Home Architecture</text>
-    <text x="84" y="60" class="subtitle">A shippable safety decision workflow on Vercel, DynamoDB, Bedrock, Terraform, and FinOps guardrails</text>
+  <rect class="bg" width="1600" height="1050"/>
+  <g transform="translate(72 44)">
+    <path d="M28 3 L54 15 L49 52 L28 68 L7 52 L2 15 Z" fill="#f26a21"/>
+    <text x="28" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="35" font-weight="800" fill="#fff">?</text>
+    <text x="84" y="34" class="title">AskSafe Home Architecture</text>
+    <text x="86" y="62" class="subtitle">Shippable safety decision workflow on Vercel, DynamoDB, Bedrock, Terraform, and FinOps guardrails</text>
   </g>
-
-  <g transform="translate(58 125)">
-    <rect class="panel" x="0" y="0" width="1484" height="690" rx="26"/>
-
-    <g transform="translate(34 34)">
-      <text class="layer-title" x="0" y="0">1. User Experience</text>
-      <rect class="node" x="0" y="24" width="242" height="170" rx="18"/>
-      <circle cx="44" cy="74" r="24" class="badge"/>
-      <circle cx="44" cy="66" r="12" fill="none" stroke="#176b43" stroke-width="4"/>
-      <path d="M20 113 C31 92 57 92 68 113" fill="none" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
-      <text class="label" x="86" y="67">Senior user</text>
-      <text class="small" x="86" y="93">Desktop or mobile</text>
-      <text class="small" x="86" y="113">browser</text>
-
-      <rect class="node-green" x="0" y="230" width="242" height="178" rx="18"/>
-      <circle cx="44" cy="284" r="24" class="badge"/>
-      <rect x="27" y="269" width="34" height="26" rx="4" fill="none" stroke="#176b43" stroke-width="4"/>
-      <path d="M34 303 H54" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
-      <text class="label" x="86" y="276">AskSafe Home UI</text>
-      <text class="small" x="86" y="302">React + Tailwind</text>
-      <text class="small" x="86" y="322">shadcn/ui</text>
-
-      <rect class="node-orange" x="0" y="444" width="242" height="142" rx="18"/>
-      <circle cx="44" cy="493" r="24" fill="#fff6eb" stroke="#f5be8a"/>
-      <text x="44" y="501" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#f26a21">v0</text>
-      <text class="label" x="86" y="486">v0.app</text>
-      <text class="small" x="86" y="512">UI foundation</text>
-      <text class="small" x="86" y="532">rapid iteration</text>
-    </g>
-
-    <g transform="translate(330 34)">
-      <text class="layer-title" x="0" y="0">2. Vercel Application</text>
-      <rect class="panel-soft" x="0" y="24" width="280" height="562" rx="22"/>
-
-      <rect class="node" x="28" y="60" width="224" height="116" rx="18"/>
-      <path d="M62 128 L92 76 L122 128 Z" fill="#17281e"/>
-      <text class="label" x="140" y="95">Vercel</text>
-      <text class="small" x="140" y="121">production</text>
-      <text class="small" x="140" y="141">deployment</text>
-
-      <rect class="node" x="28" y="216" width="224" height="116" rx="18"/>
-      <circle cx="80" cy="274" r="31" fill="none" stroke="#17281e" stroke-width="5"/>
-      <text x="80" y="282" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#17281e">N</text>
-      <text class="label" x="128" y="260">Next.js</text>
-      <text class="small" x="128" y="286">App Router</text>
-
-      <rect class="node-green" x="28" y="372" width="224" height="116" rx="18"/>
-      <circle cx="80" cy="430" r="25" fill="none" stroke="#176b43" stroke-width="4"/>
-      <path d="M55 430 H105 M80 405 V455" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
-      <text class="label" x="128" y="416">API routes</text>
-      <text class="small" x="128" y="442">server-side only</text>
-
-      <rect class="node" x="28" y="516" width="224" height="46" rx="14"/>
-      <text class="small" x="45" y="545">Vercel env vars + scoped AWS runtime</text>
-    </g>
-
-    <g transform="translate(674 34)">
-      <text class="layer-title" x="0" y="0">3. Safety And AI</text>
-      <rect class="panel" x="0" y="24" width="386" height="562" rx="22"/>
-
-      <rect class="node-green" x="28" y="60" width="330" height="92" rx="18"/>
-      <path d="M62 78 L91 90 L86 128 L62 143 L38 128 L33 90 Z" fill="#dff1e5" stroke="#176b43" stroke-width="3"/>
-      <path d="M51 110 L61 121 L78 99" fill="none" stroke="#176b43" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      <text class="label" x="110" y="98">Deterministic safety rules</text>
-      <text class="small" x="110" y="123">risk signals + safer next step</text>
-
-      <rect class="node" x="28" y="184" width="330" height="92" rx="18"/>
-      <circle cx="62" cy="230" r="25" fill="#e7f3e9" stroke="#176b43" stroke-width="2"/>
-      <path d="M49 230 H75 M62 217 V243" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
-      <text class="label" x="110" y="220">Controlled workflow</text>
-      <text class="small" x="110" y="245">collector -> classifier -> reasoner</text>
-
-      <rect class="node-purple" x="28" y="308" width="330" height="92" rx="18"/>
-      <circle cx="62" cy="354" r="26" fill="#f2ecff" stroke="#6b46c1" stroke-width="3"/>
-      <path d="M48 354 C54 335 70 335 76 354 C70 373 54 373 48 354 Z" fill="none" stroke="#6b46c1" stroke-width="4"/>
-      <text class="label" x="110" y="344">Amazon Bedrock</text>
-      <text class="small" x="110" y="369">bounded explanation assist</text>
-
-      <rect class="node-orange" x="28" y="432" width="154" height="92" rx="18"/>
-      <path d="M68 454 L96 466 L92 502 L68 518 L44 502 L40 466 Z" fill="#fff6eb" stroke="#f26a21" stroke-width="3"/>
-      <text class="label" x="105" y="473">Validation</text>
-      <text class="small" x="105" y="498">fallback gate</text>
-
-      <rect class="node-orange" x="204" y="432" width="154" height="92" rx="18"/>
-      <circle cx="242" cy="478" r="24" fill="#fff6eb" stroke="#f26a21" stroke-width="3"/>
-      <text x="242" y="486" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#f26a21">$</text>
-      <text class="label" x="279" y="473">FinOps</text>
-      <text class="small" x="279" y="498">hard stops</text>
-    </g>
-
-    <g transform="translate(1118 34)">
-      <text class="layer-title" x="0" y="0">4. AWS Data</text>
-      <rect class="panel-soft" x="0" y="24" width="314" height="562" rx="22"/>
-
-      <rect class="node-blue" x="28" y="60" width="258" height="112" rx="18"/>
-      <ellipse cx="72" cy="94" rx="31" ry="12" fill="#edf5ff" stroke="#2b6cb0" stroke-width="4"/>
-      <path d="M41 94 V132 C41 139 103 139 103 132 V94" fill="none" stroke="#2b6cb0" stroke-width="4"/>
-      <ellipse cx="72" cy="132" rx="31" ry="12" fill="none" stroke="#2b6cb0" stroke-width="4"/>
-      <text class="label" x="122" y="96">DynamoDB</text>
-      <text class="small" x="122" y="122">primary AWS database</text>
-      <text class="tiny" x="122" y="144">privacy-safe events</text>
-
-      <rect class="node" x="28" y="204" width="258" height="46" rx="12"/>
-      <text class="small" x="48" y="233">Safety events</text>
-      <rect class="node" x="28" y="264" width="258" height="46" rx="12"/>
-      <text class="small" x="48" y="293">Feedback events</text>
-      <rect class="node" x="28" y="324" width="258" height="46" rx="12"/>
-      <text class="small" x="48" y="353">Trusted support actions</text>
-      <rect class="node" x="28" y="384" width="258" height="46" rx="12"/>
-      <text class="small" x="48" y="413">Users + households</text>
-      <rect class="node-orange" x="28" y="444" width="258" height="64" rx="14"/>
-      <text class="small" x="48" y="472">Bedrock quota counters</text>
-      <text class="tiny" x="48" y="492">cost hard stop evidence</text>
-    </g>
-
-    <path class="line" marker-end="url(#arrow)" d="M276 118 H330"/>
-    <path class="line-soft" marker-end="url(#arrow)" d="M156 478 C260 478 255 91 330 91"/>
-    <path class="line" marker-end="url(#arrow)" d="M610 464 H674"/>
-    <path class="line" marker-end="url(#arrow)" d="M1060 464 H1118"/>
-    <path class="line-orange" marker-end="url(#arrow-orange)" d="M868 556 C930 630 1110 628 1226 550"/>
+  <rect class="sheet" x="56" y="124" width="1488" height="732" rx="26"/>
+  <g transform="translate(92 164)">
+    <text class="h" x="0" y="0">1. User Experience</text>
+    <rect class="card" x="0" y="24" width="250" height="156" rx="18"/>
+    <circle cx="45" cy="74" r="24" fill="#dff1e5"/><circle cx="45" cy="66" r="12" fill="none" stroke="#176b43" stroke-width="4"/><path d="M21 113 C31 93 59 93 70 113" fill="none" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
+    <text class="label" x="92" y="68">Senior user</text><text class="small" x="92" y="94">mobile or desktop browser</text><text class="tiny" x="92" y="116">large text, one task at a time</text>
+    <rect class="card-green" x="0" y="214" width="250" height="150" rx="18"/>
+    <circle cx="45" cy="264" r="24" fill="#dff1e5"/><rect x="28" y="249" width="34" height="26" rx="4" fill="none" stroke="#176b43" stroke-width="4"/><path d="M35 302 H55" stroke="#176b43" stroke-width="4" stroke-linecap="round"/>
+    <text class="label" x="92" y="256">AskSafe Home UI</text><text class="small" x="92" y="282">React, Tailwind, shadcn/ui</text><text class="tiny" x="92" y="304">guided safety workflow</text>
+    <rect class="card-orange" x="0" y="398" width="250" height="132" rx="18"/>
+    <circle cx="45" cy="447" r="23" fill="#fff6eb" stroke="#f5be8a"/><text x="45" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#f26a21">v0</text>
+    <text class="label" x="92" y="440">v0.app</text><text class="small" x="92" y="466">UI foundation</text><text class="tiny" x="92" y="488">rapid product iteration</text>
   </g>
-
-  <g transform="translate(92 850)">
-    <rect class="panel-warn" x="0" y="0" width="1416" height="88" rx="20"/>
-    <text class="caption" x="26" y="34">Caption for submission:</text>
-    <text class="small" x="26" y="61">DynamoDB is the primary AWS database. Bedrock is bounded by validation, deterministic fallback, rate limits, input caps, and FinOps quota hard stops.</text>
+  <g transform="translate(392 164)">
+    <text class="h" x="0" y="0">2. Vercel Application</text><rect class="lane" x="0" y="24" width="286" height="530" rx="22"/>
+    <rect class="card" x="30" y="58" width="226" height="100" rx="18"/><path d="M65 116 L94 66 L123 116 Z" fill="#17281e"/><text class="label" x="142" y="94">Vercel</text><text class="small" x="142" y="118">production deployment</text>
+    <rect class="card" x="30" y="188" width="226" height="100" rx="18"/><circle cx="80" cy="238" r="30" fill="none" stroke="#17281e" stroke-width="5"/><text x="80" y="246" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#17281e">N</text><text class="label" x="130" y="226">Next.js</text><text class="small" x="130" y="250">App Router</text>
+    <rect class="card-green" x="30" y="318" width="226" height="100" rx="18"/><circle cx="80" cy="368" r="26" fill="#e7f3e9" stroke="#176b43" stroke-width="3"/><path d="M56 368 H104 M80 344 V392" stroke="#176b43" stroke-width="4" stroke-linecap="round"/><text class="label" x="130" y="356">API routes</text><text class="small" x="130" y="380">server-side only</text>
+    <rect class="card" x="30" y="452" width="226" height="48" rx="14"/><text class="small" x="48" y="481">Vercel env vars + AWS runtime</text>
   </g>
-
-  <g transform="translate(92 752)">
-    <rect class="node" x="0" y="0" width="1416" height="70" rx="18"/>
-    <text class="layer-title" x="24" y="29">5. Infrastructure and Operations</text>
-    <text class="small" x="24" y="52">GitHub repository -> GitHub Actions -> Terraform -> AWS DynamoDB, IAM, Budget | Production smoke checks verify Vercel API routes, DynamoDB persistence, and Bedrock behavior.</text>
-    <g transform="translate(760 15)">
-      <circle cx="20" cy="20" r="16" fill="#17281e"/>
-      <text x="20" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#fff">GH</text>
-      <text class="small" x="48" y="25">GitHub Actions</text>
-      <rect x="206" y="4" width="34" height="32" rx="5" fill="#f2ecff" stroke="#6b46c1"/>
-      <text class="small" x="250" y="25">Terraform</text>
-      <path d="M400 5 L430 17 L425 50 L400 64 L375 50 L370 17 Z" transform="scale(.5) translate(700 -4)" fill="#e7f3e9" stroke="#176b43" stroke-width="4"/>
-      <text class="small" x="438" y="25">IAM + AWS Budget</text>
+  <g transform="translate(734 164)">
+    <text class="h" x="0" y="0">3. Safety and AI</text><rect class="lane-white" x="0" y="24" width="386" height="530" rx="22"/>
+    <rect class="card-green" x="28" y="58" width="330" height="82" rx="18"/><path d="M63 76 L91 88 L86 122 L63 138 L40 122 L35 88 Z" fill="#dff1e5" stroke="#176b43" stroke-width="3"/><path d="M52 108 L62 119 L80 96" fill="none" stroke="#176b43" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><text class="label" x="112" y="94">Deterministic rules</text><text class="small" x="112" y="118">risk signals + safer next step</text>
+    <rect class="card" x="28" y="166" width="330" height="82" rx="18"/><circle cx="64" cy="207" r="25" fill="#e7f3e9" stroke="#176b43" stroke-width="2"/><path d="M51 207 H77 M64 194 V220" stroke="#176b43" stroke-width="4" stroke-linecap="round"/><text class="label" x="112" y="198">Controlled workflow</text><text class="small" x="112" y="222">collector -> classifier -> reasoner</text>
+    <rect class="card-purple" x="28" y="274" width="330" height="86" rx="18"/><image href="icons/aws/amazon-bedrock.svg" x="44" y="292" width="52" height="52"/><text class="label" x="112" y="310">Amazon Bedrock</text><text class="small" x="112" y="334">bounded explanation assist</text>
+    <rect class="card-orange" x="28" y="388" width="150" height="88" rx="18"/><path d="M70 408 L96 419 L92 452 L70 467 L48 452 L44 419 Z" fill="#fff6eb" stroke="#f26a21" stroke-width="3"/><text class="label" x="104" y="426">Validation</text><text class="tiny" x="104" y="450">fallback gate</text>
+    <rect class="card-orange" x="208" y="388" width="150" height="88" rx="18"/><circle cx="246" cy="432" r="24" fill="#fff6eb" stroke="#f26a21" stroke-width="3"/><text x="246" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#f26a21">$</text><text class="label" x="282" y="426">FinOps</text><text class="tiny" x="282" y="450">hard stops</text>
+  </g>
+  <g transform="translate(1176 164)">
+    <text class="h" x="0" y="0">4. AWS Data</text><rect class="lane" x="0" y="24" width="314" height="530" rx="22"/>
+    <rect class="card-blue" x="28" y="58" width="258" height="108" rx="18"/><image href="icons/aws/amazon-dynamodb.svg" x="46" y="82" width="58" height="58"/><text class="label" x="124" y="94">DynamoDB</text><text class="small" x="124" y="119">primary AWS database</text><text class="tiny" x="124" y="140">privacy-safe event storage</text>
+    <rect class="card" x="28" y="196" width="258" height="40" rx="11"/><text class="small" x="48" y="221">Safety events</text><rect class="card" x="28" y="250" width="258" height="40" rx="11"/><text class="small" x="48" y="275">Feedback events</text><rect class="card" x="28" y="304" width="258" height="40" rx="11"/><text class="small" x="48" y="329">Trusted support actions</text><rect class="card" x="28" y="358" width="258" height="40" rx="11"/><text class="small" x="48" y="383">Users + households</text>
+    <rect class="card-orange" x="28" y="414" width="258" height="58" rx="14"/><image href="icons/aws/aws-budgets.svg" x="42" y="425" width="36" height="36"/><text class="small" x="90" y="438">Bedrock quota counters</text><text class="tiny" x="90" y="457">cost hard stop evidence</text>
+  </g>
+  <path class="line" marker-end="url(#arrow)" d="M342 238 H392"/><path class="dash" marker-end="url(#arrow)" d="M218 610 C328 610 315 242 392 242"/><path class="line" marker-end="url(#arrow)" d="M678 532 H734"/><path class="line" marker-end="url(#arrow)" d="M1120 532 H1176"/><path class="cost-line" marker-end="url(#arrow-orange)" d="M1020 640 C1092 720 1212 706 1288 638"/>
+  <g transform="translate(92 738)">
+    <rect class="card" x="0" y="0" width="1416" height="82" rx="18"/><text class="h" x="24" y="31">5. Infrastructure and Operations</text><text class="small" x="24" y="58">GitHub Actions runs Terraform to provision AWS infrastructure; production smoke checks verify API routes, DynamoDB persistence, Bedrock behavior, and quota guardrails.</text>
+    <g transform="translate(724 18)">
+      <circle cx="24" cy="24" r="18" fill="#17281e"/><text x="24" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#fff">GH</text><text class="small" x="52" y="29">GitHub Actions</text>
+      <rect x="196" y="5" width="38" height="38" rx="7" fill="#f2ecff" stroke="#6b46c1"/><text x="215" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" fill="#6b46c1">TF</text><text class="small" x="246" y="29">Terraform</text>
+      <image href="icons/aws/aws-cloudformation.svg" x="366" y="4" width="42" height="42"/><text class="small" x="416" y="29">CloudFormation bootstrap</text>
+      <image href="icons/aws/aws-iam.svg" x="604" y="4" width="42" height="42"/><text class="small" x="654" y="29">IAM runtime roles</text>
     </g>
+  </g>
+  <g transform="translate(92 880)">
+    <rect class="warn" x="0" y="0" width="1416" height="98" rx="20"/><text class="caption" x="26" y="36">Caption for submission:</text><text class="small" x="26" y="63">DynamoDB is the primary AWS database. Bedrock is bounded by deterministic fallback, validation, rate limits, input caps, and FinOps quota hard stops.</text><text class="tiny" x="26" y="84">AWS service icons are from the official AWS Architecture Icons package. Non-AWS marks are simplified diagram cues unless noted in the icon source file.</text>
   </g>
 </svg>

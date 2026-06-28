@@ -209,3 +209,9 @@ Before using the architecture diagram in the final submission, confirm:
 - [ ] no secrets, account IDs, or real personal data appear.
 - [ ] the diagram does not claim deepfake detection or identity verification.
 - [ ] the diagram matches the current product implementation.
+
+## Visual Asset Source Evidence
+
+- `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready architecture image.
+- `docs/assets/architecture/icons/aws/` stores selected official AWS Architecture Icons used in the diagram.
+- `docs/assets/architecture/ICON_SOURCES.md` records the source package and notes which non-AWS marks are simplified diagram cues.
