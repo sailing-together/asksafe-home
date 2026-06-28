@@ -33,19 +33,21 @@ results only after each check is run.
 
 Record the final result:
 
+Automated browser walkthrough run: June 28, 2026. Scenario used: `My daughter asks me to send 2000 AUD after a video call. She says it is urgent.`
+
 | Check | Result | Notes |
 | --- | --- | --- |
-| Home page loads | Passed | `curl -I` returned HTTP/2 200 from production URL. |
-| Core safety flow starts without login | TBD | |
-| Situation selection works | TBD | |
-| Text input works | TBD | |
-| Voice input works if browser allows it | TBD | |
-| Result page renders | TBD | |
-| Read aloud works if browser allows it | TBD | |
-| Trusted support setup opens | TBD | |
-| Official help links are clickable | TBD | |
-| Feedback buttons work | TBD | |
-| Mobile viewport is usable | TBD | |
+| Home page loads | Passed | Production URL loaded with title `AskSafe Home — Your calm decision companion`. |
+| Core safety flow starts without login | Passed | The "I feel unsure about something" flow opened without sign-in. |
+| Situation selection works | Passed | Selected `Video call or online chat`. |
+| Text input works | Passed | Entered a synthetic family-money video-call scenario. |
+| Voice input works if browser allows it | Needs local confirmation | `Use voice` button was present; microphone permission was not accepted during automated testing. |
+| Result page renders | Passed | Result showed pause-first guidance, safer next step, risk signals, hold-off actions, verification steps, official help, trusted support, and feedback. |
+| Read aloud works if browser allows it | Passed with caveat | `Read this aloud` button activated without error; audible output depends on local browser audio settings. |
+| Trusted support setup opens | Passed | `Add someone I trust` opened the `Continue with AskSafe` setup/sign-in modal. |
+| Official help links are clickable | Passed | Result page exposed `tel:` links and official IDCARE, Scamwatch, and ReportCyber links. |
+| Feedback buttons work | Passed | `Yes` feedback button accepted a click without page error. |
+| Mobile viewport is usable | Passed | At 390x844, home heading, CTA, trusted support, practice examples, quick help, and footer were present. |
 
 ## Production Smoke Commands
 
