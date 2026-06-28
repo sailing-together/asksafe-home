@@ -18,7 +18,7 @@ Complete these before submitting:
 - [ ] Result page shows safer next step, risk signals, hold-off actions,
       verification steps, official help, trusted support, and feedback.
 - [ ] DynamoDB evidence screenshot is captured.
-- [ ] Architecture diagram is ready.
+- [x] Architecture diagram is ready.
 - [ ] Product walkthrough video is recorded, public, and under 3 minutes.
 - [ ] Devpost text fields are drafted and reviewed.
 - [ ] GitHub repository link is correct.
@@ -81,6 +81,12 @@ Safe screenshot rules:
 - Use synthetic test data only.
 
 ## Architecture Diagram Evidence
+
+Use the checked-in architecture assets:
+
+- Presentation SVG: `docs/assets/architecture/asksafe-home-architecture.svg`
+- Editable draw.io source: `docs/assets/architecture/asksafe-home-architecture.drawio`
+- Icon source notes: `docs/assets/architecture/ICON_SOURCES.md`
 
 The architecture diagram should show:
 

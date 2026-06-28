@@ -13,7 +13,7 @@ results only after each check is run.
 - GitHub repository: `https://github.com/sailing-together/asksafe-home`
 - Product walkthrough video: `TBD`
 - Devpost submission URL: `TBD`
-- Architecture diagram: `TBD`
+- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.svg`
 - DynamoDB evidence screenshot: `TBD`
 - Vercel Team ID: `TBD`
 
@@ -22,7 +22,7 @@ results only after each check is run.
 - [x] Product remains available on Vercel production URL.
 - [x] GitHub repository link is accessible.
 - [ ] Product walkthrough video is public and under 3 minutes.
-- [ ] Architecture diagram is attached or linked.
+- [x] Architecture diagram is attached or linked.
 - [ ] DynamoDB usage screenshot is captured.
 - [ ] AWS database field is set to DynamoDB.
 - [ ] Vercel Team ID is entered.
