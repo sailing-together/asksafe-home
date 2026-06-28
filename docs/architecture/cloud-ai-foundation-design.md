@@ -57,6 +57,27 @@ naming unless a temporary H0 environment is intentionally created.
 - Bedrock where useful: Bedrock may assist explanation quality, but deterministic
   logic decides the safety structure.
 
+## Implementation Status Update
+
+As of the final H0 submission preparation, several items listed in the original
+current-state section have moved from planned architecture to implemented
+product evidence:
+
+- Terraform-managed AWS app infrastructure exists.
+- GitHub Actions Terraform workflow exists.
+- DynamoDB application tables exist for safety events, feedback, support
+  events, users, households, and quota counters.
+- Server-side persistence routes exist for privacy-safe product events.
+- Bedrock explanation assistance is implemented behind validation,
+  deterministic fallback, rate limits, input caps, and quota hard stops.
+- Production smoke checks have verified DynamoDB event persistence and Bedrock
+  analysis behavior from the deployed Vercel app.
+
+The original current-state section remains useful historical design context, but
+submission materials should rely on the implementation evidence in
+`docs/competition/h0-final-release-smoke-record.md` and the concise architecture
+summary in `docs/competition/h0-architecture-diagram.md`.
+
 ## Recommended Architecture
 
 Use a two-layer infrastructure model.

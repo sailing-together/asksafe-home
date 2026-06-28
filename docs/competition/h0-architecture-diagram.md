@@ -3,6 +3,12 @@
 Use this document as the source content for the final architecture diagram and
 submission description.
 
+This submission diagram is derived from the main architecture notes in
+`docs/architecture/cloud-ai-foundation-design.md`,
+`docs/architecture/bedrock-ai-orchestration-finops-design.md`, and the earlier
+H0 target architecture. It is intentionally shorter than those source documents
+so it can be used in the final submission and product walkthrough.
+
 ## Diagram Description
 
 AskSafe Home is a Vercel-hosted Next.js application with a senior-friendly UI
@@ -85,6 +91,33 @@ flowchart LR
   terraform --> budget
   iam --> api
   smoke --> api
+```
+
+## Controlled Safety Workflow Detail
+
+The polished diagram can show the workflow as one grouped component, but the
+source architecture includes these controlled workflow roles:
+
+- Context Collector: normalizes user text, voice transcript, category, and
+  action chips.
+- Action Classifier: identifies whether the other party wants the user to pay,
+  click, share a code, install an app, share a screen, give details, call back,
+  or clarify.
+- Knowledge Retriever: uses trusted local scam-safety patterns and official
+  guidance seeds.
+- Deterministic Safety Reasoner: owns risk level, risk signals, safer next
+  step, hold-off actions, and verification steps.
+- Response Composer: turns the structured result into calm senior-friendly
+  wording, optionally with bounded Bedrock assistance.
+- Event Recorder: writes privacy-safe metadata and outcomes to DynamoDB.
+- Trusted Support Coordinator: handles user-controlled support actions without
+  automatic monitoring or alerts.
+
+Recommended compact diagram label:
+
+```text
+Controlled safety workflow
+collector -> action classifier -> trusted patterns -> deterministic reasoner -> response composer -> event recorder
 ```
 
 ## Icon Version Layout
