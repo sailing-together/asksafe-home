@@ -6,6 +6,14 @@ diagram for the H0 submission.
 The diagram should look like a real shipped product architecture, not a generic
 AI app sketch. Use recognizable product icons where possible.
 
+## Visual Asset
+
+The current presentation-ready SVG diagram lives at:
+
+- `docs/assets/architecture/asksafe-home-architecture.svg`
+
+Use the checklist below to review that asset before submission.
+
 ## Recommended Diagram Style
 
 - Use official or familiar icons for major platforms.

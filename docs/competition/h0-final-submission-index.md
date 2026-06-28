@@ -23,6 +23,8 @@ This is the single entry point for final H0 submission preparation.
   `docs/competition/h0-final-release-smoke-record.md`
 - Canonical product architecture overview:
   `docs/architecture/asksafe-home-architecture-overview.md`
+- Visual architecture diagram asset:
+  `docs/assets/architecture/asksafe-home-architecture.svg`
 - Architecture diagram source and description:
   `docs/competition/h0-architecture-diagram.md`
 - Architecture evidence checklist:
@@ -91,7 +93,7 @@ Do not frame the product as:
 - Published Vercel app link: `https://asksafe-home.vercel.app`
 - GitHub repository link: `https://github.com/sailing-together/asksafe-home`
 - Product walkthrough video link: `TBD`
-- Architecture diagram: `TBD`
+- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.svg`
 - DynamoDB evidence screenshot: `TBD`
 - Vercel Team ID: `TBD`
 

@@ -24,6 +24,15 @@ Terraform and GitHub Actions manage AWS infrastructure, while FinOps guardrails
 such as rate limits, input caps, Bedrock quota hard stops, and AWS Budgets help
 control abuse and token cost.
 
+## Visual Architecture Asset
+
+Presentation-ready SVG:
+
+- `docs/assets/architecture/asksafe-home-architecture.svg`
+
+Use this asset for the Devpost architecture diagram and product walkthrough
+video when a rendered image is preferred over Mermaid.
+
 ## Mermaid Architecture Diagram
 
 This diagram is suitable for Markdown renderers and can be used as the basis
