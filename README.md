@@ -30,6 +30,21 @@ This repository contains the AskSafe Home web app. The current version includes 
 
 The current safety analysis is rule-based and deterministic. It is intended to make the product flow shippable while backend, persistence, and AI orchestration are added carefully.
 
+## Architecture
+
+![AskSafe Home Architecture](docs/assets/architecture/asksafe-home-architecture.svg)
+
+AskSafe Home is built as a shippable safety decision workflow on Vercel with AWS-backed persistence and bounded AI assistance. The current architecture combines a Next.js App Router frontend, server-side API routes, deterministic safety rules, optional Amazon Bedrock response assistance, DynamoDB event storage, Terraform-managed AWS infrastructure, CloudFormation bootstrap, GitHub Actions delivery, and FinOps quota guardrails.
+
+Key architecture references:
+
+- [Architecture overview](docs/architecture/asksafe-home-architecture-overview.md)
+- [Cloud and AI foundation design](docs/architecture/cloud-ai-foundation-design.md)
+- [Bedrock AI orchestration and FinOps design](docs/architecture/bedrock-ai-orchestration-finops-design.md)
+- [Architecture diagram notes](docs/competition/h0-architecture-diagram.md)
+- [Architecture evidence checklist](docs/competition/h0-architecture-evidence-checklist.md)
+- [Architecture icon sources](docs/assets/architecture/ICON_SOURCES.md)
+
 ## Project Origin And Development Link
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
