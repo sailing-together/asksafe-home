@@ -3,8 +3,9 @@
 Use this document as the source content for the final architecture diagram and
 submission description.
 
-This submission diagram is derived from the main architecture notes in
-`docs/architecture/cloud-ai-foundation-design.md`,
+This submission diagram is derived from the canonical architecture overview in
+`docs/architecture/asksafe-home-architecture-overview.md`, the detailed design
+notes in `docs/architecture/cloud-ai-foundation-design.md` and
 `docs/architecture/bedrock-ai-orchestration-finops-design.md`, and the earlier
 H0 target architecture. It is intentionally shorter than those source documents
 so it can be used in the final submission and product walkthrough.

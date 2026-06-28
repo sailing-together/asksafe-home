@@ -21,6 +21,8 @@ This is the single entry point for final H0 submission preparation.
   `docs/competition/h0-devpost-submission-copy.md`
 - Final production smoke record:
   `docs/competition/h0-final-release-smoke-record.md`
+- Canonical product architecture overview:
+  `docs/architecture/asksafe-home-architecture-overview.md`
 - Architecture diagram source and description:
   `docs/competition/h0-architecture-diagram.md`
 - Architecture evidence checklist:
