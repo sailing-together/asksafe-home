@@ -215,3 +215,5 @@ Before using the architecture diagram in the final submission, confirm:
 - `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready architecture image.
 - `docs/assets/architecture/icons/aws/` stores selected official AWS Architecture Icons used in the diagram.
 - `docs/assets/architecture/ICON_SOURCES.md` records the source package and notes which non-AWS marks are simplified diagram cues.
+
+- `docs/assets/architecture/asksafe-home-architecture.drawio` is the editable diagrams.net / draw.io source for future architecture revisions.

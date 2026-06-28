@@ -29,10 +29,12 @@ control abuse and token cost.
 Presentation-ready SVG:
 
 - `docs/assets/architecture/asksafe-home-architecture.svg`
+- `docs/assets/architecture/asksafe-home-architecture.drawio`
 - `docs/assets/architecture/ICON_SOURCES.md`
 
-Use this asset for the Devpost architecture diagram and product walkthrough
-video when a rendered image is preferred over Mermaid. The diagram uses selected
+Use the SVG asset for the Devpost architecture diagram and product walkthrough
+video when a rendered image is preferred over Mermaid. Use the `.drawio` file as
+the editable source for diagrams.net / draw.io revisions. The diagram uses selected
 official AWS Architecture Icons for AWS services and simple drawn/text cues for
 non-AWS services where a reliable official downloadable SVG is not stored in the
 repo.

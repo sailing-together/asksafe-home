@@ -25,6 +25,8 @@ This is the single entry point for final H0 submission preparation.
   `docs/architecture/asksafe-home-architecture-overview.md`
 - Visual architecture diagram asset:
   `docs/assets/architecture/asksafe-home-architecture.svg`
+- Editable draw.io architecture source:
+  `docs/assets/architecture/asksafe-home-architecture.drawio`
 - Architecture icon source notes:
   `docs/assets/architecture/ICON_SOURCES.md`
 - Architecture diagram source and description:
