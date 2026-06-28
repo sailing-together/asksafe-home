@@ -39,7 +39,8 @@ This is the single entry point for final H0 submission preparation.
 1. Confirm production app is available:
    `https://asksafe-home.vercel.app`
 2. Capture DynamoDB evidence screenshot.
-3. Confirm or export final architecture diagram.
+3. Use the checked-in final architecture diagram:
+   `docs/assets/architecture/asksafe-home-architecture.svg`.
 4. Record product walkthrough video under 3 minutes.
 5. Upload video publicly.
 6. Fill Devpost fields using `h0-devpost-submission-copy.md`.
@@ -57,14 +58,14 @@ From `docs/competition/h0-final-release-smoke-record.md`:
 - Support event smoke persisted to DynamoDB.
 - Bedrock analyze smoke used Bedrock successfully.
 - Bedrock analyze smoke returned `bedrockOutcome: "success"`.
+- Architecture diagram is checked in at `docs/assets/architecture/asksafe-home-architecture.svg`.
 
 ## Evidence Still To Fill
 
-These must be filled manually when the assets are ready:
+These must still be filled manually before submission:
 
 - Product walkthrough video URL
 - Devpost submission URL
-- Architecture diagram link or path
 - DynamoDB screenshot link or path
 - Vercel Team ID
 - Final browser walkthrough notes
