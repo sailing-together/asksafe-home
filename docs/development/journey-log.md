@@ -7,6 +7,21 @@ engineering record, not a changelog of every commit.
 For the detailed prompt-by-prompt v0.app build path, see
 `docs/development/v0-iteration-log.md`.
 
+## Development Tooling Note
+
+The team used v0.app for rapid UI preview and visual iteration, especially while
+shaping the senior-friendly home, guided safety flow, result cards, trusted
+support setup, voice controls, and footer polish.
+
+Codex was used as a repository-based engineering collaborator for implementation
+support, code review, documentation updates, testing workflow, infrastructure
+workflow, and release-readiness checks.
+
+These tools supported development, but they are not runtime dependencies of the
+AskSafe Home product. The deployed product architecture remains centered on
+Vercel, Next.js, AWS DynamoDB, Amazon Bedrock, Terraform, GitHub Actions, and
+FinOps guardrails.
+
 ## Product North Star
 
 AskSafe Home exists to reduce uncertainty, loneliness, fear, and decision
@@ -1318,6 +1333,7 @@ Why:
 Bedrock assist is useful, but production traffic must stay bounded. This keeps
 AskSafe shippable while reducing the risk that accidental or hostile repeated
 requests create unnecessary token cost.
+
 ## Phase 8.21: Bedrock Quotas And Runtime Hard Stop
 
 P7.39/P7.40 added runtime quota protection for Bedrock-assisted analysis.
