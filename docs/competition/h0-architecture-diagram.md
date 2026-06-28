@@ -24,9 +24,9 @@ Terraform and GitHub Actions manage AWS infrastructure, while FinOps guardrails
 such as rate limits, input caps, Bedrock quota hard stops, and AWS Budgets help
 control abuse and token cost.
 
-## Visual Architecture Asset
+## Visual Architecture Assets
 
-Presentation-ready SVG:
+Presentation-ready SVG and editable source:
 
 - `docs/assets/architecture/asksafe-home-architecture.svg`
 - `docs/assets/architecture/asksafe-home-architecture.drawio`
@@ -79,6 +79,7 @@ flowchart LR
   subgraph delivery["Infrastructure and operations"]
     github["GitHub repository"]
     actions["GitHub Actions"]
+    cloudformation["CloudFormation bootstrap"]
     terraform["Terraform"]
     iam["Scoped AWS IAM runtime role"]
     budget["AWS Budget"]
@@ -101,7 +102,10 @@ flowchart LR
   dynamodb --> support
   dynamodb --> setup
   dynamodb --> quota
-  github --> actions --> terraform
+  github --> actions
+  actions --> cloudformation
+  actions --> terraform
+  cloudformation -. "state + OIDC" .-> terraform
   terraform --> dynamodb
   terraform --> iam
   terraform --> budget
@@ -154,6 +158,7 @@ Recommended icons:
 - Validation/fallback: shield gate icon
 - Amazon DynamoDB: AWS DynamoDB icon
 - IAM role: AWS IAM or key icon
+- CloudFormation: AWS CloudFormation icon
 - Terraform: Terraform icon
 - GitHub Actions: GitHub Actions icon
 - AWS Budget: cost/budget icon
@@ -183,7 +188,8 @@ flow through Next.js API routes into deterministic safety rules, with optional
 Amazon Bedrock assistance for clearer wording. Bedrock output is validated
 before use and can fall back to deterministic results. DynamoDB is the primary
 AWS database for privacy-safe safety events, feedback, trusted support actions,
-setup data, and Bedrock quota counters. Terraform and GitHub Actions manage AWS
+setup data, and Bedrock quota counters. CloudFormation bootstraps Terraform
+state and GitHub OIDC access; Terraform and GitHub Actions manage AWS app
 infrastructure, while IAM scoping, rate limits, input caps, quota hard stops,
 AWS Budget, and production smoke checks support security, cost control, and
 operational readiness.

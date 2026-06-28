@@ -42,6 +42,7 @@ Use the checklist below to review that asset before submission.
 | AWS Budget | Cost/budget icon | AWS Budget |
 | FinOps | Coin + shield, meter + shield, or simple custom cost-control icon | FinOps guardrails |
 | Quota controls | Gauge/stop icon | Bedrock quota hard stop |
+| CloudFormation | AWS CloudFormation icon | Bootstrap foundation |
 | Terraform | Terraform icon | Terraform |
 | GitHub Actions | GitHub Actions icon | CI/CD workflow |
 | Vercel environment | Lock/config icon | Vercel environment variables |
@@ -136,14 +137,16 @@ Add a separate lower band for delivery and infrastructure:
 
 1. GitHub repository
 2. GitHub Actions
-3. Terraform
-4. AWS infrastructure
-5. Vercel production deployment
+3. CloudFormation bootstrap for Terraform state and GitHub OIDC
+4. Terraform-managed app infrastructure
+5. AWS infrastructure
+6. Vercel production deployment
 
 Show that Terraform manages AWS-side infrastructure, not Vercel UI layout.
 
 Recommended labels:
 
+- `CloudFormation bootstrap foundation`
 - `GitHub Actions Terraform workflow`
 - `Terraform-managed AWS resources`
 - `Vercel production deployment`
@@ -183,7 +186,7 @@ Use this layout:
      +--> [DynamoDB privacy-safe events]
 
 Lower band:
-[GitHub] --> [GitHub Actions] --> [Terraform] --> [AWS resources]
+[GitHub] --> [GitHub Actions] --> [CloudFormation bootstrap] --> [Terraform] --> [AWS resources]
 ```
 
 For a more polished diagram, use grouped boxes:
@@ -204,6 +207,7 @@ Before using the architecture diagram in the final submission, confirm:
 - [ ] Bedrock is shown as bounded assistance with validation/fallback.
 - [ ] deterministic safety rules are visible.
 - [ ] outcome events and support events connect to DynamoDB.
+- [ ] CloudFormation bootstrap is visible.
 - [ ] Terraform and GitHub Actions are visible.
 - [ ] FinOps controls are visible.
 - [ ] no secrets, account IDs, or real personal data appear.
