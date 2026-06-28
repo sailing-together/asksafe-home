@@ -103,9 +103,6 @@
     <mxCell id="iam" value="IAM runtime roles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4ea;strokeColor=#9cc5aa;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
       <mxGeometry x="1310" y="746" width="150" height="44" as="geometry"/>
     </mxCell>
-    <mxCell id="caption" value="Caption for submission:&lt;br&gt;DynamoDB is the primary AWS database. Bedrock is bounded by deterministic fallback, validation, rate limits, input caps, and FinOps quota hard stops." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff1e4;strokeColor=#f28b2e;strokeWidth=2;arcSize=8;fontFamily=Arial;fontSize=13;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-      <mxGeometry x="92" y="850" width="1394" height="88" as="geometry"/>
-    </mxCell>
     <mxCell id="e1" value="" style="endArrow=block;html=1;rounded=1;strokeColor=#557266;strokeWidth=2;" edge="1" parent="1" source="senior" target="vercel">
       <mxGeometry relative="1" as="geometry"/>
     </mxCell>
