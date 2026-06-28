@@ -88,7 +88,7 @@
     <mxCell id="quota" value="Bedrock quota counters&lt;br&gt;cost hard stop evidence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff0e0;strokeColor=#f28b2e;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
       <mxGeometry x="1202" y="550" width="250" height="58" as="geometry"/>
     </mxCell>
-    <mxCell id="ops" value="5. Infrastructure and Operations&lt;br&gt;GitHub Actions runs Terraform to provision AWS infrastructure. Production smoke checks verify API routes, DynamoDB persistence, Bedrock behavior, and quota guardrails." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d8decf;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
+    <mxCell id="ops" value="5. Infrastructure and Operations&lt;br&gt;CI/CD, Terraform, AWS bootstrap, runtime IAM, and cost controls." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d8decf;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
       <mxGeometry x="92" y="732" width="1394" height="80" as="geometry"/>
     </mxCell>
     <mxCell id="gh" value="GitHub Actions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d8decf;strokeWidth=1.5;arcSize=8;fontFamily=Arial;fontSize=14;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
