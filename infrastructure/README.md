@@ -17,7 +17,7 @@ Bootstrap resources are created once with CloudFormation:
 App resources are managed with Terraform:
 
 - DynamoDB application tables
-- optional Amazon SES sender identity for setup emails
+- optional Amazon SES identity for setup emails
 - runtime IAM policy for server-side app access
 - Terraform outputs for Vercel runtime configuration
 
@@ -49,8 +49,8 @@ Recommended stack settings:
 - Terraform state key: `asksafe-home/prod/terraform.tfstate`
 - App project name: `asksafe-home`
 - App environment: `prod`
-- Setup email from address: leave blank unless Terraform needs to manage a
-  specific Amazon SES sender identity
+- Setup email identity: leave blank until Terraform needs to manage a specific
+  Amazon SES identity. Use `asksafe.ai` for production domain verification.
 
 The S3 bucket and DynamoDB lock table are retained on stack deletion. Delete
 them manually only after every Terraform state file has been backed up or is no
@@ -63,8 +63,9 @@ workspace prefixes during `terraform init`.
 The GitHub Actions Terraform role also needs read-after-create permissions used
 by AWS providers, such as DynamoDB continuous backup status checks during apply.
 When SES setup email delivery is enabled, update this bootstrap stack with the
-same `SetupEmailFromAddress` used by Terraform before running Terraform apply.
-The Terraform role is scoped to that single SES identity.
+same `SetupEmailIdentity` used by Terraform before running Terraform apply. For
+production, use `asksafe.ai`. The Terraform role is scoped to that single SES
+identity.
 
 ## Configure GitHub
 
@@ -127,22 +128,29 @@ AskSafe's core safety check does not require sign-in. The optional `My setup`
 flow can send one-time setup codes through Amazon SES when this app stack is
 configured with a verified sender identity.
 
-Start with a single sender email identity to avoid introducing DNS requirements
-before product validation:
+Use a domain identity for production so AskSafe can send branded setup emails
+from `no-reply@asksafe.ai` without tying delivery to a personal mailbox:
 
 ```hcl
-enable_setup_email_ses  = true
-setup_email_from_address = "noreply@example.com"
+enable_setup_email_ses   = true
+setup_email_identity     = "asksafe.ai"
+setup_email_from_address = "no-reply@asksafe.ai"
 ```
 
-After Terraform creates the SES identity, verify the sender email in the AWS SES
-console before setting production Vercel variables. Unverified SES identities
-cannot deliver real setup codes.
+After Terraform creates the SES domain identity, open AWS SES in
+`ap-southeast-2`, copy the DKIM CNAME records, and add them to Cloudflare DNS
+for `asksafe.ai` as DNS-only records. Do not proxy these CNAME records through
+Cloudflare. Wait until SES shows the domain identity as verified before setting
+production Vercel variables.
+
+If the AWS account is still in the SES sandbox, real setup codes can only be
+sent to verified recipient addresses. Request SES production access before
+community use.
 
 Vercel runtime variables for SES setup email delivery:
 
 - `ASKSAFE_SETUP_EMAIL_PROVIDER=ses`
-- `ASKSAFE_SETUP_EMAIL_FROM=<verified SES sender email>`
+- `ASKSAFE_SETUP_EMAIL_FROM=no-reply@asksafe.ai`
 - `AWS_REGION=ap-southeast-2`
 - `ASKSAFE_OTP_SECRET=<strong secret>`
 - `ASKSAFE_SESSION_SECRET=<strong secret>`
@@ -175,6 +183,7 @@ Expected repository variables:
 - `TF_ENVIRONMENT=prod`
 - `TF_BEDROCK_MODEL_ARNS=[]` until Bedrock is intentionally enabled
 - `TF_ENABLE_SETUP_EMAIL_SES=false` until SES delivery is intentionally enabled
+- `TF_SETUP_EMAIL_IDENTITY=` until an SES identity is selected
 - `TF_SETUP_EMAIL_FROM_ADDRESS=` until a sender address is selected
 
 When Bedrock explanation assist is enabled for production smoke testing, set
@@ -189,10 +198,10 @@ This updates only the runtime IAM policy allowlist. Vercel still needs its
 separate runtime environment variables before the app attempts Bedrock.
 
 When SES setup email delivery is enabled, set `TF_ENABLE_SETUP_EMAIL_SES=true`
-and `TF_SETUP_EMAIL_FROM_ADDRESS` to the intended sender email address before
-running `apply`. First update the CloudFormation bootstrap stack with the same
-sender email in `SetupEmailFromAddress` so the GitHub Actions Terraform role can
-manage only that SES sender identity.
+with `TF_SETUP_EMAIL_IDENTITY=asksafe.ai` and
+`TF_SETUP_EMAIL_FROM_ADDRESS=no-reply@asksafe.ai` before running `apply`. First
+update the CloudFormation bootstrap stack with `SetupEmailIdentity=asksafe.ai`
+so the GitHub Actions Terraform role can manage only that SES domain identity.
 
 Expected repository secret:
 

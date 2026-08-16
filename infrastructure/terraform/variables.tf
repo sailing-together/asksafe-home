@@ -24,13 +24,24 @@ variable "bedrock_model_arns" {
 
 variable "enable_setup_email_ses" {
   type        = bool
-  description = "Whether Terraform should create an Amazon SES sender identity for setup OTP emails."
+  description = "Whether Terraform should create an Amazon SES identity for setup OTP emails."
   default     = false
+}
+
+variable "setup_email_identity" {
+  type        = string
+  description = "Amazon SES identity for AskSafe setup OTP emails. Use asksafe.ai for the production domain identity."
+  default     = ""
+
+  validation {
+    condition     = var.setup_email_identity == "" || can(regex("^[^\\s]+$", var.setup_email_identity))
+    error_message = "setup_email_identity must be empty or a single email/domain identity without whitespace."
+  }
 }
 
 variable "setup_email_from_address" {
   type        = string
-  description = "Sender email address for AskSafe setup OTP emails. Required when enable_setup_email_ses is true."
+  description = "Sender email address for AskSafe setup OTP emails. Use no-reply@asksafe.ai after the asksafe.ai SES domain identity is verified."
   default     = ""
 
   validation {

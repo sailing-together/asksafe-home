@@ -47,14 +47,14 @@ Parameters:
     Default: prod
     Description: Terraform environment used to name future app resources.
 
-  SetupEmailFromAddress:
+  SetupEmailIdentity:
     Type: String
     Default: ""
-    Description: Optional verified sender email address that Terraform may manage for AskSafe setup emails.
-    AllowedPattern: "^$|^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+    Description: Optional SES identity that Terraform may manage for AskSafe setup emails. Use asksafe.ai for the production domain identity.
+    AllowedPattern: "^$|^[^\\s]+$"
 
 Conditions:
-  HasSetupEmailFromAddress: !Not [!Equals [!Ref SetupEmailFromAddress, ""]]
+  HasSetupEmailIdentity: !Not [!Equals [!Ref SetupEmailIdentity, ""]]
 
 Resources:
   TerraformStateBucket:
@@ -204,7 +204,7 @@ Resources:
                 Resource: "*"
 
               - !If
-                - HasSetupEmailFromAddress
+                - HasSetupEmailIdentity
                 - Sid: ManageAskSafeHomeSetupEmailIdentity
                   Effect: Allow
                   Action:
@@ -214,7 +214,7 @@ Resources:
                     - ses:TagResource
                     - ses:UntagResource
                     - ses:ListTagsForResource
-                  Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SetupEmailFromAddress}
+                  Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SetupEmailIdentity}
                 - !Ref AWS::NoValue
 
               - Sid: ManageAskSafeHomeRuntimePolicy

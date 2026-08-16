@@ -1,5 +1,7 @@
 locals {
-  name_prefix = "${var.project_name}-${var.environment}"
+  name_prefix                        = "${var.project_name}-${var.environment}"
+  setup_email_ses_identity_enabled   = var.enable_setup_email_ses && var.setup_email_identity != ""
+  setup_email_ses_runtime_configured = local.setup_email_ses_identity_enabled && var.setup_email_from_address != ""
 
   tags = {
     Project     = "AskSafeHome"
@@ -27,8 +29,8 @@ locals {
 module "setup_email_ses" {
   source = "./modules/setup-email-ses"
 
-  enabled      = var.enable_setup_email_ses
-  from_address = var.setup_email_from_address
+  enabled  = local.setup_email_ses_identity_enabled
+  identity = var.setup_email_identity
   tags = merge(local.tags, {
     LogicalName = "AskSafeSetupEmail"
   })
@@ -290,7 +292,7 @@ data "aws_iam_policy_document" "runtime" {
   }
 
   dynamic "statement" {
-    for_each = var.enable_setup_email_ses ? [1] : []
+    for_each = local.setup_email_ses_identity_enabled ? [1] : []
 
     content {
       sid    = "AskSafeHomeSetupEmailSesAccess"
