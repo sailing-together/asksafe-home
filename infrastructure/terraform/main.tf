@@ -24,6 +24,16 @@ locals {
   ]
 }
 
+module "setup_email_ses" {
+  source = "./modules/setup-email-ses"
+
+  enabled      = var.enable_setup_email_ses
+  from_address = var.setup_email_from_address
+  tags = merge(local.tags, {
+    LogicalName = "AskSafeSetupEmail"
+  })
+}
+
 resource "aws_dynamodb_table" "users" {
   name         = "${local.name_prefix}-users"
   billing_mode = "PAY_PER_REQUEST"
@@ -276,6 +286,21 @@ data "aws_iam_policy_document" "runtime" {
       ]
 
       resources = var.bedrock_model_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.enable_setup_email_ses ? [1] : []
+
+    content {
+      sid    = "AskSafeHomeSetupEmailSesAccess"
+      effect = "Allow"
+
+      actions = [
+        "ses:SendEmail",
+      ]
+
+      resources = [module.setup_email_ses.identity_arn]
     }
   }
 }
