@@ -268,3 +268,7 @@ The core safety check should remain usable without an account. Account setup is
 for optional personalization and trusted support continuity, not a gate in front
 of urgent safety guidance. Trusted support should remain user-controlled and
 should not become automatic family monitoring.
+
+Detailed setup persistence design:
+
+- `docs/product/optional-setup-persistence-design.md`
