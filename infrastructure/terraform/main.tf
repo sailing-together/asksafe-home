@@ -37,9 +37,10 @@ module "setup_email_ses" {
 }
 
 resource "aws_dynamodb_table" "users" {
-  name         = "${local.name_prefix}-users"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "userId"
+  name                       = "${local.name_prefix}-users"
+  billing_mode               = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                   = "userId"
 
   attribute {
     name = "userId"
@@ -67,9 +68,10 @@ resource "aws_dynamodb_table" "users" {
 }
 
 resource "aws_dynamodb_table" "households" {
-  name         = "${local.name_prefix}-households"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "householdId"
+  name                       = "${local.name_prefix}-households"
+  billing_mode               = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                   = "householdId"
 
   attribute {
     name = "householdId"
@@ -97,9 +99,10 @@ resource "aws_dynamodb_table" "households" {
 }
 
 resource "aws_dynamodb_table" "events" {
-  name         = "${local.name_prefix}-events"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "eventId"
+  name                       = "${local.name_prefix}-events"
+  billing_mode               = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                   = "eventId"
 
   attribute {
     name = "eventId"
@@ -162,9 +165,10 @@ resource "aws_dynamodb_table" "events" {
 }
 
 resource "aws_dynamodb_table" "feedback" {
-  name         = "${local.name_prefix}-feedback"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "feedbackId"
+  name                       = "${local.name_prefix}-feedback"
+  billing_mode               = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                   = "feedbackId"
 
   attribute {
     name = "feedbackId"
@@ -203,9 +207,10 @@ resource "aws_dynamodb_table" "feedback" {
 }
 
 resource "aws_dynamodb_table" "support_events" {
-  name         = "${local.name_prefix}-support-events"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "supportEventId"
+  name                       = "${local.name_prefix}-support-events"
+  billing_mode               = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                   = "supportEventId"
 
   attribute {
     name = "supportEventId"
