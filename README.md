@@ -4,6 +4,24 @@ AskSafe Home helps older adults pause, understand risk, and choose a safer next 
 
 The app is designed as a calm decision companion, not a generic chatbot. It guides people through one task at a time, uses large readable text, and keeps the safest next step clear.
 
+## H0 Hackathon Winner
+
+AskSafe Home won Open Innovation first prize in the H0: Hack the Zero Stack with Vercel v0 and AWS Databases Hackathon.
+
+- Devpost project: [AskSafe Home](https://devpost.com/software/asksafe-home)
+- Pitch video: [YouTube walkthrough](https://www.youtube.com/watch?v=mbEXnb-ODic)
+- Technical article: [Building AskSafe Home with Vercel, v0, AWS DynamoDB, and Amazon Bedrock](https://builder.aws.com/post/3Fnwar87VeeS2xa0Lfe1UP06TQD_p/building-asksafe-home-with-vercel-v0-aws-dynamodb-and-amazon-bedrock-for-the-h0-hackathon)
+- Live product: [asksafe-home.vercel.app](https://asksafe-home.vercel.app)
+- Winning submission snapshot: `v1.0-h0-winner`
+
+## Architecture
+
+![AskSafe Home architecture](docs/assets/architecture/asksafe-home-architecture.png)
+
+- Architecture overview: [docs/architecture/asksafe-home-architecture-overview.md](docs/architecture/asksafe-home-architecture-overview.md)
+- Submission architecture notes: [docs/competition/h0-architecture-diagram.md](docs/competition/h0-architecture-diagram.md)
+- Editable diagram source: [docs/assets/architecture/asksafe-home-architecture.drawio](docs/assets/architecture/asksafe-home-architecture.drawio)
+
 ## What It Does
 
 - Guides someone through an "I feel unsure" safety check
@@ -29,6 +47,22 @@ The app is designed as a calm decision companion, not a generic chatbot. It guid
 This repository contains the AskSafe Home web app. The current version includes the guided safety-check UI, local deterministic safety logic, trusted-support setup flow, mock one-time-code sign-in flow, voice input, read-aloud support, official-help references, privacy-safe event persistence, and optional Bedrock-assisted result wording.
 
 The current safety analysis is rule-based and deterministic. It is intended to make the product flow shippable while backend, persistence, and AI orchestration are added carefully.
+
+## Post-H0 Product Hardening
+
+The core safety check is intentionally usable without login.
+
+The current `My setup` and trusted-support setup flow is optional and still uses a mock one-time-code sign-in path. A production-ready setup flow should replace the mock code path with real email or phone OTP, or a magic-link sign-in flow, then persist consent-managed setup data to DynamoDB.
+
+Planned setup hardening:
+
+- keep the core safety check available without an account
+- replace mock one-time-code sign-in with real OTP or magic-link authentication
+- persist lightweight user setup to `asksafe-home-prod-users`
+- persist household or trusted-person setup to `asksafe-home-prod-households`
+- keep trusted support user-controlled, with no automatic family monitoring
+- support loading, editing, and deleting saved setup
+- document clearly what is saved, what is not saved, and what is not shared automatically
 
 ## Project Origin And Development Link
 

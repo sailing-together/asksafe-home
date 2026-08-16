@@ -4,6 +4,11 @@ Production URL: `https://asksafe-home.vercel.app`
 Repository: `https://github.com/sailing-together/asksafe-home`
 Primary AWS database: Amazon DynamoDB
 Recommended track: Track 4, Open Innovation
+Devpost project: `https://devpost.com/software/asksafe-home`
+Product walkthrough video: `https://www.youtube.com/watch?v=mbEXnb-ODic`
+Technical article:
+`https://builder.aws.com/post/3Fnwar87VeeS2xa0Lfe1UP06TQD_p/building-asksafe-home-with-vercel-v0-aws-dynamodb-and-amazon-bedrock-for-the-h0-hackathon`
+Winning submission snapshot: `v1.0-h0-winner`
 
 This is the single entry point for final H0 submission preparation.
 
@@ -17,6 +22,8 @@ This is the single entry point for final H0 submission preparation.
   `docs/competition/h0-final-submission-evidence-pack.md`
 - Product walkthrough script:
   `docs/competition/h0-product-walkthrough-script.md`
+- Final video narration script:
+  `docs/competition/h0-final-video-script.md`
 - Devpost-ready submission copy:
   `docs/competition/h0-devpost-submission-copy.md`
 - Final production smoke record:
@@ -25,6 +32,8 @@ This is the single entry point for final H0 submission preparation.
   `docs/architecture/asksafe-home-architecture-overview.md`
 - Visual architecture diagram asset:
   `docs/assets/architecture/asksafe-home-architecture.svg`
+- Visual architecture diagram PNG:
+  `docs/assets/architecture/asksafe-home-architecture.png`
 - Editable draw.io architecture source:
   `docs/assets/architecture/asksafe-home-architecture.drawio`
 - Architecture icon source notes:
@@ -40,9 +49,10 @@ This is the single entry point for final H0 submission preparation.
    `https://asksafe-home.vercel.app`
 2. Capture DynamoDB evidence screenshot.
 3. Use the checked-in final architecture diagram:
-   `docs/assets/architecture/asksafe-home-architecture.svg`.
+   `docs/assets/architecture/asksafe-home-architecture.png`.
 4. Record product walkthrough video under 3 minutes.
-5. Upload video publicly.
+5. Upload video publicly:
+   `https://www.youtube.com/watch?v=mbEXnb-ODic`.
 6. Fill Devpost fields using `h0-devpost-submission-copy.md`.
 7. Fill remaining placeholders in `h0-final-release-smoke-record.md`.
 8. Review submission against `h0-submission-checklist.md`.
@@ -59,13 +69,15 @@ From `docs/competition/h0-final-release-smoke-record.md`:
 - Bedrock analyze smoke used Bedrock successfully.
 - Bedrock analyze smoke returned `bedrockOutcome: "success"`.
 - Architecture diagram is checked in at `docs/assets/architecture/asksafe-home-architecture.svg`.
+- Product walkthrough video is published at
+  `https://www.youtube.com/watch?v=mbEXnb-ODic`.
+- Devpost project is published at `https://devpost.com/software/asksafe-home`.
+- Technical article is published on AWS Builder Center.
 
 ## Evidence Still To Fill
 
 These must still be filled manually before submission:
 
-- Product walkthrough video URL
-- Devpost submission URL
 - DynamoDB screenshot link or path
 - Vercel Team ID
 - Final browser walkthrough notes
@@ -97,8 +109,8 @@ Do not frame the product as:
 - AWS database: DynamoDB
 - Published Vercel app link: `https://asksafe-home.vercel.app`
 - GitHub repository link: `https://github.com/sailing-together/asksafe-home`
-- Product walkthrough video link: `TBD`
-- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.svg`
+- Product walkthrough video link: `https://www.youtube.com/watch?v=mbEXnb-ODic`
+- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.png`
 - DynamoDB evidence screenshot: `TBD`
 - Vercel Team ID: `TBD`
 
