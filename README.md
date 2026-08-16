@@ -19,8 +19,6 @@ AskSafe Home won Open Innovation first prize in the H0: Hack the Zero Stack with
 ![AskSafe Home architecture](docs/assets/architecture/asksafe-home-architecture.png)
 
 - Architecture overview: [docs/architecture/asksafe-home-architecture-overview.md](docs/architecture/asksafe-home-architecture-overview.md)
-- Submission architecture notes: [docs/competition/h0-architecture-diagram.md](docs/competition/h0-architecture-diagram.md)
-- Editable diagram source: [docs/assets/architecture/asksafe-home-architecture.drawio](docs/assets/architecture/asksafe-home-architecture.drawio)
 
 ## What It Does
 
