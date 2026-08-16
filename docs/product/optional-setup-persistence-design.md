@@ -7,10 +7,12 @@ optional `My setup` flow from a browser-only/mock sign-in experience into a
 server-backed setup foundation with DynamoDB OTP challenges, HTTP-only session
 cookies, and DynamoDB user/household setup persistence.
 
+P8.6 adds the production email delivery path for setup codes through Amazon SES.
 The core safety check still does not require sign-in. Email delivery is explicit:
 the server no longer pretends to send a code. Production email sending requires a
-configured delivery adapter; otherwise the API returns a clear `email-not-configured`
-response and the user can continue using AskSafe without setup.
+configured and verified SES sender; otherwise the API returns a clear
+`email-not-configured` response and the user can continue using AskSafe without
+setup.
 
 ## Product Boundary
 
@@ -115,11 +117,21 @@ The implemented setup routes require these server-side environment variables:
 - `ASKSAFE_OTP_SECRET` for hashing short-lived one-time codes
 - `ASKSAFE_SESSION_SECRET` for signing HTTP-only setup session cookies
 
-Email delivery is intentionally explicit. Until a production email adapter such
-as Amazon SES is configured, `POST /api/setup/request-code` returns
-`email-not-configured` and the UI tells the user they can still use AskSafe
-without setup. Local operators can use `ASKSAFE_SETUP_EMAIL_MODE=console`
-only for development smoke checks.
+Email delivery is intentionally explicit. For production setup emails through
+Amazon SES, configure:
+
+- `ASKSAFE_SETUP_EMAIL_PROVIDER=ses`
+- `ASKSAFE_SETUP_EMAIL_FROM=<verified SES sender email>`
+- `AWS_REGION=ap-southeast-2`
+
+Terraform can create the SES sender identity, but the sender still must be
+verified through AWS SES before messages can be delivered. If SES is not
+configured or the sender is not usable, `POST /api/setup/request-code` returns
+`email-not-configured` or `email-send-failed` and the UI tells the user they can
+still use AskSafe without setup.
+
+Local operators can use `ASKSAFE_SETUP_EMAIL_MODE=console` only for development
+smoke checks. Console mode must not be presented as a real delivery path.
 
 ## DynamoDB Data Model
 

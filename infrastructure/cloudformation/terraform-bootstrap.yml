@@ -47,6 +47,15 @@ Parameters:
     Default: prod
     Description: Terraform environment used to name future app resources.
 
+  SetupEmailFromAddress:
+    Type: String
+    Default: ""
+    Description: Optional verified sender email address that Terraform may manage for AskSafe setup emails.
+    AllowedPattern: "^$|^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+
+Conditions:
+  HasSetupEmailFromAddress: !Not [!Equals [!Ref SetupEmailFromAddress, ""]]
+
 Resources:
   TerraformStateBucket:
     Type: AWS::S3::Bucket
@@ -193,6 +202,20 @@ Resources:
                 Action:
                   - dynamodb:ListTables
                 Resource: "*"
+
+              - !If
+                - HasSetupEmailFromAddress
+                - Sid: ManageAskSafeHomeSetupEmailIdentity
+                  Effect: Allow
+                  Action:
+                    - ses:CreateEmailIdentity
+                    - ses:DeleteEmailIdentity
+                    - ses:GetEmailIdentity
+                    - ses:TagResource
+                    - ses:UntagResource
+                    - ses:ListTagsForResource
+                  Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SetupEmailFromAddress}
+                - !Ref AWS::NoValue
 
               - Sid: ManageAskSafeHomeRuntimePolicy
                 Effect: Allow

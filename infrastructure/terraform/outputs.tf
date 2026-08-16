@@ -25,10 +25,22 @@ output "vercel_environment_variables" {
     ASKSAFE_SUPPORT_EVENTS_TABLE       = aws_dynamodb_table.support_events.name
     ASKSAFE_RUNTIME_IAM_POLICY_ARN     = aws_iam_policy.runtime.arn
     ASKSAFE_BEDROCK_MODEL_ARNS_ENABLED = tostring(length(var.bedrock_model_arns) > 0)
+    ASKSAFE_SETUP_EMAIL_PROVIDER       = var.enable_setup_email_ses ? "ses" : ""
+    ASKSAFE_SETUP_EMAIL_FROM           = var.enable_setup_email_ses ? module.setup_email_ses.from_address : ""
+    ASKSAFE_SETUP_EMAIL_SES_IDENTITY   = var.enable_setup_email_ses ? module.setup_email_ses.identity_arn : ""
   }
 }
 
 output "runtime_policy_arn" {
   description = "IAM policy ARN for server-side AskSafe Home runtime access."
   value       = aws_iam_policy.runtime.arn
+}
+
+output "setup_email_ses_identity" {
+  description = "SES sender identity created for AskSafe setup email delivery, when enabled."
+  value = {
+    enabled      = module.setup_email_ses.enabled
+    from_address = module.setup_email_ses.from_address
+    identity_arn = module.setup_email_ses.identity_arn
+  }
 }

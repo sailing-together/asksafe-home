@@ -42,6 +42,8 @@ jobs:
       TF_VAR_project_name: ${{ vars.TF_PROJECT_NAME }}
       TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
       TF_VAR_bedrock_model_arns: ${{ vars.TF_BEDROCK_MODEL_ARNS }}
+      TF_VAR_enable_setup_email_ses: ${{ vars.TF_ENABLE_SETUP_EMAIL_SES }}
+      TF_VAR_setup_email_from_address: ${{ vars.TF_SETUP_EMAIL_FROM_ADDRESS }}
 
     steps:
       - name: Checkout
