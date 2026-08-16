@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserRound, Copy, Check, ShieldCheck, X, Mail, Phone, ArrowLeft, LogOut } from "lucide-react"
+import { UserRound, Copy, Check, ShieldCheck, X, Mail, ArrowLeft, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
@@ -18,6 +18,12 @@ export type SupportSetup = {
 }
 
 type Phase = "signin" | "code" | "form" | "summary"
+type AsyncResult =
+  | { ok: true }
+  | {
+      ok: false
+      reason: string
+    }
 
 const relationships = [
   "Daughter",
@@ -34,8 +40,6 @@ const usingForLabels: Record<SupportSetup["usingFor"], string> = {
   self: "Myself",
   other: "Someone I care about",
 }
-
-const MOCK_CODE = "123456"
 
 const inputClass =
   "h-12 rounded-xl border border-border bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -54,6 +58,9 @@ export function TrustedSupportDialog({
   onSignIn,
   onSignOut,
   onCreate,
+  onRequestCode,
+  onVerifyCode,
+  onSaveSetup,
 }: {
   open: boolean
   existing: SupportSetup | null
@@ -61,16 +68,20 @@ export function TrustedSupportDialog({
   onClose: () => void
   onSupportAction?: (action: "code-created") => void
   onSignIn: () => void
-  onSignOut: () => void
+  onSignOut: () => Promise<AsyncResult>
   onCreate: (support: SupportSetup) => void
+  onRequestCode: (email: string) => Promise<AsyncResult>
+  onVerifyCode: (email: string, code: string) => Promise<AsyncResult>
+  onSaveSetup: (support: SupportSetup) => Promise<AsyncResult>
 }) {
   const [phase, setPhase] = useState<Phase>("signin")
 
   // Sign-in step
-  const [channel, setChannel] = useState<"email" | "phone">("email")
   const [signInValue, setSignInValue] = useState("")
   const [codeEntry, setCodeEntry] = useState("")
   const [codeError, setCodeError] = useState(false)
+  const [statusMessage, setStatusMessage] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
   // Setup form
   const [yourName, setYourName] = useState("")
@@ -97,10 +108,11 @@ export function TrustedSupportDialog({
       setTrustedEmail(existing?.trustedEmail ?? "")
       setTrustedPhone(existing?.trustedPhone ?? "")
       setCopied(false)
-      setChannel("email")
       setSignInValue("")
       setCodeEntry("")
       setCodeError(false)
+      setStatusMessage("")
+      setSubmitting(false)
       // Returning users with a saved setup see their summary; users who are
       // signed in but haven't saved go to the form; otherwise sign in first.
       setPhase(existing ? "summary" : signedIn ? "form" : "signin")
@@ -119,31 +131,48 @@ export function TrustedSupportDialog({
 
   if (!open) return null
 
-  const canSendCode = signInValue.trim().length >= 3
+  const canSendCode = signInValue.trim().length >= 3 && !submitting
   const canSave = yourName.trim().length >= 1 && email.trim().length >= 1
   const hasTrusted = trustedName.trim().length >= 1
 
-  function sendCode() {
+  async function sendCode() {
     if (!canSendCode) return
+    setSubmitting(true)
+    setStatusMessage("")
+    const signInEmail = signInValue.trim()
+    const result = await onRequestCode(signInEmail)
+    setSubmitting(false)
+
+    if (!result.ok) {
+      setStatusMessage(messageForReason(result.reason))
+      return
+    }
+
     // Prefill the form's contact field from the sign-in channel.
-    if (channel === "email") setEmail(signInValue.trim())
-    else setPhone(signInValue.trim())
+    setEmail(signInEmail)
     setCodeEntry("")
     setCodeError(false)
     setPhase("code")
   }
 
-  function verifyCode() {
-    if (codeEntry.trim() === MOCK_CODE) {
-      setCodeError(false)
-      onSignIn()
-      setPhase("form")
-    } else {
+  async function verifyCode() {
+    setSubmitting(true)
+    setStatusMessage("")
+    const result = await onVerifyCode(signInValue.trim(), codeEntry.trim())
+    setSubmitting(false)
+
+    if (!result.ok) {
       setCodeError(true)
+      setStatusMessage(messageForReason(result.reason))
+      return
     }
+
+    setCodeError(false)
+    onSignIn()
+    setPhase("form")
   }
 
-  function save(withCode: boolean) {
+  async function save(withCode: boolean) {
     if (!canSave) return
     if (withCode && !hasTrusted) return
     const support: SupportSetup = {
@@ -158,6 +187,16 @@ export function TrustedSupportDialog({
       // Keep an existing code, make a new one when asked, otherwise none.
       code: withCode ? created?.code ?? makeCode() : created?.code ?? "",
     }
+    setSubmitting(true)
+    setStatusMessage("")
+    const result = await onSaveSetup(support)
+    setSubmitting(false)
+
+    if (!result.ok) {
+      setStatusMessage(messageForReason(result.reason))
+      return
+    }
+
     setCreated(support)
     onCreate(support)
     if (withCode) onSupportAction?.("code-created")
@@ -217,7 +256,7 @@ export function TrustedSupportDialog({
           </button>
         </div>
 
-        {/* Sign-in: choose channel and send a one-time code */}
+        {/* Sign-in: send a one-time code */}
         {phase === "signin" && (
           <>
             <div className="flex-1 overflow-y-auto p-6 sm:px-8">
@@ -234,61 +273,28 @@ export function TrustedSupportDialog({
                   safety checks later. No password needed.
                 </p>
 
-                {channel === "email" ? (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="signin-email" className="text-base font-semibold text-foreground">
-                      Email address
-                    </Label>
-                    <input
-                      id="signin-email"
-                      type="email"
-                      autoFocus
-                      value={signInValue}
-                      onChange={(e) => setSignInValue(e.target.value)}
-                      placeholder="you@example.com"
-                      className={inputClass}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setChannel("phone")
-                        setSignInValue("")
-                      }}
-                      className="mt-1 inline-flex w-fit items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
-                    >
-                      <Phone className="h-4 w-4" aria-hidden="true" />
-                      Use phone instead
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="signin-phone" className="text-base font-semibold text-foreground">
-                      Phone number
-                    </Label>
-                    <input
-                      id="signin-phone"
-                      type="tel"
-                      autoFocus
-                      value={signInValue}
-                      onChange={(e) => setSignInValue(e.target.value)}
-                      placeholder="Your phone number"
-                      className={inputClass}
-                    />
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      Email is recommended. Phone can be added later.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setChannel("email")
-                        setSignInValue("")
-                      }}
-                      className="mt-1 inline-flex w-fit items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
-                    >
-                      <Mail className="h-4 w-4" aria-hidden="true" />
-                      Use email instead
-                    </button>
-                  </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="signin-email" className="text-base font-semibold text-foreground">
+                    Email address
+                  </Label>
+                  <input
+                    id="signin-email"
+                    type="email"
+                    autoFocus
+                    value={signInValue}
+                    onChange={(e) => setSignInValue(e.target.value)}
+                    placeholder="you@example.com"
+                    className={inputClass}
+                  />
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    You can still use AskSafe without setting this up.
+                  </p>
+                </div>
+
+                {statusMessage && (
+                  <p className="text-base font-medium text-destructive">
+                    {statusMessage}
+                  </p>
                 )}
               </form>
             </div>
@@ -343,9 +349,9 @@ export function TrustedSupportDialog({
                     placeholder="123456"
                     className={`${inputClass} text-center text-2xl font-bold tracking-[0.4em]`}
                   />
-                  {codeError && (
+                  {(codeError || statusMessage) && (
                     <p className="text-base font-medium text-destructive">
-                      That code did not match. Please try again.
+                      {statusMessage || "That code did not match. Please try again."}
                     </p>
                   )}
                 </div>
@@ -366,7 +372,7 @@ export function TrustedSupportDialog({
                 type="submit"
                 form="code-form"
                 size="lg"
-                disabled={codeEntry.length < 6}
+                disabled={codeEntry.length < 6 || submitting}
                 className="h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold"
               >
                 Continue
@@ -383,7 +389,7 @@ export function TrustedSupportDialog({
                 id="setup-form"
                 onSubmit={(e) => {
                   e.preventDefault()
-                  save(false)
+                  void save(false)
                 }}
                 className="flex flex-col gap-6"
               >
@@ -563,7 +569,7 @@ export function TrustedSupportDialog({
                 type="submit"
                 form="setup-form"
                 size="lg"
-                disabled={!canSave}
+                disabled={!canSave || submitting}
                 className="h-auto rounded-2xl px-6 py-5 text-lg font-semibold"
               >
                 Save setup
@@ -573,7 +579,7 @@ export function TrustedSupportDialog({
                 variant="outline"
                 size="lg"
                 disabled={!canSave || !hasTrusted}
-                onClick={() => save(true)}
+                onClick={() => void save(true)}
                 className="h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
               >
                 <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -582,6 +588,11 @@ export function TrustedSupportDialog({
               {!hasTrusted && (
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Add someone you trust to create a support code.
+                </p>
+              )}
+              {statusMessage && (
+                <p className="text-base font-medium text-destructive">
+                  {statusMessage}
                 </p>
               )}
             </div>
@@ -696,7 +707,9 @@ export function TrustedSupportDialog({
                   type="button"
                   variant="ghost"
                   size="lg"
-                  onClick={onSignOut}
+                  onClick={() => {
+                    void onSignOut()
+                  }}
                   className="h-auto rounded-2xl px-6 py-4 text-lg font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
                   <LogOut className="mr-2 h-5 w-5" aria-hidden="true" />
@@ -709,4 +722,23 @@ export function TrustedSupportDialog({
       </div>
     </div>
   )
+}
+
+function messageForReason(reason: string): string {
+  switch (reason) {
+    case "email-not-configured":
+      return "Email sign-in is not configured yet. You can still use AskSafe without setup."
+    case "invalid-email":
+    case "invalid-payload":
+      return "Please check the email address and try again."
+    case "invalid-code":
+    case "invalid-or-expired-code":
+      return "That code did not match or has expired. Please request a new code."
+    case "rate-limited":
+      return "Too many attempts. Please wait a moment and try again."
+    case "not-signed-in":
+      return "Please sign in again before saving setup."
+    default:
+      return "Something went wrong. Please try again."
+  }
 }

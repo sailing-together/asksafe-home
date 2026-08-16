@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AppHeader } from "@/components/app-header"
 import { HomeScreen } from "@/components/home-screen"
 import { CategoryStep } from "@/components/category-step"
@@ -14,6 +14,13 @@ import { type Category, type RequestType, type SafetyResult } from "@/lib/analyz
 import { splitDraftMessageIntoDetails } from "@/lib/situation-input-state"
 import { analyzeSafetyWithFallback } from "@/lib/analyze-client"
 import { recordSafetyEvent } from "@/lib/safety-event-client"
+import {
+  getSavedSetup,
+  requestSetupCode,
+  saveSetup,
+  signOutSetup,
+  verifySetupCode,
+} from "@/lib/setup-client"
 import {
   recordFeedbackEvent,
   recordSupportEvent,
@@ -39,10 +46,51 @@ export default function Page() {
   const [inputDraft, setInputDraft] = useState<InputDraft | null>(null)
   const [quotaSubjectId] = useState(getOrCreateQuotaSubjectId)
 
-  function signOut() {
+  useEffect(() => {
+    let cancelled = false
+
+    void getSavedSetup().then((saved) => {
+      if (cancelled || !saved.ok) return
+      setSignedIn(saved.signedIn)
+      setSupport(saved.setup)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function signOut() {
+    const result = await signOutSetup()
     setSignedIn(false)
     setSupport(null)
     setSupportOpen(false)
+    return result
+  }
+
+  async function requestSupportCode(email: string) {
+    return requestSetupCode(email)
+  }
+
+  async function verifySupportCode(email: string, code: string) {
+    const result = await verifySetupCode(email, code)
+
+    if (result.ok) {
+      setSignedIn(true)
+      const saved = await getSavedSetup()
+      if (saved.ok) {
+        setSignedIn(saved.signedIn)
+        setSupport(saved.setup)
+      }
+    }
+
+    return result
+  }
+
+  async function saveSupportSetup(nextSupport: SupportSetup) {
+    const result = await saveSetup(nextSupport)
+    if (result.ok) setSupport(nextSupport)
+    return result
   }
 
   function reset() {
@@ -179,6 +227,9 @@ export default function Page() {
         onSignIn={() => setSignedIn(true)}
         onSignOut={signOut}
         onCreate={setSupport}
+        onRequestCode={requestSupportCode}
+        onVerifyCode={verifySupportCode}
+        onSaveSetup={saveSupportSetup}
       />
     </div>
   )
