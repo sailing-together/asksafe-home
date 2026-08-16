@@ -25,9 +25,9 @@ output "vercel_environment_variables" {
     ASKSAFE_SUPPORT_EVENTS_TABLE       = aws_dynamodb_table.support_events.name
     ASKSAFE_RUNTIME_IAM_POLICY_ARN     = aws_iam_policy.runtime.arn
     ASKSAFE_BEDROCK_MODEL_ARNS_ENABLED = tostring(length(var.bedrock_model_arns) > 0)
-    ASKSAFE_SETUP_EMAIL_PROVIDER       = var.enable_setup_email_ses ? "ses" : ""
-    ASKSAFE_SETUP_EMAIL_FROM           = var.enable_setup_email_ses ? module.setup_email_ses.from_address : ""
-    ASKSAFE_SETUP_EMAIL_SES_IDENTITY   = var.enable_setup_email_ses ? module.setup_email_ses.identity_arn : ""
+    ASKSAFE_SETUP_EMAIL_PROVIDER       = local.setup_email_ses_runtime_configured ? "ses" : ""
+    ASKSAFE_SETUP_EMAIL_FROM           = local.setup_email_ses_runtime_configured ? var.setup_email_from_address : ""
+    ASKSAFE_SETUP_EMAIL_SES_IDENTITY   = local.setup_email_ses_identity_enabled ? module.setup_email_ses.identity_arn : ""
   }
 }
 
@@ -37,10 +37,11 @@ output "runtime_policy_arn" {
 }
 
 output "setup_email_ses_identity" {
-  description = "SES sender identity created for AskSafe setup email delivery, when enabled."
+  description = "SES identity created for AskSafe setup email delivery, when enabled."
   value = {
     enabled      = module.setup_email_ses.enabled
-    from_address = module.setup_email_ses.from_address
+    identity     = module.setup_email_ses.identity
+    from_address = local.setup_email_ses_runtime_configured ? var.setup_email_from_address : null
     identity_arn = module.setup_email_ses.identity_arn
   }
 }

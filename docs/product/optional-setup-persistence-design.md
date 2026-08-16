@@ -8,9 +8,11 @@ server-backed setup foundation with DynamoDB OTP challenges, HTTP-only session
 cookies, and DynamoDB user/household setup persistence.
 
 P8.6 adds the production email delivery path for setup codes through Amazon SES.
-The core safety check still does not require sign-in. Email delivery is explicit:
-the server no longer pretends to send a code. Production email sending requires a
-configured and verified SES sender; otherwise the API returns a clear
+P8.7 separates the verified SES identity from the sender address so production
+can verify the `asksafe.ai` domain and send from `no-reply@asksafe.ai`. The core
+safety check still does not require sign-in. Email delivery is explicit: the
+server no longer pretends to send a code. Production email sending requires a
+configured and verified SES identity; otherwise the API returns a clear
 `email-not-configured` response and the user can continue using AskSafe without
 setup.
 
@@ -121,11 +123,17 @@ Email delivery is intentionally explicit. For production setup emails through
 Amazon SES, configure:
 
 - `ASKSAFE_SETUP_EMAIL_PROVIDER=ses`
-- `ASKSAFE_SETUP_EMAIL_FROM=<verified SES sender email>`
+- `ASKSAFE_SETUP_EMAIL_FROM=no-reply@asksafe.ai`
 - `AWS_REGION=ap-southeast-2`
 
-Terraform can create the SES sender identity, but the sender still must be
-verified through AWS SES before messages can be delivered. If SES is not
+Terraform can create the SES domain identity with:
+
+- `TF_ENABLE_SETUP_EMAIL_SES=true`
+- `TF_SETUP_EMAIL_IDENTITY=asksafe.ai`
+- `TF_SETUP_EMAIL_FROM_ADDRESS=no-reply@asksafe.ai`
+
+The `asksafe.ai` SES identity still must be verified through AWS SES and
+Cloudflare DKIM records before messages can be delivered. If SES is not
 configured or the sender is not usable, `POST /api/setup/request-code` returns
 `email-not-configured` or `email-send-failed` and the UI tells the user they can
 still use AskSafe without setup.

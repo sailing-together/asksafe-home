@@ -1,11 +1,11 @@
 variable "enabled" {
   type        = bool
-  description = "Whether to create an Amazon SES sender identity for AskSafe setup emails."
+  description = "Whether to create an Amazon SES identity for AskSafe setup emails."
 }
 
-variable "from_address" {
+variable "identity" {
   type        = string
-  description = "Sender email address for AskSafe setup emails."
+  description = "Amazon SES identity to verify for AskSafe setup emails. Use a domain such as asksafe.ai for production."
 }
 
 variable "tags" {
