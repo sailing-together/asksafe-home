@@ -17,6 +17,12 @@ Optional setup exists for continuity and trusted support, not as a gate in front
 of urgent safety guidance. A user should be able to open AskSafe, describe a
 situation, and receive a safer next step without signing in.
 
+Setup must also work for older adults who do not have reliable email access.
+Email can be the first production sign-in method, but it must not become the
+only way to use AskSafe. Users without email should still be able to complete
+the core safety workflow, and a trusted person, carer, or community worker may
+help with optional setup only when the older adult chooses that support.
+
 Trusted support must remain user-controlled:
 
 - no automatic family monitoring
@@ -98,6 +104,32 @@ Required behavior:
 
 Phone OTP can be added later for users who do not use email comfortably, but it
 has extra cost, abuse, deliverability, and privacy considerations.
+
+Before adding phone OTP, AskSafe needs:
+
+- SMS spend limits and alerting
+- per-phone and per-IP request limits
+- verification attempt limits
+- clear copy distinguishing AskSafe verification codes from codes requested by
+  another person
+- an explicit opt-in path for using a phone number
+- a fallback path when SMS delivery fails
+
+### Users Without Email
+
+Some older adults will not have a reliable email account or may not feel
+comfortable using email codes. The first production setup implementation should
+therefore keep email OTP as the simplest persistence path while preserving a
+no-email experience.
+
+Required behavior:
+
+- safety checks remain available without setup or sign-in
+- users can still copy or manually share a safety summary
+- trusted family, carers, or community workers can help with setup only when the
+  older adult chooses that support
+- phone OTP remains a future extension until SMS cost, abuse, and accessibility
+  risks are controlled
 
 ## DynamoDB Data Model
 
@@ -303,16 +335,21 @@ Recommended PR sequence:
 6. Add load, edit, delete, sign-out, and failure states.
 7. Add smoke tests for setup persistence.
 8. Update production readiness and privacy documentation.
+9. Reassess phone OTP after email OTP, community pilot feedback, and SMS cost
+   controls are in place.
 
 ## Acceptance Criteria
 
 A production-ready version should satisfy:
 
 - anonymous users can complete a safety check
+- users without email can still complete safety checks without setup
 - signed-in users can save setup
 - signed-in users can reload setup in a new browser session
 - users can delete setup
 - trusted support remains optional
+- phone OTP is not enabled until SMS cost, abuse, and accessibility controls are
+  implemented
 - no raw OTP is stored
 - no automatic sharing occurs
 - DynamoDB stores user setup and household setup with minimal fields
