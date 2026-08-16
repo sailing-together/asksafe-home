@@ -2,12 +2,15 @@
 
 ## Status
 
-Post-H0 production hardening design. This document defines the next step for
-turning the current optional `My setup` flow from a browser-only/mock sign-in
-experience into a real, privacy-conscious setup flow backed by DynamoDB.
+Post-H0 production hardening design and implementation note. P8.5 turns the
+optional `My setup` flow from a browser-only/mock sign-in experience into a
+server-backed setup foundation with DynamoDB OTP challenges, HTTP-only session
+cookies, and DynamoDB user/household setup persistence.
 
-This is design only. It does not change the H0 winning product snapshot or the
-current live flow.
+The core safety check still does not require sign-in. Email delivery is explicit:
+the server no longer pretends to send a code. Production email sending requires a
+configured delivery adapter; otherwise the API returns a clear `email-not-configured`
+response and the user can continue using AskSafe without setup.
 
 ## Product Boundary
 
@@ -32,12 +35,19 @@ The current UI includes:
 
 - `components/trusted-support-dialog.tsx`
 - `app/page.tsx`
-- `SupportSetup` client-side state
-- a mock one-time code path using `123456`
+- `SupportSetup` state hydrated from the setup API when a valid session exists
 - optional trusted person setup fields
 - support event recording for actions such as `setup-opened` and `code-created`
 
-The current backend includes DynamoDB tables for:
+The current backend includes:
+
+- `POST /api/setup/request-code` for server-generated email OTP challenges
+- `POST /api/setup/verify-code` for OTP verification and HTTP-only session issue
+- `GET /api/setup/me` for loading saved optional setup
+- `PUT /api/setup/me` for saving optional setup
+- `POST /api/setup/sign-out` for clearing the setup session cookie
+
+The current backend uses DynamoDB tables for:
 
 - `asksafe-home-prod-users`
 - `asksafe-home-prod-households`
@@ -45,8 +55,7 @@ The current backend includes DynamoDB tables for:
 - `asksafe-home-prod-events`
 - `asksafe-home-prod-feedback`
 
-The current persistence layer writes privacy-safe safety, feedback, and support
-events. It does not yet save or load user setup or household setup.
+The current persistence layer writes privacy-safe safety, feedback, support, user setup, and household setup records. Contact fields are hashed before persistence; raw email is used only transiently for OTP delivery.
 
 ## Desired User Experience
 
@@ -61,8 +70,8 @@ events. It does not yet save or load user setup or household setup.
 
 1. User opens `My setup`.
 2. AskSafe explains that setup is optional and helps remember preferences.
-3. User enters an email or phone number.
-4. AskSafe sends a real one-time code or magic link.
+3. User enters an email address.
+4. AskSafe sends a real one-time code or magic link when email delivery is configured.
 5. User verifies the code or opens the magic link.
 6. AskSafe creates or loads a lightweight user profile.
 7. User can save personal setup and optional trusted person details.
@@ -98,6 +107,19 @@ Required behavior:
 
 Phone OTP can be added later for users who do not use email comfortably, but it
 has extra cost, abuse, deliverability, and privacy considerations.
+
+### Runtime Configuration
+
+The implemented setup routes require these server-side environment variables:
+
+- `ASKSAFE_OTP_SECRET` for hashing short-lived one-time codes
+- `ASKSAFE_SESSION_SECRET` for signing HTTP-only setup session cookies
+
+Email delivery is intentionally explicit. Until a production email adapter such
+as Amazon SES is configured, `POST /api/setup/request-code` returns
+`email-not-configured` and the UI tells the user they can still use AskSafe
+without setup. Local operators can use `ASKSAFE_SETUP_EMAIL_MODE=console`
+only for development smoke checks.
 
 ## DynamoDB Data Model
 
