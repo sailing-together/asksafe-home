@@ -11,9 +11,10 @@ results only after each check is run.
 
 - Production URL: `https://asksafe-home.vercel.app`
 - GitHub repository: `https://github.com/sailing-together/asksafe-home`
-- Product walkthrough video: `TBD`
-- Devpost submission URL: `TBD`
-- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.svg`
+- Product walkthrough video: `https://www.youtube.com/watch?v=mbEXnb-ODic`
+- Devpost submission URL: `https://devpost.com/software/asksafe-home`
+- Architecture diagram: `docs/assets/architecture/asksafe-home-architecture.png`
+- Architecture source: `docs/assets/architecture/asksafe-home-architecture.svg`
 - DynamoDB evidence screenshot: `TBD`
 - Vercel Team ID: `TBD`
 

@@ -84,7 +84,8 @@ Safe screenshot rules:
 
 Use the checked-in architecture assets:
 
-- Presentation SVG: `docs/assets/architecture/asksafe-home-architecture.svg`
+- Devpost upload PNG: `docs/assets/architecture/asksafe-home-architecture.png`
+- Presentation SVG source: `docs/assets/architecture/asksafe-home-architecture.svg`
 - Editable draw.io source: `docs/assets/architecture/asksafe-home-architecture.drawio`
 - Icon source notes: `docs/assets/architecture/ICON_SOURCES.md`
 

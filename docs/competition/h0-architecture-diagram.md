@@ -26,15 +26,17 @@ control abuse and token cost.
 
 ## Visual Architecture Assets
 
-Presentation-ready SVG and editable source:
+Submission image, presentation-ready SVG, and editable source:
 
+- `docs/assets/architecture/asksafe-home-architecture.png`
 - `docs/assets/architecture/asksafe-home-architecture.svg`
 - `docs/assets/architecture/asksafe-home-architecture.drawio`
 - `docs/assets/architecture/ICON_SOURCES.md`
 
-Use the SVG asset for the Devpost architecture diagram and product walkthrough
-video when a rendered image is preferred over Mermaid. Use the `.drawio` file as
-the editable source for diagrams.net / draw.io revisions. The diagram uses selected
+Use the PNG asset for the Devpost architecture diagram upload. Use the SVG asset
+for documentation or presentation material when a rendered vector is preferred
+over Mermaid. Use the `.drawio` file as the editable source for diagrams.net /
+draw.io revisions. The diagram uses selected
 official AWS Architecture Icons for AWS services, sourced brand SVG icons for
 major non-AWS platforms, and a custom FinOps cost guardrail cue.
 

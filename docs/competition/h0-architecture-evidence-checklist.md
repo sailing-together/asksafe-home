@@ -8,8 +8,9 @@ AI app sketch. Use recognizable product icons where possible.
 
 ## Visual Asset
 
-The current presentation-ready SVG diagram lives at:
+The current submission and presentation-ready diagram assets live at:
 
+- `docs/assets/architecture/asksafe-home-architecture.png`
 - `docs/assets/architecture/asksafe-home-architecture.svg`
 
 Use the checklist below to review that asset before submission.
@@ -214,7 +215,8 @@ Before using the architecture diagram in the final submission, confirm:
 
 ## Visual Asset Source Evidence
 
-- `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready architecture image.
+- `docs/assets/architecture/asksafe-home-architecture.png` is the Devpost-ready architecture upload image.
+- `docs/assets/architecture/asksafe-home-architecture.svg` is the presentation-ready vector architecture image.
 - `docs/assets/architecture/icons/aws/` stores selected official AWS Architecture Icons used in the diagram.
 - `docs/assets/architecture/ICON_SOURCES.md` records official AWS icon sources, sourced non-AWS brand SVGs, and the custom FinOps cue.
 

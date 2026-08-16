@@ -52,6 +52,16 @@ channels.
 - Cost controls: rate limits, input length caps, DynamoDB quota counters, AWS
   Budget, Bedrock quota hard stops
 
+## Public Project Links
+
+- Devpost project: [AskSafe Home](https://devpost.com/software/asksafe-home)
+- Product walkthrough video:
+  [YouTube](https://www.youtube.com/watch?v=mbEXnb-ODic)
+- Technical article:
+  [AWS Builder Center](https://builder.aws.com/post/3Fnwar87VeeS2xa0Lfe1UP06TQD_p/building-asksafe-home-with-vercel-v0-aws-dynamodb-and-amazon-bedrock-for-the-h0-hackathon)
+- Live product: [asksafe-home.vercel.app](https://asksafe-home.vercel.app)
+- Winning submission snapshot: `v1.0-h0-winner`
+
 ## High-Level Runtime Flow
 
 ```mermaid
@@ -228,6 +238,9 @@ Trusted support is user-controlled:
 
 The competition diagram source is:
 
+- `docs/assets/architecture/asksafe-home-architecture.png`
+- `docs/assets/architecture/asksafe-home-architecture.svg`
+- `docs/assets/architecture/asksafe-home-architecture.drawio`
 - `docs/competition/h0-architecture-diagram.md`
 - `docs/competition/h0-architecture-evidence-checklist.md`
 
@@ -240,7 +253,9 @@ Future work may include:
 
 - richer guided clarification
 - screenshot or image review
-- deeper trusted support workflow
+- real optional setup persistence with email or phone OTP, or magic-link sign-in
+- DynamoDB-backed user setup and household or trusted-person setup
+- deeper consent-managed trusted support workflow
 - more official verification pathways
 - accessibility testing with older adults
 - partner workflows for banks, councils, aged care providers, and community
@@ -248,3 +263,8 @@ Future work may include:
 
 Future extensions should preserve the same product boundary: AskSafe helps users
 pause and verify safely; it does not claim certainty about real versus fake.
+
+The core safety check should remain usable without an account. Account setup is
+for optional personalization and trusted support continuity, not a gate in front
+of urgent safety guidance. Trusted support should remain user-controlled and
+should not become automatic family monitoring.
