@@ -53,6 +53,7 @@ export function TrustedSupportDialog({
   open,
   existing,
   signedIn,
+  signedInEmail,
   onClose,
   onSupportAction,
   onSignIn,
@@ -65,6 +66,7 @@ export function TrustedSupportDialog({
   open: boolean
   existing: SupportSetup | null
   signedIn: boolean
+  signedInEmail: string
   onClose: () => void
   onSupportAction?: (action: "code-created") => void
   onSignIn: () => void
@@ -100,7 +102,7 @@ export function TrustedSupportDialog({
     if (open) {
       setCreated(existing)
       setYourName(existing?.yourName ?? "")
-      setEmail(existing?.email ?? "")
+      setEmail(existing?.email || signedInEmail)
       setPhone(existing?.phone ?? "")
       setUsingFor(existing?.usingFor ?? "self")
       setTrustedName(existing?.trustedName ?? "")
@@ -117,7 +119,7 @@ export function TrustedSupportDialog({
       // signed in but haven't saved go to the form; otherwise sign in first.
       setPhase(existing ? "summary" : signedIn ? "form" : "signin")
     }
-  }, [open, existing, signedIn])
+  }, [open, existing, signedIn, signedInEmail])
 
   // Close on Escape.
   useEffect(() => {

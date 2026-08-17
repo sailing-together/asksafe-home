@@ -4,6 +4,7 @@ import {
   buildSetupChallengeItem,
   buildSetupSessionCookie,
   loadSetupFromSession,
+  readSetupSessionIdentity,
   saveSetupProfile,
   verifySetupCode,
   type SetupProfileInput,
@@ -31,6 +32,7 @@ test("buildSetupChallengeItem stores only hashed email and OTP", () => {
 test("buildSetupSessionCookie creates a verifiable signed session", () => {
   const cookie = buildSetupSessionCookie({
     userId: "usr_123",
+    email: " Margaret@example.COM ",
     secret: "session-secret",
     now: new Date("2026-06-30T00:00:00.000Z"),
   })
@@ -41,6 +43,14 @@ test("buildSetupSessionCookie creates a verifiable signed session", () => {
   assert.equal(cookie.secure, true)
   assert.equal(cookie.maxAge, 60 * 60 * 24 * 30)
   assert.match(cookie.value, /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/)
+  assert.deepEqual(
+    readSetupSessionIdentity(
+      cookie.value,
+      "session-secret",
+      new Date("2026-06-30T00:01:00.000Z"),
+    ),
+    { userId: "usr_123", email: "margaret@example.com" },
+  )
 })
 
 test("verifySetupCode creates a user when a valid challenge exists", async () => {
@@ -252,4 +262,42 @@ test("loadSetupFromSession returns saved user and household setup", async () => 
     trustedPhone: "",
     code: "SAFE-1234",
   })
+})
+
+test("loadSetupFromSession treats an OTP-only user as incomplete setup", async () => {
+  const calls: string[] = []
+  const documentClient = {
+    send: async (command: { input: Record<string, unknown> }) => {
+      calls.push(String(command.input.TableName))
+      return {
+        Item: {
+          userId: "usr_123",
+          itemType: "user",
+          displayName: "",
+          emailHash: "hash",
+          usingFor: "self",
+        },
+      }
+    },
+  }
+
+  const result = await loadSetupFromSession("usr_123", {
+    clientProvider: () => ({
+      ok: true,
+      config: {
+        region: "ap-southeast-2",
+        tables: {
+          events: "events-table",
+          feedback: "feedback-table",
+          supportEvents: "support-events-table",
+          users: "users-table",
+          households: "households-table",
+        },
+      },
+      documentClient: documentClient as never,
+    }),
+  })
+
+  assert.deepEqual(result, { ok: true, setup: null })
+  assert.deepEqual(calls, ["users-table"])
 })

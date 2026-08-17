@@ -33,7 +33,12 @@ type BasicResult =
     }
 
 type SavedSetupResult =
-  | { ok: true; setup: SupportSetupPayload | null; signedIn: boolean }
+  | {
+      ok: true
+      setup: SupportSetupPayload | null
+      signedIn: boolean
+      signedInEmail: string
+    }
   | { ok: false; reason: "request-failed" }
 
 export async function requestSetupCode(
@@ -63,7 +68,7 @@ export async function getSavedSetup(
     })
 
     if (response.status === 401) {
-      return { ok: true, setup: null, signedIn: false }
+      return { ok: true, setup: null, signedIn: false, signedInEmail: "" }
     }
 
     const body = await readJson(response)
@@ -72,6 +77,8 @@ export async function getSavedSetup(
         ok: true,
         setup: isSupportSetup(body.setup) ? body.setup : null,
         signedIn: true,
+        signedInEmail:
+          typeof body.signedInEmail === "string" ? body.signedInEmail : "",
       }
     }
   } catch {

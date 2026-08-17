@@ -1,11 +1,13 @@
 import {
   createOtpCode,
   loadSetupFromSession,
+  readSetupSessionIdentity,
   readSetupSessionUserId,
   saveSetupChallenge,
   saveSetupProfile,
   verifySetupCode,
   type SetupCookie,
+  type SetupSessionIdentity,
   type SetupResult,
   type SupportSetup,
 } from "./setup-auth.ts"
@@ -29,7 +31,10 @@ type VerifySetupCodeResponse =
   | { status: 500; body: { ok: false; reason: "write-failed" | "missing-aws-config" | "missing-setup-tables" } }
 
 type GetSetupResponse =
-  | { status: 200; body: { ok: true; setup: SupportSetup | null } }
+  | {
+      status: 200
+      body: { ok: true; setup: SupportSetup | null; signedInEmail: string }
+    }
   | { status: 401; body: { ok: false; reason: "not-signed-in" } }
   | { status: 500; body: { ok: false; reason: "read-failed" | "missing-aws-config" | "missing-setup-tables" } }
 
@@ -43,6 +48,13 @@ type SignOutSetupResponse = {
   status: 200
   body: { ok: true }
   clearCookie: { name: "asksafe_setup_session"; value: ""; path: "/"; maxAge: 0 }
+}
+
+export function getSetupSessionResponseHeaders() {
+  return {
+    "Cache-Control": "private, no-store, max-age=0",
+    Vary: "Cookie",
+  }
 }
 
 type RequestSetupCodeOptions = {
@@ -59,6 +71,7 @@ type VerifySetupCodeOptions = {
 }
 
 type SessionOptions = {
+  readSetupSessionIdentity?: typeof readSetupSessionIdentity
   readSetupSessionUserId?: typeof readSetupSessionUserId
   sessionSecret?: string
 }
@@ -131,14 +144,20 @@ export async function handleGetSetupRequest(
   sessionCookie: string | undefined,
   options: GetSetupOptions = {},
 ): Promise<GetSetupResponse> {
-  const userId = getSessionUserId(sessionCookie, options)
-  if (!userId) return { status: 401, body: { ok: false, reason: "not-signed-in" } }
+  const identity = getSessionIdentity(sessionCookie, options)
+  if (!identity) return { status: 401, body: { ok: false, reason: "not-signed-in" } }
 
   const load = options.loadSetupFromSession ?? loadSetupFromSession
-  const result = await load(userId)
+  const result = await load(identity.userId)
 
   if (result.ok) {
-    return { status: 200, body: { ok: true, setup: result.setup } }
+    const setup = result.setup
+      ? { ...result.setup, email: identity.email || result.setup.email }
+      : null
+    return {
+      status: 200,
+      body: { ok: true, setup, signedInEmail: identity.email },
+    }
   }
 
   return { status: 500, body: { ok: false, reason: result.reason } }
@@ -210,16 +229,31 @@ function mapSetupSaveFailure(result: Extract<SetupResult, { ok: false }>): Reque
 }
 
 function getSessionUserId(sessionCookie: string | undefined, options: SessionOptions): string | null {
-  if (options.readSetupSessionUserId) {
-    return options.readSetupSessionUserId(
+  return getSessionIdentity(sessionCookie, options)?.userId ?? null
+}
+
+function getSessionIdentity(
+  sessionCookie: string | undefined,
+  options: SessionOptions,
+): SetupSessionIdentity | null {
+  if (options.readSetupSessionIdentity) {
+    return options.readSetupSessionIdentity(
       sessionCookie,
       options.sessionSecret ?? "test-secret",
     )
   }
 
+  if (options.readSetupSessionUserId) {
+    const userId = options.readSetupSessionUserId(
+      sessionCookie,
+      options.sessionSecret ?? "test-secret",
+    )
+    return userId ? { userId, email: "" } : null
+  }
+
   const sessionSecret = options.sessionSecret ?? readRequiredSecret("ASKSAFE_SESSION_SECRET")
   if (!sessionSecret) return null
-  return readSetupSessionUserId(sessionCookie, sessionSecret)
+  return readSetupSessionIdentity(sessionCookie, sessionSecret)
 }
 
 function parseEmailPayload(payload: unknown): string | null {

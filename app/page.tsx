@@ -41,6 +41,7 @@ export default function Page() {
   const [support, setSupport] = useState<SupportSetup | null>(null)
   const [supportOpen, setSupportOpen] = useState(false)
   const [signedIn, setSignedIn] = useState(false)
+  const [signedInEmail, setSignedInEmail] = useState("")
   const [prefill, setPrefill] = useState<PracticeScenario | null>(null)
   const [safetyEventId, setSafetyEventId] = useState<string | undefined>()
   const [inputDraft, setInputDraft] = useState<InputDraft | null>(null)
@@ -52,6 +53,7 @@ export default function Page() {
     void getSavedSetup().then((saved) => {
       if (cancelled || !saved.ok) return
       setSignedIn(saved.signedIn)
+      setSignedInEmail(saved.signedInEmail)
       setSupport(saved.setup)
     })
 
@@ -63,6 +65,7 @@ export default function Page() {
   async function signOut() {
     const result = await signOutSetup()
     setSignedIn(false)
+    setSignedInEmail("")
     setSupport(null)
     setSupportOpen(false)
     return result
@@ -80,6 +83,7 @@ export default function Page() {
       const saved = await getSavedSetup()
       if (saved.ok) {
         setSignedIn(saved.signedIn)
+        setSignedInEmail(saved.signedInEmail)
         setSupport(saved.setup)
       }
     }
@@ -222,6 +226,7 @@ export default function Page() {
         open={supportOpen}
         existing={support}
         signedIn={signedIn}
+        signedInEmail={signedInEmail}
         onClose={() => setSupportOpen(false)}
         onSupportAction={recordSupportAction}
         onSignIn={() => setSignedIn(true)}

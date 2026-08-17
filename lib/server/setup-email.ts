@@ -71,7 +71,27 @@ export async function sendSetupCode(
       )
 
       return { ok: true }
-    } catch {
+    } catch (error) {
+      const awsError = error as {
+        name?: unknown
+        $metadata?: {
+          httpStatusCode?: unknown
+          requestId?: unknown
+        }
+      }
+
+      console.error("setup-email-send-failed", {
+        name: typeof awsError.name === "string" ? awsError.name : "UnknownError",
+        statusCode:
+          typeof awsError.$metadata?.httpStatusCode === "number"
+            ? awsError.$metadata.httpStatusCode
+            : undefined,
+        requestId:
+          typeof awsError.$metadata?.requestId === "string"
+            ? awsError.$metadata.requestId
+            : undefined,
+      })
+
       return { ok: false, reason: "email-send-failed" }
     }
   }

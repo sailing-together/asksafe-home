@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server"
 import { checkEventApiRateLimit } from "@/lib/server/rate-limit"
 import {
+  getSetupSessionResponseHeaders,
   handleGetSetupRequest,
   handleSaveSetupRequest,
 } from "@/lib/server/setup-route"
 
 const sessionCookieName = "asksafe_setup_session"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function GET(request: Request) {
   const response = await handleGetSetupRequest(readCookie(request, sessionCookieName))
-  return NextResponse.json(response.body, { status: response.status })
+  return NextResponse.json(response.body, {
+    status: response.status,
+    headers: getSetupSessionResponseHeaders(),
+  })
 }
 
 export async function PUT(request: Request) {

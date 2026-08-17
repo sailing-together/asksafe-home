@@ -84,23 +84,59 @@ test("sendSetupCode sends a plain text setup code through SES", async () => {
 })
 
 test("sendSetupCode returns email-send-failed when SES rejects delivery", async () => {
+  const errors: unknown[][] = []
+  const previousError = console.error
+  console.error = (...args: unknown[]) => {
+    errors.push(args)
+  }
+
   const client = {
     async send() {
-      throw new Error("SES rejected the request")
+      const error = new Error("Rejected margaret@example.com with code 123456")
+      error.name = "MessageRejected"
+      Object.assign(error, {
+        $metadata: {
+          httpStatusCode: 403,
+          requestId: "ses-request-123",
+        },
+      })
+      throw error
     },
   }
 
-  const result = await sendSetupCode(
-    { email: "margaret@example.com", code: "123456" },
-    {
-      env: {
-        ASKSAFE_SETUP_EMAIL_PROVIDER: "ses",
-        ASKSAFE_SETUP_EMAIL_FROM: "noreply@asksafe.ai",
-        AWS_REGION: "ap-southeast-2",
+  try {
+    const result = await sendSetupCode(
+      { email: "margaret@example.com", code: "123456" },
+      {
+        env: {
+          ASKSAFE_SETUP_EMAIL_PROVIDER: "ses",
+          ASKSAFE_SETUP_EMAIL_FROM: "noreply@asksafe.ai",
+          AWS_REGION: "ap-southeast-2",
+        },
+        client,
       },
-      client,
-    },
-  )
+    )
 
-  assert.deepEqual(result, { ok: false, reason: "email-send-failed" })
+    assert.deepEqual(result, { ok: false, reason: "email-send-failed" })
+    assert.deepEqual(errors, [
+      [
+        "setup-email-send-failed",
+        {
+          name: "MessageRejected",
+          statusCode: 403,
+          requestId: "ses-request-123",
+        },
+      ],
+    ])
+
+    const logged = JSON.stringify(errors)
+    assert.equal(logged.includes("margaret@example.com"), false)
+    assert.equal(logged.includes("123456"), false)
+    assert.equal(
+      logged.includes("Rejected margaret@example.com with code 123456"),
+      false,
+    )
+  } finally {
+    console.error = previousError
+  }
 })
