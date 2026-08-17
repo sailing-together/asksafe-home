@@ -43,7 +43,30 @@ test("getSavedSetup returns null when the user is not signed in", async () => {
     fetch: async () => jsonResponse(401, { ok: false, reason: "not-signed-in" }),
   })
 
-  assert.deepEqual(result, { ok: true, setup: null, signedIn: false })
+  assert.deepEqual(result, {
+    ok: true,
+    setup: null,
+    signedIn: false,
+    signedInEmail: "",
+  })
+})
+
+test("getSavedSetup returns the verified sign-in email for incomplete setup", async () => {
+  const result = await getSavedSetup({
+    fetch: async () =>
+      jsonResponse(200, {
+        ok: true,
+        setup: null,
+        signedInEmail: "margaret@example.com",
+      }),
+  })
+
+  assert.deepEqual(result, {
+    ok: true,
+    setup: null,
+    signedIn: true,
+    signedInEmail: "margaret@example.com",
+  })
 })
 
 test("saveSetup persists setup through the setup endpoint", async () => {

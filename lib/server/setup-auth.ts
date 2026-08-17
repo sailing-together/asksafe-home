@@ -41,6 +41,11 @@ export type SetupCookie = {
   maxAge: number
 }
 
+export type SetupSessionIdentity = {
+  userId: string
+  email: string
+}
+
 export type SetupChallengeItem = {
   userId: string
   itemType: "otpChallenge"
@@ -158,12 +163,14 @@ export function buildSetupChallengeItem(input: {
 
 export function buildSetupSessionCookie(input: {
   userId: string
+  email: string
   secret: string
   now?: Date
 }): SetupCookie {
   const now = input.now ?? new Date()
   const payload = {
     userId: input.userId,
+    email: normalizeContact(input.email),
     exp: Math.floor((now.getTime() + SESSION_TTL_SECONDS * 1_000) / 1_000),
   }
   const payloadValue = base64UrlEncode(JSON.stringify(payload))
@@ -180,11 +187,11 @@ export function buildSetupSessionCookie(input: {
   }
 }
 
-export function readSetupSessionUserId(
+export function readSetupSessionIdentity(
   sessionValue: string | undefined,
   secret: string,
   now: Date = new Date(),
-): string | null {
+): SetupSessionIdentity | null {
   if (!sessionValue) return null
 
   const [payloadValue, signature] = sessionValue.split(".")
@@ -194,6 +201,7 @@ export function readSetupSessionUserId(
   try {
     const payload = JSON.parse(base64UrlDecode(payloadValue)) as {
       userId?: unknown
+      email?: unknown
       exp?: unknown
     }
 
@@ -201,10 +209,21 @@ export function readSetupSessionUserId(
     if (typeof payload.exp !== "number") return null
     if (payload.exp <= Math.floor(now.getTime() / 1_000)) return null
 
-    return payload.userId
+    return {
+      userId: payload.userId,
+      email: typeof payload.email === "string" ? normalizeContact(payload.email) : "",
+    }
   } catch {
     return null
   }
+}
+
+export function readSetupSessionUserId(
+  sessionValue: string | undefined,
+  secret: string,
+  now: Date = new Date(),
+): string | null {
+  return readSetupSessionIdentity(sessionValue, secret, now)?.userId ?? null
 }
 
 export async function saveSetupChallenge(
@@ -285,6 +304,7 @@ export async function verifySetupCode(
           userId,
           itemType: "user",
           emailHash,
+          phoneHash: existingUser?.phoneHash,
           displayName: existingUser?.displayName ?? "",
           usingFor: existingUser?.usingFor ?? "self",
           createdAt,
@@ -309,6 +329,7 @@ export async function verifySetupCode(
       userId,
       session: buildSetupSessionCookie({
         userId,
+        email: input.email,
         secret: input.sessionSecret,
         now,
       }),
@@ -398,6 +419,10 @@ export async function loadSetupFromSession(
     )
 
     if (!userResult.Item || !isUserItem(userResult.Item)) {
+      return { ok: true, setup: null }
+    }
+
+    if (!userResult.Item.displayName.trim()) {
       return { ok: true, setup: null }
     }
 

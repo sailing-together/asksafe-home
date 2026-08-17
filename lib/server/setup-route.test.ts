@@ -1,6 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 import {
+  getSetupSessionResponseHeaders,
   handleGetSetupRequest,
   handleRequestSetupCode,
   handleSaveSetupRequest,
@@ -18,6 +19,13 @@ const validSession: SetupCookie = {
   path: "/",
   maxAge: 60 * 60 * 24 * 30,
 }
+
+test("setup session responses are private and never cached", () => {
+  assert.deepEqual(getSetupSessionResponseHeaders(), {
+    "Cache-Control": "private, no-store, max-age=0",
+    Vary: "Cookie",
+  })
+})
 
 test("handleRequestSetupCode sends an email OTP without returning the code", async () => {
   const deliveries: Array<{ email: string; code: string }> = []
@@ -95,13 +103,39 @@ test("handleGetSetupRequest loads setup from a valid session", async () => {
   }
 
   const response = await handleGetSetupRequest("signed-session", {
-    readSetupSessionUserId: () => "usr_123",
+    readSetupSessionIdentity: () => ({
+      userId: "usr_123",
+      email: "margaret@example.com",
+    }),
     loadSetupFromSession: async () => ({ ok: true, setup }),
   })
 
   assert.deepEqual(response, {
     status: 200,
-    body: { ok: true, setup },
+    body: {
+      ok: true,
+      setup: { ...setup, email: "margaret@example.com" },
+      signedInEmail: "margaret@example.com",
+    },
+  })
+})
+
+test("handleGetSetupRequest returns verified email for an incomplete setup", async () => {
+  const response = await handleGetSetupRequest("signed-session", {
+    readSetupSessionIdentity: () => ({
+      userId: "usr_123",
+      email: "margaret@example.com",
+    }),
+    loadSetupFromSession: async () => ({ ok: true, setup: null }),
+  })
+
+  assert.deepEqual(response, {
+    status: 200,
+    body: {
+      ok: true,
+      setup: null,
+      signedInEmail: "margaret@example.com",
+    },
   })
 })
 
