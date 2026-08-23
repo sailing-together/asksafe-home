@@ -30,12 +30,48 @@ test("verifySetupCode posts the OTP and keeps the session cookie", async () => {
   const result = await verifySetupCode("margaret@example.com", "123456", {
     fetch: async (_url, init) => {
       credentials = init?.credentials
-      return jsonResponse(200, { ok: true })
+      return jsonResponse(200, {
+        ok: true,
+        setup: null,
+        signedInEmail: "margaret@example.com",
+      })
     },
   })
 
-  assert.deepEqual(result, { ok: true })
+  assert.deepEqual(result, {
+    ok: true,
+    setup: null,
+    signedIn: true,
+    signedInEmail: "margaret@example.com",
+  })
   assert.equal(credentials, "same-origin")
+})
+
+test("verifySetupCode consumes an existing setup snapshot atomically", async () => {
+  const result = await verifySetupCode("margaret@example.com", "123456", {
+    fetch: async () =>
+      jsonResponse(200, {
+        ok: true,
+        setup: {
+          yourName: "Margaret",
+          email: "margaret@example.com",
+          phone: "",
+          usingFor: "self",
+          trustedName: "Sarah",
+          relationship: "Daughter",
+          trustedEmail: "sarah@example.com",
+          trustedPhone: "+61 400 000 000",
+          trustedContactNeedsUpdate: false,
+        },
+        signedInEmail: "margaret@example.com",
+      }),
+  })
+
+  assert.equal(result.ok, true)
+  if (!result.ok) throw new Error("expected verification success")
+  assert.equal(result.setup?.trustedName, "Sarah")
+  assert.equal(result.setup?.trustedEmail, "sarah@example.com")
+  assert.equal(result.signedInEmail, "margaret@example.com")
 })
 
 test("getSavedSetup returns null when the user is not signed in", async () => {
@@ -79,18 +115,18 @@ test("saveSetup persists setup through the setup endpoint", async () => {
     relationship: "Daughter",
     trustedEmail: "",
     trustedPhone: "",
-    code: "SAFE-1234",
+    trustedContactNeedsUpdate: true,
   }
 
   let body: BodyInit | null | undefined
   const result = await saveSetup(setup, {
     fetch: async (_url, init) => {
       body = init?.body
-      return jsonResponse(200, { ok: true })
+      return jsonResponse(200, { ok: true, setup })
     },
   })
 
-  assert.deepEqual(result, { ok: true })
+  assert.deepEqual(result, { ok: true, setup })
   assert.equal(body, JSON.stringify(setup))
 })
 

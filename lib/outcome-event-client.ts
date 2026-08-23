@@ -10,7 +10,7 @@ export type FeedbackEventRecordInput = {
   clarificationNeeded?: boolean
 }
 
-export type SupportEventAction = "setup-opened" | "code-created" | "summary-shared"
+export type SupportEventAction = "setup-opened" | "summary-shared"
 
 export type SupportEventRecordInput = {
   safetyEventId?: string

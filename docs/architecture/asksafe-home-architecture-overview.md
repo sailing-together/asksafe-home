@@ -126,6 +126,8 @@ Stored by default:
 - support and feedback action metadata
 - Bedrock operational outcome metadata
 - quota counter items
+- optional setup owner profile fields
+- encrypted trusted contact email or phone only after explicit owner consent
 
 Not stored by default:
 
@@ -135,7 +137,8 @@ Not stored by default:
 - full identity document details
 - complete bank credentials
 - raw sensitive messages
-- trusted contact details unless explicitly needed for a user-controlled setup
+- plaintext trusted contact email or phone
+- trusted contact details in safety, feedback, or support event payloads
 
 ## Bedrock Boundary
 
@@ -230,9 +233,17 @@ AskSafe can show:
 Trusted support is user-controlled:
 
 - users may set up someone they trust
-- users choose whether to share a safety summary
-- nothing is shared automatically
+- saved trusted contact phone and email values are encrypted at rest and
+  decrypted only server-side for the authenticated setup owner
+- users choose whether to call, email, or copy a safety summary
+- nothing is called, emailed, notified, or shared automatically
 - no family monitoring or surveillance
+- legacy support codes do not authorize access and are no longer shown or
+  created in active UI
+
+Future trusted-contact invitations, per-event safety-summary sharing, and SMS
+support need explicit consent, revocation, abuse, privacy, accessibility, and
+cost designs before implementation.
 
 ## Submission Diagram Source
 

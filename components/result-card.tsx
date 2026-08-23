@@ -17,12 +17,15 @@ import {
   Volume2,
   Square,
   CircleHelp,
+  Phone,
+  Mail,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { OfficialHelp } from "@/components/official-help"
 import { useSpeechSynthesis } from "@/lib/use-voice"
 import { buildSafetyShareSummary } from "@/lib/share-summary"
+import { getTrustedSupportActions } from "@/lib/trusted-support-actions"
 import type { SafetyResult } from "@/lib/analyze"
 import type { SupportSetup } from "@/components/trusted-support-dialog"
 
@@ -86,6 +89,7 @@ export function ResultCard({
   const [shared, setShared] = useState(false)
   const [feedbackChoice, setFeedbackChoice] = useState<"yes" | "no" | null>(null)
   const speech = useSpeechSynthesis()
+  const trustedSupportActions = getTrustedSupportActions(support)
 
   function readAloud() {
     if (speech.speaking) {
@@ -291,53 +295,82 @@ export function ResultCard({
       />
 
       {/* Support actions */}
-      {support?.trustedName ? (
-        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-7">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <p className="text-lg font-medium leading-relaxed text-foreground">
-              Would it help to check this with {support.trustedName}? Copy a
-              short, plain-language summary to send them.
-            </p>
-            <Button
-              type="button"
-              size="lg"
-              onClick={shareSummary}
-              className="h-auto w-full shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto"
-            >
-              {shared ? (
-                <Check className="mr-2 h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Share2 className="mr-2 h-5 w-5" aria-hidden="true" />
-              )}
-              {shared ? "Copied — now paste it to them" : `Copy summary for ${support.trustedName}`}
-            </Button>
-          </div>
-          <p className="text-base leading-relaxed text-muted-foreground">
-            You stay in control. Nothing is sent until you choose to share it.
+      <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-7">
+        <div className="flex flex-col gap-3">
+          <p className="text-lg font-medium leading-relaxed text-foreground">
+            You don&apos;t have to decide alone. You can choose whether to
+            contact someone you trust or copy a short summary.
           </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-7">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <p className="text-lg font-medium leading-relaxed text-foreground">
-              You don&apos;t have to decide alone. Set up a trusted person and
-              you can share this safety summary with them in one tap.
-            </p>
-            <Button
-              type="button"
-              size="lg"
-              onClick={onOpenSupport}
-              className="h-auto w-full shrink-0 rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto"
-            >
-              <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
-              Add someone I trust
-            </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {trustedSupportActions.map((action) => {
+              if (action.kind === "call") {
+                return (
+                  <a
+                    key={action.kind}
+                    href={action.href}
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto",
+                    )}
+                  >
+                    <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
+                    {action.label}
+                  </a>
+                )
+              }
+
+              if (action.kind === "email") {
+                return (
+                  <a
+                    key={action.kind}
+                    href={action.href}
+                    className={cn(
+                      buttonVariants({ size: "lg", variant: "outline" }),
+                      "h-auto w-full rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary sm:w-auto",
+                    )}
+                  >
+                    <Mail className="mr-2 h-5 w-5" aria-hidden="true" />
+                    {action.label}
+                  </a>
+                )
+              }
+
+              return (
+                <Button
+                  key={action.kind}
+                  type="button"
+                  size="lg"
+                  onClick={onOpenSupport}
+                  className="h-auto w-full rounded-2xl px-6 py-5 text-lg font-semibold sm:w-auto"
+                >
+                  <UserRound className="mr-2 h-5 w-5" aria-hidden="true" />
+                  {action.label}
+                </Button>
+              )
+            })}
+            {support?.trustedName && (
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                onClick={shareSummary}
+                className="h-auto w-full rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary sm:w-auto"
+              >
+                {shared ? (
+                  <Check className="mr-2 h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <Share2 className="mr-2 h-5 w-5" aria-hidden="true" />
+                )}
+                {shared ? "Copied, now paste it" : `Copy summary for ${support.trustedName}`}
+              </Button>
+            )}
           </div>
-          <p className="text-base leading-relaxed text-muted-foreground">
-            This is your choice, and it&apos;s always optional.
-          </p>
         </div>
-      )}
+        <p className="text-base leading-relaxed text-muted-foreground">
+          You stay in control. AskSafe does not call, email, notify, or share
+          anything automatically.
+        </p>
+      </div>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-lg font-semibold text-foreground">

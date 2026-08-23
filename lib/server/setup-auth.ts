@@ -6,6 +6,11 @@ import {
   type DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb"
 import type { AskSafeAwsConfig } from "./aws-env.ts"
+import {
+  decryptTrustedContactValue,
+  encryptTrustedContactValue,
+  type EncryptedTrustedContactValue,
+} from "./trusted-contact-crypto.ts"
 
 type AskSafeDynamoClientResult =
   | {
@@ -24,12 +29,20 @@ type ClientProvider = () =>
 
 type SetupAuthOptions = {
   clientProvider?: ClientProvider
+  trustedContactEncryptionSecret?: string
 }
 
 export type SetupResult =
   | { ok: true; id: string }
   | { skipped: true; reason: "missing-aws-config"; missing: string[] }
-  | { ok: false; reason: "write-failed" | "missing-setup-tables" }
+  | {
+      ok: false
+      reason:
+        | "write-failed"
+        | "missing-setup-tables"
+        | "trusted-contact-consent-required"
+        | "trusted-contact-encryption-unavailable"
+    }
 
 export type SetupCookie = {
   name: "asksafe_setup_session"
@@ -66,7 +79,7 @@ export type SetupProfileInput = {
   relationship: string
   trustedEmail: string
   trustedPhone: string
-  supportCode: string
+  trustedContactConsent: boolean
   now?: Date
 }
 
@@ -79,7 +92,7 @@ export type SupportSetup = {
   relationship: string
   trustedEmail: string
   trustedPhone: string
-  code: string
+  trustedContactNeedsUpdate: boolean
 }
 
 type UserItem = {
@@ -101,10 +114,13 @@ type HouseholdItem = {
   relationship: string
   trustedEmailHash?: string
   trustedPhoneHash?: string
+  trustedEmailEncrypted?: EncryptedTrustedContactValue
+  trustedPhoneEncrypted?: EncryptedTrustedContactValue
+  trustedContactConsentAt?: string
   supportCode?: string
   createdAt: string
   updatedAt: string
-  schemaVersion: 1
+  schemaVersion: 1 | 2
 }
 
 type VerifySetupCodeInput = {
@@ -117,7 +133,7 @@ type VerifySetupCodeInput = {
 }
 
 type VerifySetupCodeResult =
-  | { ok: true; userId: string; session: SetupCookie }
+  | { ok: true; userId: string; session: SetupCookie; setup: SupportSetup | null }
   | {
       ok: false
       reason:
@@ -324,6 +340,8 @@ export async function verifySetupCode(
       }),
     )
 
+    const loaded = await loadSetupFromSession(userId, options)
+
     return {
       ok: true,
       userId,
@@ -333,6 +351,7 @@ export async function verifySetupCode(
         secret: input.sessionSecret,
         now,
       }),
+      setup: loaded.ok ? loaded.setup : null,
     }
   } catch {
     return { ok: false, reason: "write-failed" }
@@ -353,6 +372,18 @@ export async function saveSetupProfile(
 
   const now = input.now ?? new Date()
   const householdId = householdIdForUser(input.userId)
+  const trustedEmail = normalizeContact(input.trustedEmail)
+  const trustedPhone = input.trustedPhone.trim()
+  const hasTrustedContact = Boolean(trustedEmail || trustedPhone)
+
+  if (hasTrustedContact && !input.trustedContactConsent) {
+    return { ok: false, reason: "trusted-contact-consent-required" }
+  }
+
+  const encryptionSecret = getTrustedContactEncryptionSecret(options)
+  if (hasTrustedContact && !encryptionSecret) {
+    return { ok: false, reason: "trusted-contact-encryption-unavailable" }
+  }
 
   const userItem: UserItem = {
     userId: input.userId,
@@ -366,17 +397,28 @@ export async function saveSetupProfile(
     schemaVersion: 1,
   }
 
-  const householdItem: HouseholdItem = {
-    householdId,
-    userId: input.userId,
-    trustedName: input.trustedName.trim(),
-    relationship: input.relationship.trim(),
-    trustedEmailHash: hashOptionalContact(input.trustedEmail),
-    trustedPhoneHash: hashOptionalContact(input.trustedPhone),
-    supportCode: input.supportCode.trim() || undefined,
-    createdAt: now.toISOString(),
-    updatedAt: now.toISOString(),
-    schemaVersion: 1,
+  let householdItem: HouseholdItem
+  try {
+    householdItem = {
+      householdId,
+      userId: input.userId,
+      trustedName: input.trustedName.trim(),
+      relationship: input.relationship.trim(),
+      trustedEmailHash: hashOptionalContact(trustedEmail),
+      trustedPhoneHash: hashOptionalContact(trustedPhone),
+      trustedEmailEncrypted: trustedEmail && encryptionSecret
+        ? encryptTrustedContactValue(trustedEmail, encryptionSecret)
+        : undefined,
+      trustedPhoneEncrypted: trustedPhone && encryptionSecret
+        ? encryptTrustedContactValue(trustedPhone, encryptionSecret)
+        : undefined,
+      trustedContactConsentAt: hasTrustedContact ? now.toISOString() : undefined,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      schemaVersion: 2,
+    }
+  } catch {
+    return { ok: false, reason: "trusted-contact-encryption-unavailable" }
   }
 
   try {
@@ -437,6 +479,19 @@ export async function loadSetupFromSession(
       ? householdResult.Item
       : undefined
 
+    const encryptionSecret = getTrustedContactEncryptionSecret(options)
+    const trustedEmail = decryptStoredTrustedContact(
+      household?.trustedEmailEncrypted,
+      encryptionSecret,
+    )
+    const trustedPhone = decryptStoredTrustedContact(
+      household?.trustedPhoneEncrypted,
+      encryptionSecret,
+    )
+    const trustedContactNeedsUpdate = Boolean(
+      household?.trustedName.trim() && !trustedEmail && !trustedPhone,
+    )
+
     return {
       ok: true,
       setup: {
@@ -446,9 +501,9 @@ export async function loadSetupFromSession(
         usingFor: userResult.Item.usingFor,
         trustedName: household?.trustedName ?? "",
         relationship: household?.relationship ?? "",
-        trustedEmail: "",
-        trustedPhone: "",
-        code: household?.supportCode ?? "",
+        trustedEmail,
+        trustedPhone,
+        trustedContactNeedsUpdate,
       },
     }
   } catch {
@@ -465,6 +520,22 @@ export function hashContact(value: string): string {
 function hashOptionalContact(value: string): string | undefined {
   const normalized = normalizeContact(value)
   return normalized.length > 0 ? hashContact(normalized) : undefined
+}
+
+function getTrustedContactEncryptionSecret(options: SetupAuthOptions): string | undefined {
+  return options.trustedContactEncryptionSecret ?? process.env.ASKSAFE_TRUSTED_CONTACT_ENCRYPTION_SECRET
+}
+
+function decryptStoredTrustedContact(
+  value: EncryptedTrustedContactValue | undefined,
+  secret: string | undefined,
+): string {
+  if (!value || !secret) return ""
+  try {
+    return decryptTrustedContactValue(value, secret)
+  } catch {
+    return ""
+  }
 }
 
 function hashOtp(email: string, code: string, secret: string): string {

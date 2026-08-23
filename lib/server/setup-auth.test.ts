@@ -171,11 +171,12 @@ test("saveSetupProfile writes user and household setup records", async () => {
     relationship: "Daughter",
     trustedEmail: "sarah@example.com",
     trustedPhone: "0411111111",
-    supportCode: "SAFE-1234",
+    trustedContactConsent: true,
     now: new Date("2026-06-30T01:00:00.000Z"),
   }
 
   const result = await saveSetupProfile(profile, {
+    trustedContactEncryptionSecret: Buffer.alloc(32, 3).toString("base64"),
     clientProvider: () => ({
       ok: true,
       config: {
@@ -199,6 +200,71 @@ test("saveSetupProfile writes user and household setup records", async () => {
   assert.equal(JSON.stringify(calls).includes("margaret@example.com"), false)
   assert.equal(JSON.stringify(calls).includes("sarah@example.com"), false)
   assert.equal(JSON.stringify(calls).includes("0400000000"), false)
+})
+
+test("saveSetupProfile encrypts trusted contact details for actionable support", async () => {
+  const items = new Map<string, Record<string, unknown>>()
+  const documentClient = {
+    send: async (command: { input: Record<string, unknown>; constructor: { name: string } }) => {
+      if (command.constructor.name === "PutCommand") {
+        const item = command.input.Item as Record<string, unknown>
+        const key = `${command.input.TableName}:${String(item.householdId ?? item.userId)}`
+        items.set(key, item)
+        return {}
+      }
+
+      if (command.constructor.name === "GetCommand") {
+        const key = `${command.input.TableName}:${String((command.input.Key as Record<string, unknown>).userId ?? (command.input.Key as Record<string, unknown>).householdId)}`
+        return { Item: items.get(key) }
+      }
+
+      return {}
+    },
+  }
+  const options = {
+    trustedContactEncryptionSecret: Buffer.alloc(32, 7).toString("base64"),
+    clientProvider: () => ({
+      ok: true as const,
+      config: {
+        region: "ap-southeast-2",
+        tables: {
+          events: "events-table",
+          feedback: "feedback-table",
+          supportEvents: "support-events-table",
+          users: "users-table",
+          households: "households-table",
+        },
+      },
+      documentClient: documentClient as never,
+    }),
+  }
+
+  const saved = await saveSetupProfile(
+    {
+      userId: "usr_456",
+      yourName: "Margaret",
+      email: "margaret@example.com",
+      phone: "",
+      usingFor: "self",
+      trustedName: "Sarah",
+      relationship: "Daughter",
+      trustedEmail: "sarah@example.com",
+      trustedPhone: "0411111111",
+      trustedContactConsent: true,
+    },
+    options,
+  )
+
+  assert.deepEqual(saved, { ok: true, id: "usr_456" })
+  assert.equal(JSON.stringify([...items.values()]).includes("sarah@example.com"), false)
+  assert.equal(JSON.stringify([...items.values()]).includes("0411111111"), false)
+
+  const loaded = await loadSetupFromSession("usr_456", options)
+  assert.equal(loaded.ok, true)
+  if (!loaded.ok || !loaded.setup) throw new Error("expected actionable trusted contact")
+  assert.equal(loaded.setup.trustedEmail, "sarah@example.com")
+  assert.equal(loaded.setup.trustedPhone, "0411111111")
+  assert.equal(loaded.setup.trustedContactNeedsUpdate, false)
 })
 
 test("loadSetupFromSession returns saved user and household setup", async () => {
@@ -260,7 +326,7 @@ test("loadSetupFromSession returns saved user and household setup", async () => 
     relationship: "Daughter",
     trustedEmail: "",
     trustedPhone: "",
-    code: "SAFE-1234",
+    trustedContactNeedsUpdate: true,
   })
 })
 

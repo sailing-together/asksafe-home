@@ -100,7 +100,7 @@ test("outcome event clients fail softly when requests fail", async () => {
     { fetch: async () => new Response(JSON.stringify({ ok: false }), { status: 500 }) },
   )
   const support = await recordSupportEvent(
-    { action: "code-created" },
+    { action: "summary-shared" },
     { fetch: async () => { throw new Error("network down") } },
   )
 

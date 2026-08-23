@@ -20,7 +20,11 @@ type RequestSetupCodeResponse =
   | { status: 500; body: { ok: false; reason: "write-failed" | "email-send-failed" | "missing-aws-config" } }
 
 type VerifySetupCodeResponse =
-  | { status: 200; body: { ok: true }; cookie: SetupCookie }
+  | {
+      status: 200
+      body: { ok: true; setup: SupportSetup | null; signedInEmail: string }
+      cookie: SetupCookie
+    }
   | {
       status: 400
       body: {
@@ -39,10 +43,23 @@ type GetSetupResponse =
   | { status: 500; body: { ok: false; reason: "read-failed" | "missing-aws-config" | "missing-setup-tables" } }
 
 type SaveSetupResponse =
-  | { status: 200; body: { ok: true } }
-  | { status: 400; body: { ok: false; reason: "invalid-payload" } }
+  | { status: 200; body: { ok: true; setup: SupportSetup } }
+  | {
+      status: 400
+      body: { ok: false; reason: "invalid-payload" | "trusted-contact-consent-required" }
+    }
   | { status: 401; body: { ok: false; reason: "not-signed-in" } }
-  | { status: 500; body: { ok: false; reason: "write-failed" | "missing-aws-config" | "missing-setup-tables" } }
+  | {
+      status: 500
+      body: {
+        ok: false
+        reason:
+          | "write-failed"
+          | "missing-aws-config"
+          | "missing-setup-tables"
+          | "trusted-contact-encryption-unavailable"
+      }
+    }
 
 type SignOutSetupResponse = {
   status: 200
@@ -124,7 +141,7 @@ export async function handleVerifySetupCode(
   if (result.ok) {
     return {
       status: 200,
-      body: { ok: true },
+      body: { ok: true, setup: result.setup, signedInEmail: input.email },
       cookie: result.session,
     }
   }
@@ -168,24 +185,28 @@ export async function handleSaveSetupRequest(
   payload: unknown,
   options: SaveSetupOptions = {},
 ): Promise<SaveSetupResponse> {
-  const userId = getSessionUserId(sessionCookie, options)
-  if (!userId) return { status: 401, body: { ok: false, reason: "not-signed-in" } }
+  const identity = getSessionIdentity(sessionCookie, options)
+  if (!identity) return { status: 401, body: { ok: false, reason: "not-signed-in" } }
 
   const setup = parseSupportSetup(payload)
   if (!setup) return { status: 400, body: { ok: false, reason: "invalid-payload" } }
+  const hasTrustedContactDetails = Boolean(setup.trustedEmail || setup.trustedPhone)
+  if (hasTrustedContactDetails && !setup.trustedContactConsent) {
+    return { status: 400, body: { ok: false, reason: "trusted-contact-consent-required" } }
+  }
 
   const save = options.saveSetupProfile ?? saveSetupProfile
   const result = await save({
-    userId,
+    userId: identity.userId,
     yourName: setup.yourName,
-    email: setup.email,
+    email: identity.email || setup.email,
     phone: setup.phone,
     usingFor: setup.usingFor,
     trustedName: setup.trustedName,
     relationship: setup.relationship,
     trustedEmail: setup.trustedEmail,
     trustedPhone: setup.trustedPhone,
-    supportCode: setup.code,
+    trustedContactConsent: setup.trustedContactConsent,
   })
 
   if ("skipped" in result) {
@@ -193,10 +214,30 @@ export async function handleSaveSetupRequest(
   }
 
   if (!result.ok) {
+    if (result.reason === "trusted-contact-consent-required") {
+      return { status: 400, body: { ok: false, reason: result.reason } }
+    }
     return { status: 500, body: { ok: false, reason: result.reason } }
   }
 
-  return { status: 200, body: { ok: true } }
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      setup: {
+        yourName: setup.yourName,
+        email: identity.email || setup.email,
+        phone: setup.phone,
+        usingFor: setup.usingFor,
+        trustedName: setup.trustedName,
+        relationship: setup.relationship,
+        trustedEmail: setup.trustedEmail,
+        trustedPhone: setup.trustedPhone,
+        trustedContactNeedsUpdate:
+          Boolean(setup.trustedName) && !setup.trustedEmail && !setup.trustedPhone,
+      },
+    },
+  }
 }
 
 export function handleSignOutSetupRequest(): SignOutSetupResponse {
@@ -226,10 +267,6 @@ function mapSetupSaveFailure(result: Extract<SetupResult, { ok: false }>): Reque
   }
 
   return { status: 500, body: { ok: false, reason: "write-failed" } }
-}
-
-function getSessionUserId(sessionCookie: string | undefined, options: SessionOptions): string | null {
-  return getSessionIdentity(sessionCookie, options)?.userId ?? null
 }
 
 function getSessionIdentity(
@@ -276,7 +313,9 @@ function parseVerifyPayload(payload: unknown): { email: string; code: string } |
   return { email, code }
 }
 
-function parseSupportSetup(payload: unknown): SupportSetup | null {
+function parseSupportSetup(
+  payload: unknown,
+): (SupportSetup & { trustedContactConsent: boolean }) | null {
   if (!isRecord(payload)) return null
   if (typeof payload.yourName !== "string" || payload.yourName.trim().length < 1) {
     return null
@@ -284,21 +323,30 @@ function parseSupportSetup(payload: unknown): SupportSetup | null {
   if (typeof payload.email !== "string" || !isLikelyEmail(payload.email)) return null
   if (payload.usingFor !== "self" && payload.usingFor !== "other") return null
 
-  return {
+  const trustedEmail =
+    typeof payload.trustedEmail === "string" && payload.trustedEmail.trim().length > 0
+      ? payload.trustedEmail.trim()
+      : ""
+  const trustedPhone =
+    typeof payload.trustedPhone === "string" ? payload.trustedPhone.trim() : ""
 
+  return {
     yourName: payload.yourName.trim(),
     email: payload.email.trim(),
     phone: typeof payload.phone === "string" ? payload.phone.trim() : "",
     usingFor: payload.usingFor,
     trustedName: typeof payload.trustedName === "string" ? payload.trustedName.trim() : "",
     relationship: typeof payload.relationship === "string" ? payload.relationship.trim() : "",
-    trustedEmail:
-      typeof payload.trustedEmail === "string" && payload.trustedEmail.trim().length > 0
-        ? payload.trustedEmail.trim()
-        : "",
-    trustedPhone:
-      typeof payload.trustedPhone === "string" ? payload.trustedPhone.trim() : "",
-    code: typeof payload.code === "string" ? payload.code.trim() : "",
+    trustedEmail,
+    trustedPhone,
+    trustedContactNeedsUpdate:
+      typeof payload.trustedContactNeedsUpdate === "boolean"
+        ? payload.trustedContactNeedsUpdate
+        : false,
+    trustedContactConsent:
+      typeof payload.trustedContactConsent === "boolean"
+        ? payload.trustedContactConsent
+        : !(trustedEmail || trustedPhone),
   }
 }
 

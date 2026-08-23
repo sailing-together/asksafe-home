@@ -18,7 +18,6 @@ type SupportEventRouteOptions = {
 
 const SUPPORT_ACTIONS: readonly SupportEventInput["action"][] = [
   "setup-opened",
-  "code-created",
   "summary-shared",
 ]
 
