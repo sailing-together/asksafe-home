@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { UserRound, Copy, Check, ShieldCheck, X, Mail, ArrowLeft, LogOut } from "lucide-react"
+import { UserRound, X, ArrowLeft, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
@@ -14,7 +14,7 @@ export type SupportSetup = {
   relationship: string
   trustedEmail: string
   trustedPhone: string
-  code: string
+  trustedContactNeedsUpdate: boolean
 }
 
 type Phase = "signin" | "code" | "form" | "summary"
@@ -24,6 +24,12 @@ type AsyncResult =
       ok: false
       reason: string
     }
+type VerifyResult =
+  | { ok: true; setup: SupportSetup | null; signedIn: boolean; signedInEmail: string }
+  | { ok: false; reason: string }
+type SaveResult =
+  | { ok: true; setup: SupportSetup }
+  | { ok: false; reason: string }
 
 const relationships = [
   "Daughter",
@@ -44,18 +50,12 @@ const usingForLabels: Record<SupportSetup["usingFor"], string> = {
 const inputClass =
   "h-12 rounded-xl border border-border bg-background px-4 text-lg text-foreground placeholder:text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
-function makeCode() {
-  const digits = Math.floor(1000 + Math.random() * 9000)
-  return `SAFE-${digits}`
-}
-
 export function TrustedSupportDialog({
   open,
   existing,
   signedIn,
   signedInEmail,
   onClose,
-  onSupportAction,
   onSignIn,
   onSignOut,
   onCreate,
@@ -68,13 +68,12 @@ export function TrustedSupportDialog({
   signedIn: boolean
   signedInEmail: string
   onClose: () => void
-  onSupportAction?: (action: "code-created") => void
   onSignIn: () => void
   onSignOut: () => Promise<AsyncResult>
   onCreate: (support: SupportSetup) => void
   onRequestCode: (email: string) => Promise<AsyncResult>
-  onVerifyCode: (email: string, code: string) => Promise<AsyncResult>
-  onSaveSetup: (support: SupportSetup) => Promise<AsyncResult>
+  onVerifyCode: (email: string, code: string) => Promise<VerifyResult>
+  onSaveSetup: (support: SupportSetup & { trustedContactConsent: boolean }) => Promise<SaveResult>
 }) {
   const [phase, setPhase] = useState<Phase>("signin")
 
@@ -94,8 +93,8 @@ export function TrustedSupportDialog({
   const [relationship, setRelationship] = useState("")
   const [trustedEmail, setTrustedEmail] = useState("")
   const [trustedPhone, setTrustedPhone] = useState("")
+  const [trustedContactConsent, setTrustedContactConsent] = useState(false)
   const [created, setCreated] = useState<SupportSetup | null>(null)
-  const [copied, setCopied] = useState(false)
 
   // When the dialog opens, decide the starting phase from the existing setup.
   useEffect(() => {
@@ -109,7 +108,7 @@ export function TrustedSupportDialog({
       setRelationship(existing?.relationship ?? "")
       setTrustedEmail(existing?.trustedEmail ?? "")
       setTrustedPhone(existing?.trustedPhone ?? "")
-      setCopied(false)
+      setTrustedContactConsent(Boolean(existing?.trustedEmail || existing?.trustedPhone))
       setSignInValue("")
       setCodeEntry("")
       setCodeError(false)
@@ -134,7 +133,11 @@ export function TrustedSupportDialog({
   if (!open) return null
 
   const canSendCode = signInValue.trim().length >= 3 && !submitting
-  const canSave = yourName.trim().length >= 1 && email.trim().length >= 1
+  const hasDirectTrustedContact = Boolean(trustedEmail.trim() || trustedPhone.trim())
+  const canSave =
+    yourName.trim().length >= 1 &&
+    email.trim().length >= 1 &&
+    (!hasDirectTrustedContact || trustedContactConsent)
   const hasTrusted = trustedName.trim().length >= 1
 
   async function sendCode() {
@@ -159,7 +162,7 @@ export function TrustedSupportDialog({
 
   async function verifyCode() {
     setSubmitting(true)
-    setStatusMessage("")
+    setStatusMessage("Checking your setup...")
     const result = await onVerifyCode(signInValue.trim(), codeEntry.trim())
     setSubmitting(false)
 
@@ -171,12 +174,22 @@ export function TrustedSupportDialog({
 
     setCodeError(false)
     onSignIn()
+    setStatusMessage("")
+
+    if (result.setup) {
+      applySetup(result.setup)
+      setCreated(result.setup)
+      onCreate(result.setup)
+      setPhase("summary")
+      return
+    }
+
+    setEmail(result.signedInEmail || signInValue.trim())
     setPhase("form")
   }
 
-  async function save(withCode: boolean) {
+  async function save() {
     if (!canSave) return
-    if (withCode && !hasTrusted) return
     const support: SupportSetup = {
       yourName: yourName.trim(),
       email: email.trim(),
@@ -186,12 +199,14 @@ export function TrustedSupportDialog({
       relationship: hasTrusted ? relationship || "Other" : "",
       trustedEmail: trustedEmail.trim(),
       trustedPhone: trustedPhone.trim(),
-      // Keep an existing code, make a new one when asked, otherwise none.
-      code: withCode ? created?.code ?? makeCode() : created?.code ?? "",
+      trustedContactNeedsUpdate: hasTrusted && !trustedEmail.trim() && !trustedPhone.trim(),
     }
     setSubmitting(true)
     setStatusMessage("")
-    const result = await onSaveSetup(support)
+    const result = await onSaveSetup({
+      ...support,
+      trustedContactConsent: hasDirectTrustedContact ? trustedContactConsent : false,
+    })
     setSubmitting(false)
 
     if (!result.ok) {
@@ -199,21 +214,21 @@ export function TrustedSupportDialog({
       return
     }
 
-    setCreated(support)
-    onCreate(support)
-    if (withCode) onSupportAction?.("code-created")
+    setCreated(result.setup)
+    onCreate(result.setup)
     setPhase("summary")
   }
 
-  async function copyCode() {
-    if (!created?.code) return
-    try {
-      await navigator.clipboard.writeText(created.code)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
-    } catch {
-      setCopied(false)
-    }
+  function applySetup(setup: SupportSetup) {
+    setYourName(setup.yourName)
+    setEmail(setup.email || signedInEmail)
+    setPhone(setup.phone)
+    setUsingFor(setup.usingFor)
+    setTrustedName(setup.trustedName)
+    setRelationship(setup.relationship)
+    setTrustedEmail(setup.trustedEmail)
+    setTrustedPhone(setup.trustedPhone)
+    setTrustedContactConsent(Boolean(setup.trustedEmail || setup.trustedPhone))
   }
 
   const titles: Record<Phase, string> = {
@@ -391,7 +406,7 @@ export function TrustedSupportDialog({
                 id="setup-form"
                 onSubmit={(e) => {
                   e.preventDefault()
-                  void save(false)
+                  void save()
                 }}
                 className="flex flex-col gap-6"
               >
@@ -496,8 +511,16 @@ export function TrustedSupportDialog({
 
                   <p className="text-base leading-relaxed text-muted-foreground">
                     Add a family member, close friend, neighbour, carer, or
-                    community support worker if you want support later.
+                    community support worker if you want support later. AskSafe
+                    will not contact them or share anything automatically.
                   </p>
+
+                  {created?.trustedContactNeedsUpdate && (
+                    <p className="rounded-xl bg-secondary px-4 py-3 text-base leading-relaxed text-muted-foreground">
+                      Add contact details before AskSafe can show a call or email
+                      action for {created.trustedName}.
+                    </p>
+                  )}
 
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="trusted-name" className="text-base font-semibold text-foreground">
@@ -541,7 +564,12 @@ export function TrustedSupportDialog({
                       id="trusted-email"
                       type="email"
                       value={trustedEmail}
-                      onChange={(e) => setTrustedEmail(e.target.value)}
+                      onChange={(e) => {
+                        setTrustedEmail(e.target.value)
+                        if (!e.target.value.trim() && !trustedPhone.trim()) {
+                          setTrustedContactConsent(false)
+                        }
+                      }}
                       placeholder="their@example.com"
                       className={inputClass}
                     />
@@ -556,11 +584,32 @@ export function TrustedSupportDialog({
                       id="trusted-phone"
                       type="tel"
                       value={trustedPhone}
-                      onChange={(e) => setTrustedPhone(e.target.value)}
+                      onChange={(e) => {
+                        setTrustedPhone(e.target.value)
+                        if (!trustedEmail.trim() && !e.target.value.trim()) {
+                          setTrustedContactConsent(false)
+                        }
+                      }}
                       placeholder="Their phone number"
                       className={inputClass}
                     />
                   </div>
+
+                  {hasDirectTrustedContact && (
+                    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background px-4 py-3 text-base leading-relaxed text-foreground">
+                      <input
+                        type="checkbox"
+                        checked={trustedContactConsent}
+                        onChange={(e) => setTrustedContactConsent(e.target.checked)}
+                        className="mt-1 h-5 w-5 accent-[var(--primary)]"
+                      />
+                      <span>
+                        Save these contact details so I can choose to call or
+                        email this person from AskSafe. AskSafe will not contact
+                        them for me.
+                      </span>
+                    </label>
+                  )}
                 </section>
               </form>
             </div>
@@ -576,20 +625,9 @@ export function TrustedSupportDialog({
               >
                 Save setup
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                disabled={!canSave || !hasTrusted}
-                onClick={() => void save(true)}
-                className="h-auto rounded-2xl border-primary/30 bg-card px-6 py-5 text-lg font-semibold text-primary hover:bg-secondary"
-              >
-                <ShieldCheck className="mr-2 h-5 w-5" aria-hidden="true" />
-                Create support code
-              </Button>
-              {!hasTrusted && (
+              {hasDirectTrustedContact && !trustedContactConsent && (
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Add someone you trust to create a support code.
+                  Tick the consent box before saving trusted contact details.
                 </p>
               )}
               {statusMessage && (
@@ -641,14 +679,6 @@ export function TrustedSupportDialog({
                       </dd>
                     </div>
                   )}
-                  {created.code && (
-                    <div className="flex items-baseline justify-between gap-4">
-                      <dt className="text-base text-muted-foreground">Support code</dt>
-                      <dd className="text-right font-heading text-lg font-bold tracking-wide text-primary">
-                        {created.code}
-                      </dd>
-                    </div>
-                  )}
                 </dl>
 
                 {!created.trustedName && (
@@ -657,9 +687,10 @@ export function TrustedSupportDialog({
                   </p>
                 )}
 
-                {created.code && (
+                {created.trustedName && created.trustedContactNeedsUpdate && (
                   <p className="text-base leading-relaxed text-muted-foreground">
-                    This code does not share anything by itself.
+                    Add contact details when you want AskSafe to show call or
+                    email actions for {created.trustedName}.
                   </p>
                 )}
 
@@ -671,21 +702,6 @@ export function TrustedSupportDialog({
 
             {/* Footer (sticky) */}
             <div className="flex shrink-0 flex-col gap-3 border-t border-border p-6 sm:px-8">
-              {created.code && (
-                <Button
-                  type="button"
-                  size="lg"
-                  onClick={copyCode}
-                  className="h-auto rounded-2xl px-6 py-5 text-lg font-semibold"
-                >
-                  {copied ? (
-                    <Check className="mr-2 h-5 w-5" aria-hidden="true" />
-                  ) : (
-                    <Copy className="mr-2 h-5 w-5" aria-hidden="true" />
-                  )}
-                  {copied ? "Copied" : "Copy support code"}
-                </Button>
-              )}
               <Button
                 type="button"
                 variant="outline"

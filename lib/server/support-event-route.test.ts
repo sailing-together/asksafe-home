@@ -55,6 +55,16 @@ test("handleSupportEventRequest rejects unknown support actions", async () => {
   assert.deepEqual(response.body, { ok: false, reason: "invalid-payload" })
 })
 
+test("handleSupportEventRequest rejects obsolete support-code creation events", async () => {
+  const response = await handleSupportEventRequest(
+    { action: "code-created" },
+    { saveSupportEvent: async () => ({ ok: true, id: "should-not-save" }) },
+  )
+
+  assert.equal(response.status, 400)
+  assert.deepEqual(response.body, { ok: false, reason: "invalid-payload" })
+})
+
 test("handleSupportEventRequest reports skipped persistence when AWS config is missing", async () => {
   const response = await handleSupportEventRequest(validPayload, {
     saveSupportEvent: async () => ({

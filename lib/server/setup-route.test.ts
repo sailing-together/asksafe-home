@@ -78,13 +78,18 @@ test("handleVerifySetupCode returns a session cookie for a valid code", async ()
         ok: true,
         userId: "usr_123",
         session: validSession,
+        setup: null,
       }),
     },
   )
 
   assert.deepEqual(response, {
     status: 200,
-    body: { ok: true },
+    body: {
+      ok: true,
+      setup: null,
+      signedInEmail: "margaret@example.com",
+    },
     cookie: validSession,
   })
 })
@@ -99,7 +104,7 @@ test("handleGetSetupRequest loads setup from a valid session", async () => {
     relationship: "Daughter",
     trustedEmail: "",
     trustedPhone: "",
-    code: "SAFE-1234",
+    trustedContactNeedsUpdate: true,
   }
 
   const response = await handleGetSetupRequest("signed-session", {
@@ -140,30 +145,67 @@ test("handleGetSetupRequest returns verified email for an incomplete setup", asy
 })
 
 test("handleSaveSetupRequest saves setup for a valid session", async () => {
-  const payload: SupportSetup = {
+  const setup: SupportSetup = {
     yourName: "Margaret",
     email: "margaret@example.com",
     phone: "",
     usingFor: "self",
     trustedName: "Sarah",
     relationship: "Daughter",
-    trustedEmail: "",
-    trustedPhone: "",
-    code: "SAFE-1234",
+    trustedEmail: "sarah@example.com",
+    trustedPhone: "+61 400 000 000",
+    trustedContactNeedsUpdate: false,
   }
+  const payload = { ...setup, trustedContactConsent: true }
 
   const response = await handleSaveSetupRequest("signed-session", payload, {
-    readSetupSessionUserId: () => "usr_123",
+    readSetupSessionIdentity: () => ({
+      userId: "usr_123",
+      email: "margaret@example.com",
+    }),
     saveSetupProfile: async (input) => {
       assert.equal(input.userId, "usr_123")
       assert.equal(input.yourName, "Margaret")
+      assert.equal(input.email, "margaret@example.com")
+      assert.equal(input.trustedContactConsent, true)
       return { ok: true, id: "usr_123" }
     },
   })
 
   assert.deepEqual(response, {
     status: 200,
-    body: { ok: true },
+    body: {
+      ok: true,
+      setup,
+    },
+  })
+})
+
+test("handleSaveSetupRequest requires consent before storing trusted contact details", async () => {
+  const response = await handleSaveSetupRequest(
+    "signed-session",
+    {
+      yourName: "Margaret",
+      email: "margaret@example.com",
+      phone: "",
+      usingFor: "self",
+      trustedName: "Sarah",
+      relationship: "Daughter",
+      trustedEmail: "sarah@example.com",
+      trustedPhone: "",
+      trustedContactConsent: false,
+    },
+    {
+      readSetupSessionIdentity: () => ({
+        userId: "usr_123",
+        email: "margaret@example.com",
+      }),
+    },
+  )
+
+  assert.deepEqual(response, {
+    status: 400,
+    body: { ok: false, reason: "trusted-contact-consent-required" },
   })
 })
 

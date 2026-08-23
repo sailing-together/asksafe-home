@@ -71,7 +71,7 @@ export type FeedbackEventInput = {
 export type SupportEventInput = {
   eventId?: string
   safetyEventId?: string
-  action: "setup-opened" | "code-created" | "summary-shared"
+  action: "setup-opened" | "summary-shared"
   anonymousSessionId?: string
   now?: Date
 }

@@ -1377,3 +1377,29 @@ The quota smoke should be run deliberately because successful pre-quota calls
 may still invoke Bedrock. For lowest cost, temporarily lower the relevant daily
 quota in Vercel before running the hard-stop check, then restore the production
 limit after the smoke result is captured.
+
+## Phase 8.23: P8.11 Actionable Trusted Support
+
+P8.11 turned optional trusted support from saved display data into a usable,
+consent-led action path.
+
+Changes:
+
+- OTP verification now returns the authenticated setup snapshot with the session
+  cookie so existing users do not briefly see an empty setup form.
+- Same-browser session restore continues to hydrate setup without another OTP.
+- Trusted contact email and phone are saved only after explicit consent,
+  encrypted at rest, and decrypted only server-side for the authenticated owner.
+- Result-page trusted support now shows user-initiated call/email actions when
+  saved contact methods exist, asks for contact details for legacy name-only
+  records, or invites the user to add someone trusted.
+- The visible support-code creation, display, copy action, and `code-created`
+  event path were removed from active behavior.
+
+Why:
+
+Trusted support should reduce loneliness and decision pressure by making it
+easier for a senior to involve a known person. It must not become automatic
+outreach, hidden monitoring, or a fake pairing mechanism. Future invitation,
+per-event summary sharing, and SMS support remain separate consent and privacy
+designs.

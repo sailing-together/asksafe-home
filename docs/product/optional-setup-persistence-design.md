@@ -16,6 +16,13 @@ configured and verified SES identity; otherwise the API returns a clear
 `email-not-configured` response and the user can continue using AskSafe without
 setup.
 
+P8.11 makes saved trusted support actionable without making it automatic. OTP
+verification returns the authenticated setup snapshot in the same response that
+sets the session cookie, saved trusted contact email and phone values are
+encrypted at rest after explicit consent, and result pages show only
+user-initiated `tel:` or `mailto:` actions. The visible support-code creation
+experience has been retired.
+
 ## Product Boundary
 
 AskSafe Home's core safety check must remain usable without an account.
@@ -41,7 +48,8 @@ The current UI includes:
 - `app/page.tsx`
 - `SupportSetup` state hydrated from the setup API when a valid session exists
 - optional trusted person setup fields
-- support event recording for actions such as `setup-opened` and `code-created`
+- support event recording for actions such as `setup-opened` and
+  `summary-shared`
 
 The current backend includes:
 
@@ -59,7 +67,13 @@ The current backend uses DynamoDB tables for:
 - `asksafe-home-prod-events`
 - `asksafe-home-prod-feedback`
 
-The current persistence layer writes privacy-safe safety, feedback, support, user setup, and household setup records. Contact fields are hashed before persistence; raw email is used only transiently for OTP delivery.
+The current persistence layer writes privacy-safe safety, feedback, support,
+user setup, and household setup records. Owner email is hashed before user
+lookup. Trusted contact email and phone are hashed for integrity/lookup and,
+when the owner explicitly consents, encrypted with AES-256-GCM so the
+authenticated owner can edit saved direct contact actions later. Raw OTP values,
+trusted contact values, and safety-check text are not written to support,
+feedback, or safety event records.
 
 ## Desired User Experience
 
@@ -87,8 +101,10 @@ The current persistence layer writes privacy-safe safety, feedback, support, use
 2. AskSafe explains that adding a trusted person does not share anything by
    itself.
 3. User can choose to share a safety summary after a result.
-4. AskSafe records the support action as an event.
-5. Trusted support data is used for continuity and user-controlled sharing, not
+4. If a saved trusted contact has phone or email, the user can choose a direct
+   call or email action; AskSafe does not trigger that action automatically.
+5. AskSafe records user support actions as privacy-safe event metadata.
+6. Trusted support data is used for continuity and user-controlled sharing, not
    monitoring.
 
 ## Authentication Options
@@ -118,6 +134,8 @@ The implemented setup routes require these server-side environment variables:
 
 - `ASKSAFE_OTP_SECRET` for hashing short-lived one-time codes
 - `ASKSAFE_SESSION_SECRET` for signing HTTP-only setup session cookies
+- `ASKSAFE_TRUSTED_CONTACT_ENCRYPTION_SECRET` as 32 random bytes encoded in
+  base64, used only server-side to encrypt trusted contact email and phone
 
 Email delivery is intentionally explicit. For production setup emails through
 Amazon SES, configure:
@@ -189,6 +207,8 @@ Primary key:
 Existing index:
 
 - `supportCode-index`
+- The index may remain for legacy records, but P8.11 no longer creates,
+  displays, copies, or authorizes access with support codes.
 
 Recommended item shape:
 
@@ -200,19 +220,32 @@ Recommended item shape:
     "name": "Sarah",
     "relationship": "Daughter",
     "emailHash": "sha256-normalized-email-if-present",
-    "phoneHash": "sha256-normalized-phone-if-present"
+    "phoneHash": "sha256-normalized-phone-if-present",
+    "emailEncrypted": {
+      "version": "v1",
+      "iv": "base64url",
+      "ciphertext": "base64url",
+      "tag": "base64url"
+    },
+    "phoneEncrypted": {
+      "version": "v1",
+      "iv": "base64url",
+      "ciphertext": "base64url",
+      "tag": "base64url"
+    },
+    "consentAt": "2026-06-29T00:00:00.000Z"
   },
-  "supportCode": "SAFE-1234",
   "consentStatus": "owner_configured",
   "createdAt": "2026-06-29T00:00:00.000Z",
   "updatedAt": "2026-06-29T00:00:00.000Z",
-  "schemaVersion": 1
+  "schemaVersion": 2
 }
 ```
 
-The support code must not grant broad access by itself. It should be treated as
-a low-risk pairing or continuity cue, not an authentication secret for sensitive
-records.
+Legacy `supportCode` attributes may remain readable on older records, but they
+must not grant access, appear in the UI, or be used as a trusted-contact pairing
+mechanism. Future pairing needs an explicit invitation and recipient consent
+workflow.
 
 ### Support Events Table
 
@@ -276,6 +309,8 @@ Behavior:
 - verify code using constant-time comparison against a stored hash
 - create or load user by contact hash
 - issue session cookie
+- return the saved setup snapshot or `null` in the same successful response so
+  the UI does not briefly show an empty setup form for existing users
 - never return whether an email is already registered before verification
 
 ### `POST /api/setup`
@@ -291,7 +326,8 @@ Input:
     "relationship": "Daughter",
     "email": "sarah@example.com",
     "phone": ""
-  }
+  },
+  "trustedContactConsent": true
 }
 ```
 
@@ -299,17 +335,21 @@ Behavior:
 
 - validate length and allowed values
 - hash contact fields before persistence
+- reject trusted contact email or phone unless explicit consent is present
+- encrypt trusted contact email and phone at rest when direct contact details
+  are saved
 - update users table
 - update households table if trusted person is present
-- write a support event
+- return the saved setup shape without hashes, ciphertext, or legacy support
+  codes
 
 ### `GET /api/setup`
 
 Behavior:
 
 - return the saved setup for the signed-in user
-- avoid returning raw trusted contact details unless raw storage has been
-  explicitly approved
+- decrypt trusted contact email and phone only server-side for the authenticated
+  owner
 - include enough display data for the setup summary UI
 
 ### `DELETE /api/setup`
@@ -326,12 +366,20 @@ Behavior:
 - Do not store passwords, one-time codes, full card numbers, bank details, or
   sensitive identity details.
 - Do not store raw OTP values.
+- Do not store plaintext trusted contact email or phone.
+- Decrypt trusted contact details only for the authenticated setup owner.
 - Do not use trusted contact setup for automatic alerts.
 - Do not expose support code lookup as a broad record access mechanism.
+- Do not send invitations, emails, calls, texts, notifications, or safety
+  summaries to another person automatically.
 - Use rate limits for OTP requests and verification attempts.
 - Keep the core safety check available when auth fails.
 - Use clear copy explaining that nothing is shared unless the user chooses to
   share it.
+
+Future explicit invitation, per-event safety-summary sharing, and SMS support
+remain separate designs. They require recipient consent, revocation, abuse
+controls, privacy review, and cost/accessibility decisions before implementation.
 
 ## Implementation Sequence
 
@@ -356,7 +404,9 @@ A production-ready version should satisfy:
 - users can delete setup
 - trusted support remains optional
 - no raw OTP is stored
+- trusted contact email and phone are encrypted at rest when saved
 - no automatic sharing occurs
+- no visible support-code creation, display, copy, or authorization remains
 - DynamoDB stores user setup and household setup with minimal fields
 - setup API tests and smoke tests pass
 - README and architecture docs describe the behavior truthfully

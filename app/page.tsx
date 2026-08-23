@@ -79,21 +79,17 @@ export default function Page() {
     const result = await verifySetupCode(email, code)
 
     if (result.ok) {
-      setSignedIn(true)
-      const saved = await getSavedSetup()
-      if (saved.ok) {
-        setSignedIn(saved.signedIn)
-        setSignedInEmail(saved.signedInEmail)
-        setSupport(saved.setup)
-      }
+      setSignedIn(result.signedIn)
+      setSignedInEmail(result.signedInEmail)
+      setSupport(result.setup)
     }
 
     return result
   }
 
-  async function saveSupportSetup(nextSupport: SupportSetup) {
+  async function saveSupportSetup(nextSupport: SupportSetup & { trustedContactConsent: boolean }) {
     const result = await saveSetup(nextSupport)
-    if (result.ok) setSupport(nextSupport)
+    if (result.ok) setSupport(result.setup)
     return result
   }
 
@@ -228,7 +224,6 @@ export default function Page() {
         signedIn={signedIn}
         signedInEmail={signedInEmail}
         onClose={() => setSupportOpen(false)}
-        onSupportAction={recordSupportAction}
         onSignIn={() => setSignedIn(true)}
         onSignOut={signOut}
         onCreate={setSupport}

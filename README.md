@@ -42,7 +42,7 @@ AskSafe Home won Open Innovation first prize in the H0: Hack the Zero Stack with
 
 ## Current Status
 
-This repository contains the AskSafe Home web app. The current version includes the guided safety-check UI, local deterministic safety logic, trusted-support setup flow, mock one-time-code sign-in flow, voice input, read-aloud support, official-help references, privacy-safe event persistence, and optional Bedrock-assisted result wording.
+This repository contains the AskSafe Home web app. The current version includes the guided safety-check UI, local deterministic safety logic, real email one-time-code setup sign-in, session-backed optional setup, encrypted trusted-contact persistence for user-initiated call/email actions, voice input, read-aloud support, official-help references, privacy-safe event persistence, and optional Bedrock-assisted result wording.
 
 The current safety analysis is rule-based and deterministic. It is intended to make the product flow shippable while backend, persistence, and AI orchestration are added carefully.
 
@@ -50,16 +50,17 @@ The current safety analysis is rule-based and deterministic. It is intended to m
 
 The core safety check is intentionally usable without login.
 
-The current `My setup` and trusted-support setup flow is optional and still uses a mock one-time-code sign-in path. A production-ready setup flow should replace the mock code path with real email or phone OTP, or a magic-link sign-in flow, then persist consent-managed setup data to DynamoDB.
+The current `My setup` and trusted-support setup flow is optional. Email OTP sign-in exists only to remember setup and trusted-support preferences; anonymous safety checks remain available. Trusted contact email and phone values are saved only with explicit user consent, encrypted at rest, and shown back only to the authenticated setup owner for editing and user-initiated call/email actions.
 
 Planned setup hardening:
 
 - keep the core safety check available without an account
-- replace mock one-time-code sign-in with real OTP or magic-link authentication
+- keep real email OTP stable before considering additional channels
 - persist lightweight user setup to `asksafe-home-prod-users`
 - persist household or trusted-person setup to `asksafe-home-prod-households`
 - keep trusted support user-controlled, with no automatic family monitoring
 - support loading, editing, and deleting saved setup
+- keep future trusted-person invitations, per-event sharing, and SMS support as explicit future designs
 - document clearly what is saved, what is not saved, and what is not shared automatically
 
 ## Project Origin And Development Link

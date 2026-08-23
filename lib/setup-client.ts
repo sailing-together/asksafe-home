@@ -7,7 +7,11 @@ export type SupportSetupPayload = {
   relationship: string
   trustedEmail: string
   trustedPhone: string
-  code: string
+  trustedContactNeedsUpdate: boolean
+}
+
+export type SupportSetupSavePayload = SupportSetupPayload & {
+  trustedContactConsent?: boolean
 }
 
 type FetchFn = typeof fetch
@@ -30,6 +34,8 @@ type BasicResult =
         | "not-signed-in"
         | "rate-limited"
         | "request-failed"
+        | "trusted-contact-consent-required"
+        | "trusted-contact-encryption-unavailable"
     }
 
 type SavedSetupResult =
@@ -38,8 +44,14 @@ type SavedSetupResult =
       setup: SupportSetupPayload | null
       signedIn: boolean
       signedInEmail: string
-    }
+  }
   | { ok: false; reason: "request-failed" }
+
+type VerifySetupResult = SavedSetupResult | Extract<BasicResult, { ok: false }>
+
+type SaveSetupResult =
+  | { ok: true; setup: SupportSetupPayload }
+  | Extract<BasicResult, { ok: false }>
 
 export async function requestSetupCode(
   email: string,
@@ -52,8 +64,36 @@ export async function verifySetupCode(
   email: string,
   code: string,
   options: ClientOptions = {},
-): Promise<BasicResult> {
-  return postJson("/api/setup/verify-code", { email: email.trim(), code: code.trim() }, options)
+): Promise<VerifySetupResult> {
+  const fetchImpl = options.fetch ?? fetch
+
+  try {
+    const response = await fetchImpl("/api/setup/verify-code", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: email.trim(), code: code.trim() }),
+    })
+    const body = await readJson(response)
+
+    if (response.ok && isRecord(body) && body.ok === true) {
+      return {
+        ok: true,
+        setup: isSupportSetup(body.setup) ? body.setup : null,
+        signedIn: true,
+        signedInEmail:
+          typeof body.signedInEmail === "string" ? body.signedInEmail : email.trim(),
+      }
+    }
+
+    if (isRecord(body) && typeof body.reason === "string") {
+      return { ok: false, reason: mapReason(body.reason) }
+    }
+  } catch {
+    // Return below.
+  }
+
+  return { ok: false, reason: "request-failed" }
 }
 
 export async function getSavedSetup(
@@ -89,10 +129,32 @@ export async function getSavedSetup(
 }
 
 export async function saveSetup(
-  setup: SupportSetupPayload,
+  setup: SupportSetupSavePayload,
   options: ClientOptions = {},
-): Promise<BasicResult> {
-  return putJson("/api/setup/me", setup, options)
+): Promise<SaveSetupResult> {
+  const fetchImpl = options.fetch ?? fetch
+
+  try {
+    const response = await fetchImpl("/api/setup/me", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(setup),
+    })
+    const body = await readJson(response)
+
+    if (response.ok && isRecord(body) && body.ok === true && isSupportSetup(body.setup)) {
+      return { ok: true, setup: body.setup }
+    }
+
+    if (isRecord(body) && typeof body.reason === "string") {
+      return { ok: false, reason: mapReason(body.reason) }
+    }
+  } catch {
+    // Return below.
+  }
+
+  return { ok: false, reason: "request-failed" }
 }
 
 export async function signOutSetup(
@@ -166,6 +228,8 @@ function mapReason(reason: string): Extract<BasicResult, { ok: false }>["reason"
     case "email-send-failed":
     case "not-signed-in":
     case "rate-limited":
+    case "trusted-contact-consent-required":
+    case "trusted-contact-encryption-unavailable":
       return reason
     default:
       return "request-failed"
@@ -183,7 +247,7 @@ function isSupportSetup(value: unknown): value is SupportSetupPayload {
     typeof value.relationship === "string" &&
     typeof value.trustedEmail === "string" &&
     typeof value.trustedPhone === "string" &&
-    typeof value.code === "string"
+    typeof value.trustedContactNeedsUpdate === "boolean"
   )
 }
 
